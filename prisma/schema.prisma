@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// generator zod {
+//   provider       = "zod-prisma-types"
+// }
+
+
+
+model User {
+  id          String          @id @default(dbgenerated("concat('usr_', gen_random_uuid())")) @db.VarChar(40)
+  username    String          @unique
+  password    String
+  email       String          @unique
+  role        Role            @default(ADMIN)
+  calonPenerima CalonPenerima[]
+}
+
+model CalonPenerima {
+  id              String            @id @default(dbgenerated("concat('cln_', gen_random_uuid())")) @db.VarChar(40)
+  userId          String
+  nama_lengkap    String
+  alamat String
+  tanggal_lahir   String
+  rt_rw           String
+  kelurahan_desa  String
+  kecamatan       String
+  perguruan_Tinggi String
+  fakultas_prodi  String
+
+  user             User               @relation(fields: [userId], references: [id])
+  penilaian        Penilaian[]
+  hasilPerhitungan HasilPerhitungan[]
+}
+
+model Kriteria {
+  id              String          @id @default(dbgenerated("concat('krt_', gen_random_uuid())")) @db.VarChar(40)
+  nama_kriteria   String
+  bobot_kriteria  Float
+  tipe_kriteria   TipeKriteria
+  keterangan      String?
+
+  subKriteria     SubKriteria[]
+  Penilaian       Penilaian[]
+}
+
+model SubKriteria {
+  id                String        @id @default(dbgenerated("concat('skr_', gen_random_uuid())")) @db.VarChar(40)
+  kriteriaId        String
+  nama_sub_kriteria String
+  bobot_sub_kriteria Float
+
+  kriteria    Kriteria     @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  Penilaian   Penilaian[]
+}
+
+model Penilaian {
+  id               String         @id @default(dbgenerated("concat('pnl_', gen_random_uuid())")) @db.VarChar(40)
+  calonPenerimaId  String
+  sub_kriteriaId   String
+  kriteriaId       String
+  periodeId        String
+
+  calonPenerima  CalonPenerima  @relation(fields: [calonPenerimaId], references: [id], onDelete: Cascade)
+  periode        Periode        @relation(fields: [periodeId], references: [id], onDelete: Cascade)
+  subKriteria    SubKriteria    @relation(fields: [sub_kriteriaId], references: [id], onDelete: Cascade)
+  kriteria       Kriteria       @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+}
+
+model HasilPerhitungan {
+  id              String          @id @default(dbgenerated("concat('hsl_', gen_random_uuid())")) @db.VarChar(40)
+  calonPenerimaId String
+  nilai_akhir     Decimal         @db.Decimal(10, 4)
+  periodeId       String
+  status          String
+  rangking        Int
+
+  calonPenerima   CalonPenerima  @relation(fields: [calonPenerimaId], references: [id], onDelete: Cascade)
+  periode         Periode        @relation(fields: [periodeId], references: [id], onDelete: Cascade)
+}
+
+model Periode {
+  id              String            @id @default(dbgenerated("concat('prd_', gen_random_uuid())")) @db.VarChar(40)
+  nama_periode    String
+  tanggal_mulai   DateTime
+  tanggal_selesai DateTime
+
+  Penilaian        Penilaian[]
+  HasilPerhitungan HasilPerhitungan[]
+}
+
+enum Role {
+  ADMIN
+  KEPALA_BIDANG
+  CALON_PENERIMA
+}
+
+enum TipeKriteria {
+  Benefit
+  Cost
+}
