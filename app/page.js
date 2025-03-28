@@ -1,103 +1,252 @@
-import Image from "next/image";
+'use client'
+
+import React from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import {
+  ArrowRight,
+  GraduationCap,
+  Users,
+  Award,
+  BookOpen,
+} from 'lucide-react'
+import HeroSection from '@/components/Public/HeroSection'
+import FeatureCard from '@/components/ui/feature-card'
+import Footer from '@/components/Public/partials/Footer'
+import { motion } from 'framer-motion'
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen flex flex-col">
+      <HeroSection />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <main className="flex-1">
+        {/* About Section */}
+        <section className="py-12 md:py-16 lg:py-20 px-4 container mx-auto">
+          <motion.div
+            className="max-w-3xl mx-auto text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: '-100px' }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <motion.h2
+              className="text-3xl md:text-4xl font-bold mb-4 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              Program Beasiswa Pemerintah Daerah Kabupaten Rote Ndao
+            </motion.h2>
+            <motion.p
+              className="text-muted-foreground text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              Mendukung pendidikan dan pengembangan sumber daya manusia
+              berkualitas untuk membangun masa depan Kabupaten Rote Ndao yang
+              lebih baik.
+            </motion.p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            <FeatureCard
+              icon={<GraduationCap className="h-10 w-10" />}
+              title="Pendidikan Tinggi"
+              description="Beasiswa untuk jenjang S1, S2, dan S3 di perguruan tinggi terkemuka."
+              index={0}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <FeatureCard
+              icon={<Users className="h-10 w-10" />}
+              title="Inklusif"
+              description="Terbuka untuk seluruh putra-putri daerah Kabupaten Rote Ndao."
+              index={1}
+            />
+            <FeatureCard
+              icon={<Award className="h-10 w-10" />}
+              title="Prestasi"
+              description="Mendukung siswa dan mahasiswa berprestasi akademik dan non-akademik."
+              index={2}
+            />
+            <FeatureCard
+              icon={<BookOpen className="h-10 w-10" />}
+              title="Pembinaan"
+              description="Program pendampingan dan pengembangan untuk penerima beasiswa."
+              index={3}
+            />
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-12 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-y border-primary/10">
+          <motion.div
+            className="container mx-auto px-4 text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true, margin: '-100px' }}
           >
-            Read our docs
-          </a>
-        </div>
+            <motion.h2
+              className="text-2xl md:text-3xl font-bold mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              Siap untuk Mendaftar?
+            </motion.h2>
+            <motion.p
+              className="text-muted-foreground max-w-2xl mx-auto mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              Daftarkan diri Anda sekarang untuk mendapatkan kesempatan beasiswa
+              pendidikan dari Pemerintah Daerah Kabupaten Rote Ndao.
+            </motion.p>
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              <Button
+                asChild
+                size="lg"
+                className="shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <Link href="/auth/register" className="group">
+                  Daftar Sekarang
+                  <motion.span
+                    className="inline-block ml-2"
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 5 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 10,
+                    }}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </motion.span>
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-2 hover:bg-primary/5"
+              >
+                <Link href="/auth/login">Masuk ke Akun</Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Timeline Section */}
+        <section className="py-12 md:py-16 container mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: '-100px' }}
+          >
+            Jadwal Pendaftaran
+          </motion.h2>
+          <div className="max-w-3xl mx-auto">
+            <div className="space-y-8">
+              <TimelineItem
+                title="Pembukaan Pendaftaran"
+                date="1 Januari 2025"
+                description="Pendaftaran dibuka untuk semua jenjang pendidikan."
+                index={0}
+              />
+              <TimelineItem
+                title="Batas Akhir Pendaftaran"
+                date="28 Februari 2025"
+                description="Pastikan melengkapi semua dokumen yang diperlukan."
+                index={1}
+              />
+              <TimelineItem
+                title="Seleksi Administrasi"
+                date="1-15 Maret 2025"
+                description="Verifikasi dokumen dan kelengkapan persyaratan."
+                index={2}
+              />
+              <TimelineItem
+                title="Pengumuman Penerima"
+                date="1 April 2025"
+                description="Pengumuman resmi penerima beasiswa melalui website dan email."
+                index={3}
+                isLast={true}
+              />
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
     </div>
-  );
+  )
+}
+
+function TimelineItem({ title, date, description, index, isLast = false }) {
+  return (
+    <motion.div
+      className={`relative pl-8 ${
+        isLast ? '' : 'pb-8 border-l border-primary/30'
+      }`}
+      initial={{ opacity: 0, x: -20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      viewport={{ once: true, margin: '-50px' }}
+    >
+      <motion.div
+        className="absolute w-4 h-4 bg-primary rounded-full -left-2"
+        initial={{ scale: 0 }}
+        whileInView={{ scale: 1 }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 10,
+          delay: 0.1 + index * 0.1,
+        }}
+        viewport={{ once: true, margin: '-50px' }}
+        whileHover={{ scale: 1.2 }}
+      />
+      <motion.h3
+        className="text-xl font-bold"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
+        {title}
+      </motion.h3>
+      <motion.p
+        className="text-primary font-medium"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
+        {date}
+      </motion.p>
+      <motion.p
+        className="mt-2"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+        viewport={{ once: true, margin: '-50px' }}
+      >
+        {description}
+      </motion.p>
+    </motion.div>
+  )
 }
