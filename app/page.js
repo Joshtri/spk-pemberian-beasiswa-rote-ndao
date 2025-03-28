@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import HeroSection from '@/components/Public/HeroSection'
 import FeatureCard from '@/components/ui/feature-card'
-import Footer from '@/components/Public/partials/Footer'
+import Footer from '@/components/Public/Partials/Footer'
 import { motion } from 'framer-motion'
 
 export default function Home() {
