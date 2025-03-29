@@ -6,7 +6,8 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
-
+import MainImage from '@/public/randomImg.jpeg'
+import LogoRoteNdao from '@/public/logo-rote-ndao.png'
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background border-b border-primary/10">
@@ -42,6 +43,23 @@ export default function HeroSection() {
               Program Beasiswa 2025
             </motion.div>
 
+            {/* ⬇️ Tambahkan logo di sini */}
+            <motion.div
+              className="flex justify-center lg:justify-start"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Image
+                src={LogoRoteNdao}
+                alt="Logo Kabupaten Rote Ndao"
+                width={80}
+                height={80}
+                className="mt-2"
+              />
+            </motion.div>
+            {/* ⬆️ Logo ditampilkan di antara label dan heading */}
+
             <motion.h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
               initial={{ opacity: 0, y: 20 }}
@@ -57,7 +75,8 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Wujudkan impian pendidikan Anda dengan dukungan beasiswa dari Pemerintah Daerah Kabupaten Rote Ndao.
+              Wujudkan impian pendidikan Anda dengan dukungan beasiswa dari Pemerintah Daerah
+              Kabupaten Rote Ndao.
             </motion.p>
 
             <motion.div
@@ -79,12 +98,7 @@ export default function HeroSection() {
                   </motion.span>
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-2 hover:bg-primary/5"
-              >
+              <Button asChild variant="outline" size="lg" className="border-2 hover:bg-primary/5">
                 <Link href="/about">Pelajari Lebih Lanjut</Link>
               </Button>
             </motion.div>
@@ -104,7 +118,7 @@ export default function HeroSection() {
                 transition={{ duration: 1.5, ease: 'easeOut' }}
               >
                 <Image
-                  src="/placeholder.svg?height=500&width=500"
+                  src={MainImage}
                   alt="Beasiswa Rote Ndao"
                   fill
                   className="object-cover rounded-lg shadow-xl"
