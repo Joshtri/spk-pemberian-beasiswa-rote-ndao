@@ -1,11 +1,13 @@
 'use client'
-
-import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { toast } from 'sonner'
+import api from '@/lib/axios'
+import { ArrowLeft } from 'lucide-react'
 
 import {
   Form,
@@ -25,16 +27,26 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 // Zod schema
 const registerSchema = z
   .object({
-    username: z.string().min(3, { message: 'Username minimal 3 karakter' }),
+    username: z
+      .string()
+      .min(3, { message: 'Username minimal 3 karakter' })
+      .max(20, { message: 'Username maksimal 20 karakter' })
+      .regex(/^[a-zA-Z0-9_]+$/, {
+        message: 'Username hanya boleh mengandung huruf, angka, dan underscore',
+      }),
     email: z.string().email({ message: 'Email tidak valid' }),
-    password: z.string().min(8, { message: 'Password minimal 8 karakter' }),
-    confirmPassword: z.string().min(8, { message: 'Konfirmasi password minimal 8 karakter' }),
+    password: z
+      .string()
+      .min(8, { message: 'Password minimal 8 karakter' })
+      .regex(/[A-Z]/, { message: 'Harus mengandung minimal 1 huruf besar' })
+      .regex(/[0-9]/, { message: 'Harus mengandung minimal 1 angka' })
+      .regex(/[^A-Za-z0-9]/, { message: 'Harus mengandung minimal 1 karakter khusus' }),
+    confirmPassword: z.string(),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: 'Password dan konfirmasi password tidak cocok',
@@ -42,9 +54,26 @@ const registerSchema = z
   })
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const [isMobile, setIsMobile] = useState(true)
+
+  // Check if device is mobile on client side
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768) // 768px is typical md breakpoint
+    }
+
+    // Initial check
+    checkIfMobile()
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile)
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   const form = useForm({
     resolver: zodResolver(registerSchema),
@@ -58,39 +87,85 @@ export default function RegisterPage() {
 
   async function onSubmit(data) {
     setIsLoading(true)
-    setError(null)
 
-    try {
-      // Simulate API call
-      await new Promise(res => setTimeout(res, 1500))
-      console.log('Submitted:', {
-        ...data,
-        role: 'CALON_PENERIMA',
-      })
-      setSuccess(true)
-    } catch (err) {
-      setError('Gagal mendaftar. Silakan coba lagi nanti.')
-    } finally {
-      setIsLoading(false)
-    }
+    toast.promise(
+      api.post('/auth/register', {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      }),
+      {
+        loading: 'Sedang memproses pendaftaran...',
+        success: response => {
+          setSuccess(true)
+          return 'Pendaftaran berhasil! Silakan login'
+        },
+        error: err => {
+          let errorMessage = 'Gagal mendaftar. Silakan coba lagi nanti.'
+
+          if (err.response) {
+            // Handle specific error messages from API
+            if (err.response.status === 400) {
+              errorMessage = err.response.data.error || 'Data tidak valid'
+            } else if (err.response.status === 409) {
+              errorMessage = err.response.data.error || 'Username/email sudah terdaftar'
+            }
+          }
+
+          return errorMessage
+        },
+        finally: () => {
+          setIsLoading(false)
+        },
+      }
+    )
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4 relative">
+        {/* Back to Dashboard button - only visible on desktop */}
+        {!isMobile && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute top-4 left-4 hidden md:flex items-center gap-1"
+            onClick={() => router.push('/')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke Dashboard
+          </Button>
+        )}
+
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-2">
-              <CheckCircle2 className="h-16 w-16 text-green-500" />
+              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-green-500 h-8 w-8"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <path d="m9 11 3 3L22 4" />
+                </svg>
+              </div>
             </div>
             <CardTitle className="text-2xl font-bold text-center">Pendaftaran Berhasil!</CardTitle>
             <CardDescription className="text-center">
-              Akun Anda telah berhasil dibuat. Silakan periksa email Anda untuk verifikasi.
+              Akun Anda telah berhasil dibuat. Silakan login menggunakan akun Anda.
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex justify-center">
             <Button asChild>
-              <Link href="/login">Masuk ke Akun</Link>
+              <Link href="/auth/login">Masuk ke Akun</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -99,7 +174,20 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4 relative">
+      {/* Back to Dashboard button - only visible on desktop */}
+      {!isMobile && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="absolute top-4 left-4 hidden md:flex items-center gap-1"
+          onClick={() => router.push('/')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Kembali ke Dashboard
+        </Button>
+      )}
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-2">
@@ -114,13 +202,6 @@ export default function RegisterPage() {
         </CardHeader>
 
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -130,7 +211,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Username" {...field} />
+                      <Input placeholder="Username" {...field} autoComplete="username" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -143,7 +224,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="email@example.com" {...field} />
+                      <Input placeholder="email@example.com" {...field} autoComplete="email" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +237,12 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="********"
+                        {...field}
+                        autoComplete="new-password"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -169,7 +255,12 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Konfirmasi Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="********"
+                        {...field}
+                        autoComplete="new-password"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,7 +283,7 @@ export default function RegisterPage() {
         <CardFooter>
           <div className="text-center text-sm w-full">
             Sudah punya akun?{' '}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/auth/login" className="text-primary hover:underline">
               Masuk
             </Link>
           </div>
