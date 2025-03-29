@@ -25,8 +25,8 @@ export const PeriodeController = {
     return NextResponse.json(updated);
   },
 
-  // async delete(id) {
-  //   await PeriodeService.delete(id);
-  //   return NextResponse.json(null, { status: 204 });
-  // },
+  async delete(id) {
+    await PeriodeService.delete(id);
+    return NextResponse.json(null, { status: 204 });
+  },
 };
