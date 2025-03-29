@@ -1,4 +1,4 @@
-import { UserService } from "@/services";
+import { UserService } from "@/services/userService";
 import { NextResponse } from "next/server";
 
 export const UserController = {
@@ -25,8 +25,8 @@ export const UserController = {
     return NextResponse.json(user);
   },
 
-  // async delete(id) {
-  //   await UserService.delete(id);
-  //   return NextResponse.json(null, { status: 204 });
-  // },
+  async delete(id) {
+    await UserService.delete(id);
+    return NextResponse.json(null, { status: 204 });
+  },
 };
