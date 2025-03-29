@@ -3,17 +3,12 @@
 import React from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import {
-  ArrowRight,
-  GraduationCap,
-  Users,
-  Award,
-  BookOpen,
-} from 'lucide-react'
+import { ArrowRight, GraduationCap, Users, Award, BookOpen } from 'lucide-react'
 import HeroSection from '@/components/Public/HeroSection'
 import FeatureCard from '@/components/ui/feature-card'
 import Footer from '@/components/Public/Partials/Footer'
 import { motion } from 'framer-motion'
+import JadwalTimeline from '@/components/Public/JadwalTimeline'
 
 export default function Home() {
   return (
@@ -46,9 +41,8 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true, margin: '-100px' }}
             >
-              Mendukung pendidikan dan pengembangan sumber daya manusia
-              berkualitas untuk membangun masa depan Kabupaten Rote Ndao yang
-              lebih baik.
+              Mendukung pendidikan dan pengembangan sumber daya manusia berkualitas untuk membangun
+              masa depan Kabupaten Rote Ndao yang lebih baik.
             </motion.p>
           </motion.div>
 
@@ -105,8 +99,8 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true, margin: '-100px' }}
             >
-              Daftarkan diri Anda sekarang untuk mendapatkan kesempatan beasiswa
-              pendidikan dari Pemerintah Daerah Kabupaten Rote Ndao.
+              Daftarkan diri Anda sekarang untuk mendapatkan kesempatan beasiswa pendidikan dari
+              Pemerintah Daerah Kabupaten Rote Ndao.
             </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -115,11 +109,7 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true, margin: '-100px' }}
             >
-              <Button
-                asChild
-                size="lg"
-                className="shadow-lg hover:shadow-xl transition-shadow"
-              >
+              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
                 <Link href="/auth/register" className="group">
                   Daftar Sekarang
                   <motion.span
@@ -136,18 +126,14 @@ export default function Home() {
                   </motion.span>
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-2 hover:bg-primary/5"
-              >
+              <Button asChild variant="outline" size="lg" className="border-2 hover:bg-primary/5">
                 <Link href="/auth/login">Masuk ke Akun</Link>
               </Button>
             </motion.div>
           </motion.div>
         </section>
 
+        {/* Timeline Section */}
         {/* Timeline Section */}
         <section className="py-12 md:py-16 container mx-auto px-4">
           <motion.h2
@@ -159,94 +145,11 @@ export default function Home() {
           >
             Jadwal Pendaftaran
           </motion.h2>
-          <div className="max-w-3xl mx-auto">
-            <div className="space-y-8">
-              <TimelineItem
-                title="Pembukaan Pendaftaran"
-                date="1 Januari 2025"
-                description="Pendaftaran dibuka untuk semua jenjang pendidikan."
-                index={0}
-              />
-              <TimelineItem
-                title="Batas Akhir Pendaftaran"
-                date="28 Februari 2025"
-                description="Pastikan melengkapi semua dokumen yang diperlukan."
-                index={1}
-              />
-              <TimelineItem
-                title="Seleksi Administrasi"
-                date="1-15 Maret 2025"
-                description="Verifikasi dokumen dan kelengkapan persyaratan."
-                index={2}
-              />
-              <TimelineItem
-                title="Pengumuman Penerima"
-                date="1 April 2025"
-                description="Pengumuman resmi penerima beasiswa melalui website dan email."
-                index={3}
-                isLast={true}
-              />
-            </div>
-          </div>
+          <JadwalTimeline /> {/* Gunakan komponen baru di sini */}
         </section>
       </main>
 
       <Footer />
     </div>
-  )
-}
-
-function TimelineItem({ title, date, description, index, isLast = false }) {
-  return (
-    <motion.div
-      className={`relative pl-8 ${
-        isLast ? '' : 'pb-8 border-l border-primary/30'
-      }`}
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true, margin: '-50px' }}
-    >
-      <motion.div
-        className="absolute w-4 h-4 bg-primary rounded-full -left-2"
-        initial={{ scale: 0 }}
-        whileInView={{ scale: 1 }}
-        transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 10,
-          delay: 0.1 + index * 0.1,
-        }}
-        viewport={{ once: true, margin: '-50px' }}
-        whileHover={{ scale: 1.2 }}
-      />
-      <motion.h3
-        className="text-xl font-bold"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-        viewport={{ once: true, margin: '-50px' }}
-      >
-        {title}
-      </motion.h3>
-      <motion.p
-        className="text-primary font-medium"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
-        viewport={{ once: true, margin: '-50px' }}
-      >
-        {date}
-      </motion.p>
-      <motion.p
-        className="mt-2"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
-        viewport={{ once: true, margin: '-50px' }}
-      >
-        {description}
-      </motion.p>
-    </motion.div>
   )
 }
