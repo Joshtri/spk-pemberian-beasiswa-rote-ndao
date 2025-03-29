@@ -25,8 +25,8 @@ export const SubKriteriaController = {
     return NextResponse.json(updated);
   },
 
-  // async delete(id) {
-  //   await SubKriteriaService.delete(id);
-  //   return NextResponse.json(null, { status: 204 });
-  // },
+  async delete(id) {
+    await SubKriteriaService.delete(id);
+    return NextResponse.json(null, { status: 204 });
+  },
 };
