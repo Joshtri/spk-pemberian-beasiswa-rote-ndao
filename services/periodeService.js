@@ -8,4 +8,5 @@ export const PeriodeService = {
   create: (payload) => PeriodeRepository.create(payload),
 
   update: (id, payload) => PeriodeRepository.update(id, payload),
+  delete: (id, payload) => PeriodeRepository.delete(id),
 };

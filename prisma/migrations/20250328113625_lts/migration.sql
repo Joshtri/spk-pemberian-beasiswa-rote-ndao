@@ -2,7 +2,7 @@
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'KEPALA_BIDANG', 'CALON_PENERIMA');
 
 -- CreateEnum
-CREATE TYPE "TipeKriteria" AS ENUM ('Benefit', 'Cost');
+CREATE TYPE "TipeKriteria" AS ENUM ('BENEFIT', 'COST');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -11,6 +11,8 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'ADMIN',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -27,6 +29,8 @@ CREATE TABLE "CalonPenerima" (
     "kecamatan" TEXT NOT NULL,
     "perguruan_Tinggi" TEXT NOT NULL,
     "fakultas_prodi" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "CalonPenerima_pkey" PRIMARY KEY ("id")
 );
@@ -38,6 +42,8 @@ CREATE TABLE "Kriteria" (
     "bobot_kriteria" DOUBLE PRECISION NOT NULL,
     "tipe_kriteria" "TipeKriteria" NOT NULL,
     "keterangan" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Kriteria_pkey" PRIMARY KEY ("id")
 );
@@ -48,6 +54,8 @@ CREATE TABLE "SubKriteria" (
     "kriteriaId" TEXT NOT NULL,
     "nama_sub_kriteria" TEXT NOT NULL,
     "bobot_sub_kriteria" DOUBLE PRECISION NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "SubKriteria_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +67,8 @@ CREATE TABLE "Penilaian" (
     "sub_kriteriaId" TEXT NOT NULL,
     "kriteriaId" TEXT NOT NULL,
     "periodeId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Penilaian_pkey" PRIMARY KEY ("id")
 );
@@ -71,6 +81,8 @@ CREATE TABLE "HasilPerhitungan" (
     "periodeId" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "rangking" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "HasilPerhitungan_pkey" PRIMARY KEY ("id")
 );
@@ -81,6 +93,8 @@ CREATE TABLE "Periode" (
     "nama_periode" TEXT NOT NULL,
     "tanggal_mulai" TIMESTAMP(3) NOT NULL,
     "tanggal_selesai" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Periode_pkey" PRIMARY KEY ("id")
 );

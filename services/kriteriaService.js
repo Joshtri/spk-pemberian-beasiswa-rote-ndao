@@ -8,4 +8,6 @@ export const KriteriaService = {
   create: (payload) => KriteriaRepository.create(payload),
 
   update: (id, payload) => KriteriaRepository.update(id, payload),
+
+  delete: (id, payload) => KriteriaRepository.delete(id),
 };

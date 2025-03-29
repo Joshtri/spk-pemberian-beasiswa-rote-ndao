@@ -27,4 +27,6 @@ export const SubKriteriaService = {
     };
     return SubKriteriaRepository.update(id, data);
   },
+
+  delete: (id) => SubKriteriaRepository.delete(id),
 };
