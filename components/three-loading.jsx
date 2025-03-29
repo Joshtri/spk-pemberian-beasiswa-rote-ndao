@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
+import gsap from "gsap"
 import { motion } from "framer-motion"
 
 export default function ThreeLoading({ text = "Loading..." }) {
@@ -13,41 +14,38 @@ export default function ThreeLoading({ text = "Loading..." }) {
   const frameIdRef = useRef(null)
 
   useEffect(() => {
-    // Initialize Three.js scene
     const container = containerRef.current
     const width = container.clientWidth
     const height = container.clientHeight
 
-    // Create scene
+    // Scene
     const scene = new THREE.Scene()
     sceneRef.current = scene
-    scene.background = new THREE.Color(0xf5f5f5)
 
-    // Create camera
+    // Transparent background
+    scene.background = null
+
+    // Camera
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
-    cameraRef.current = camera
     camera.position.z = 20
+    cameraRef.current = camera
 
-    // Create renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    rendererRef.current = renderer
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     renderer.setSize(width, height)
+    renderer.setPixelRatio(window.devicePixelRatio)
     container.appendChild(renderer.domElement)
+    rendererRef.current = renderer
 
-    // Create ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-    scene.add(ambientLight)
-
-    // Create directional light
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
     directionalLight.position.set(5, 5, 5)
-    scene.add(directionalLight)
+    scene.add(ambientLight, directionalLight)
 
     // Create cubes
     const cubes = []
     const cubeGeometry = new THREE.BoxGeometry(2, 2, 2)
-
-    // Create 5 cubes with different colors
     const colors = [0x4f46e5, 0x3b82f6, 0x06b6d4, 0x10b981, 0x6366f1]
 
     for (let i = 0; i < 5; i++) {
@@ -62,35 +60,50 @@ export default function ThreeLoading({ text = "Loading..." }) {
       cube.position.y = 0
       scene.add(cube)
       cubes.push(cube)
+
+      // GSAP intro animation
+      gsap.fromTo(
+        cube.rotation,
+        { x: 0, y: 0 },
+        {
+          x: Math.PI * 2,
+          y: Math.PI * 2,
+          duration: 2,
+          delay: i * 0.1,
+          ease: "power2.inOut",
+          repeat: -1,
+          yoyo: true,
+        }
+      )
     }
 
     cubesRef.current = cubes
 
-    // Animation function
+    // Animation loop
     const animate = () => {
       const time = Date.now() * 0.001
 
+      // Update cube position in wave
       cubes.forEach((cube, i) => {
-        cube.rotation.x = Math.sin(time * 0.5 + i * 0.5) * 0.5
-        cube.rotation.y = Math.sin(time * 0.3 + i * 0.5) * 0.5
         cube.position.y = Math.sin(time * 2 + i * 0.5) * 1.5
       })
+
+      // Subtle camera motion
+      camera.position.z = 20 + Math.sin(time * 0.5) * 0.5
+      camera.rotation.y = Math.sin(time * 0.2) * 0.01
 
       renderer.render(scene, camera)
       frameIdRef.current = requestAnimationFrame(animate)
     }
 
-    // Start animation
     animate()
 
-    // Handle window resize
+    // Resize handling
     const handleResize = () => {
       const width = container.clientWidth
       const height = container.clientHeight
-
       camera.aspect = width / height
       camera.updateProjectionMatrix()
-
       renderer.setSize(width, height)
     }
 
@@ -99,40 +112,37 @@ export default function ThreeLoading({ text = "Loading..." }) {
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize)
-
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current)
-      }
-
-      if (rendererRef.current && rendererRef.current.domElement) {
+      if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current)
+      if (rendererRef.current?.domElement) {
         container.removeChild(rendererRef.current.domElement)
       }
-
-      // Dispose geometries and materials
       cubeGeometry.dispose()
-      cubes.forEach((cube) => {
-        if (cube.material) cube.material.dispose()
-      })
+      cubes.forEach((cube) => cube.material.dispose())
     }
   }, [])
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div ref={containerRef} className="w-64 h-64"></div>
+      <div ref={containerRef} className="w-64 h-64 relative" />
       <motion.p
-        className="mt-4 text-lg font-medium text-gray-700"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        className="mt-6 text-xl font-semibold text-indigo-700 tracking-wide"
+        animate={{
+          y: [0, -4, 0],
+          opacity: [1, 0.8, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
       >
         {text}
       </motion.p>
     </motion.div>
   )
 }
-
