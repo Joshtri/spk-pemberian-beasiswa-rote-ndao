@@ -25,8 +25,8 @@ export const KriteriaController = {
     return NextResponse.json(kriteria);
   },
 
-  // async delete(id) {
-  //   await KriteriaService.delete(id);
-  //   return NextResponse.json(null, { status: 204 });
-  // },
+  async delete(id) {
+    await KriteriaService.delete(id);
+    return NextResponse.json(null, { status: 204 });
+  },
 };
