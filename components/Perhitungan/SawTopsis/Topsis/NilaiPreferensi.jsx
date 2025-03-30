@@ -1,43 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { motion } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import axios from "@/lib/axios"
+import { useState, useEffect } from "react"
 
-export default function NilaiPreferensi({ finalScores = [] }) {
-  const [periode, setPeriode] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [selectedPeriode, setSelectedPeriode] = useState("")
+export default function NilaiPreferensi({ finalScores = [], selectedPeriod, selectedPeriodName }) {
   const [existingData, setExistingData] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
-    fetchPeriode()
-  }, [])
-
-  useEffect(() => {
-    if (selectedPeriode) {
-      checkExistingData(selectedPeriode)
+    if (selectedPeriod) {
+      checkExistingData(selectedPeriod)
     }
-  }, [selectedPeriode])
-
-  const fetchPeriode = async () => {
-    setLoading(true)
-    try {
-      const res = await axios.get("/periode")
-      setPeriode(res.data)
-    } catch (err) {
-      console.error("Gagal fetch periode:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [selectedPeriod])
 
   const checkExistingData = async (periodeId) => {
     try {
@@ -51,8 +31,8 @@ export default function NilaiPreferensi({ finalScores = [] }) {
 
   const saveResults = async () => {
     if (isSaving) return
-    if (!selectedPeriode || isNaN(selectedPeriode)) {
-      toast.error("❌ Pilih periode terlebih dahulu!")
+    if (!selectedPeriod) {
+      toast.error("❌ Periode tidak tersedia.")
       return
     }
 
@@ -63,14 +43,13 @@ export default function NilaiPreferensi({ finalScores = [] }) {
 
     try {
       setIsSaving(true)
-      const periodeIdInt = Number.parseInt(selectedPeriode, 10)
 
       const formattedResults = finalScores.map((alt, index) => ({
-        alternatifId: alt.alternatifId,
+        calonPenerimaId: alt.alternatifId,
         rangking: index + 1,
         nilai_akhir: Number.parseFloat(alt.preference),
-        status: index + 1 <= 10 ? "Layak" : "Tidak Layak",
-        periodeId: periodeIdInt,
+        status: index + 1 <= 10 ? "LOLOS" : "TIDAK LOLOS",
+        periodeId: selectedPeriod,
       }))
 
       await axios.post("/hasil-perhitungan", {
@@ -78,15 +57,10 @@ export default function NilaiPreferensi({ finalScores = [] }) {
       })
 
       toast.success("✅ Hasil perhitungan berhasil disimpan!")
-      checkExistingData(selectedPeriode)
+      checkExistingData(selectedPeriod)
     } catch (error) {
       console.error("❌ Error saving results:", error)
-
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(` ${error.response.data.error}`)
-      } else {
-        toast.error("❌ Gagal menyimpan hasil perhitungan.")
-      }
+      toast.error("❌ Gagal menyimpan hasil perhitungan.")
     } finally {
       setIsSaving(false)
     }
@@ -94,7 +68,7 @@ export default function NilaiPreferensi({ finalScores = [] }) {
 
   const deleteResults = async () => {
     try {
-      await axios.delete(`/hasil-perhitungan/${selectedPeriode}`)
+      await axios.delete(`/hasil-perhitungan/${selectedPeriod}`)
       toast.success("Hasil perhitungan berhasil dihapus.")
       setExistingData(false)
     } catch (error) {
@@ -115,49 +89,32 @@ export default function NilaiPreferensi({ finalScores = [] }) {
           <CardTitle className="text-lg font-semibold text-gray-700">Nilai Preferensi & Urutan Alternatif</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : periode.length === 0 ? (
-            <p className="text-red-500">❌ Tidak ada data periode tersedia.</p>
-          ) : (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
-              <Select value={selectedPeriode} onValueChange={setSelectedPeriode}>
-                <SelectTrigger className="w-full sm:w-[250px]">
-                  <SelectValue placeholder="Pilih Periode" />
-                </SelectTrigger>
-                <SelectContent>
-                  {periode.map((p) => (
-                    <SelectItem key={p.id_periode} value={p.id_periode.toString()}>
-                      {p.nama_periode}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Simpan hasil perhitungan untuk periode: <span className="font-semibold">{selectedPeriodName}</span>
+          </p>
 
-              {existingData ? (
-                <Button onClick={deleteResults} variant="destructive" className="w-full sm:w-auto">
-                  Hapus Hasil Perhitungan
-                </Button>
-              ) : (
-                <Button
-                  onClick={saveResults}
-                  disabled={!selectedPeriode || isSaving}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Menyimpan...
-                    </>
-                  ) : (
-                    "Simpan Hasil Perhitungan"
-                  )}
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
+            {existingData ? (
+              <Button onClick={deleteResults} variant="destructive" className="w-full sm:w-auto">
+                Hapus Hasil Perhitungan
+              </Button>
+            ) : (
+              <Button
+                onClick={saveResults}
+                disabled={!selectedPeriod || isSaving}
+                className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  "Simpan Hasil Perhitungan"
+                )}
+              </Button>
+            )}
+          </div>
 
           {finalScores.length === 0 ? (
             <p className="text-red-500 py-4">❌ Tidak ada hasil perhitungan tersedia.</p>
@@ -188,4 +145,3 @@ export default function NilaiPreferensi({ finalScores = [] }) {
     </motion.div>
   )
 }
-
