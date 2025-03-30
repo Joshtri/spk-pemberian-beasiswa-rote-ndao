@@ -68,7 +68,7 @@ export default function CreatePenilaianPage() {
         // If user already has assessments, redirect to view page
         if (existingPenilaian && existingPenilaian.length > 0) {
           toast.info('Anda sudah memiliki data penilaian. Redirecting ke halaman detail...')
-          router.push('/kandidat/penilaian')
+          router.push('/kandidat/formulir-beasiswa')
           return
         }
 
