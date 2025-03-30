@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Bell,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -119,6 +120,12 @@ export default function SidebarAdmin() {
           title: "Penilaian Alternatif",
           icon: <ClipboardList className="h-5 w-5" />,
           path: "/admin/penilaian-alternatif",
+        },
+
+        {
+          title: "Notifikasi",
+          icon: <Bell className="h-5 w-5" />, // Import Bell dari lucide-react (sudah di atas)
+          path: "/admin/notifikasi",
         },
       ],
     },
