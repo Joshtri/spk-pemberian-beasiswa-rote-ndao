@@ -63,7 +63,7 @@ export async function GET(request) {
     let pengumuman = []
     let applicationStatus = 'pending'
 
-    if (hasilPerhitunganTerbaru) {
+    if (hasilPerhitunganTerbaru?.ditampilkanKeUser === true) {
       applicationStatus = hasilPerhitunganTerbaru.status.toLowerCase()
       pengumuman = [
         {
@@ -116,13 +116,14 @@ export async function GET(request) {
               hasPenilaian: hasActivePenilaian,
             }
           : null,
-        hasilPerhitungan: hasilPerhitunganTerbaru
-          ? {
-              rangking: hasilPerhitunganTerbaru.rangking,
-              nilaiAkhir: hasilPerhitunganTerbaru.nilai_akhir,
-              status: hasilPerhitunganTerbaru.status,
-            }
-          : null,
+        hasilPerhitungan:
+          hasilPerhitunganTerbaru?.ditampilkanKeUser === true
+            ? {
+                rangking: hasilPerhitunganTerbaru.rangking,
+                nilaiAkhir: hasilPerhitunganTerbaru.nilai_akhir,
+                status: hasilPerhitunganTerbaru.status,
+              }
+            : null,
       },
     })
   } catch (error) {
