@@ -3,7 +3,7 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import SidebarAdmin from "./partials/Sidebar"
 import HeaderAdmin from "./partials/Header"
-// import AdminLayoutGuard from "./AdminLayoutGuard"
+import AdminLayoutGuard from "./AdminLayoutGuard"
 import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,7 +23,7 @@ export default function RootAdminLayout({ children }) {
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          {/* <AdminLayoutGuard> */}
+          <AdminLayoutGuard>
             <div className="min-h-screen bg-gray-50 flex flex-col">
               <SidebarAdmin />
               <div className="flex flex-col min-h-screen lg:ml-[80px] xl:ml-[256px] transition-all duration-300">
@@ -34,7 +34,7 @@ export default function RootAdminLayout({ children }) {
                 </main>
               </div>
             </div>
-          {/* </AdminLayoutGuard> */}
+          </AdminLayoutGuard>
         </ThemeProvider>
       </body>
     </html>

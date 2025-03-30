@@ -5,6 +5,7 @@ import axios from '@/lib/axios'
 import StatCard from '@/components/ui/stat-card'
 import { motion } from 'framer-motion'
 import { Calendar, FileText, User, Users } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const getGreeting = () => {
   const hour = new Date().getHours()
@@ -16,12 +17,8 @@ const getGreeting = () => {
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null)
-  const [stats, setStats] = useState({
-    totalAlternatif: 0,
-    totalPeriode: 0,
-    totalKriteria: 0,
-    alternatifTerdaftar: 0,
-  })
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +31,8 @@ export default function DashboardPage() {
         setStats(statsRes.data.data)
       } catch (error) {
         console.error('Gagal mengambil data dashboard:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -44,7 +43,7 @@ export default function DashboardPage() {
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: 'Total Alternatif',
-      value: stats.totalAlternatif.toString(),
+      value: stats?.totalAlternatif?.toString() || '-',
       buttonText: 'Lihat Semua',
       buttonHref: '/admin/alternatif',
       delay: 0,
@@ -52,7 +51,7 @@ export default function DashboardPage() {
     {
       icon: <Calendar className="h-8 w-8 text-primary" />,
       title: 'Total Periode',
-      value: stats.totalPeriode.toString(),
+      value: stats?.totalPeriode?.toString() || '-',
       buttonText: 'Lihat Semua',
       buttonHref: '/admin/periode',
       delay: 0.1,
@@ -60,7 +59,7 @@ export default function DashboardPage() {
     {
       icon: <FileText className="h-8 w-8 text-primary" />,
       title: 'Total Kriteria',
-      value: stats.totalKriteria.toString(),
+      value: stats?.totalKriteria?.toString() || '-',
       buttonText: 'Lihat Semua',
       buttonHref: '/admin/kriteria',
       delay: 0.2,
@@ -68,7 +67,7 @@ export default function DashboardPage() {
     {
       icon: <User className="h-8 w-8 text-primary" />,
       title: 'Alternatif Terdaftar',
-      value: stats.alternatifTerdaftar.toString(),
+      value: stats?.alternatifTerdaftar?.toString() || '-',
       buttonText: 'Detail',
       buttonHref: '/admin/alternatif',
       delay: 0.3,
@@ -83,23 +82,36 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl font-bold">
-          {getGreeting()}, {user?.email || 'Admin'}!
-        </h1>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-sm font-medium bg-primary/10 text-primary px-2 py-0.5 rounded">
-            {user?.role?.toUpperCase() || 'ADMIN'}
-          </span>
-          <p className="text-muted-foreground">
-            Semoga harimu menyenangkan dan produktif ✌️
-          </p>
-        </div>
+        {loading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold">
+              {getGreeting()}, {user?.email || 'Admin'}!
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm font-medium bg-primary/10 text-primary px-2 py-0.5 rounded">
+                {user?.role?.toUpperCase() || 'ADMIN'}
+              </span>
+              <p className="text-muted-foreground">
+                Semoga harimu menyenangkan dan produktif ✌️
+              </p>
+            </div>
+          </>
+        )}
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statItems.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
+        {loading
+          ? [...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-36 w-full rounded-xl" />
+            ))
+          : statItems.map((stat, index) => (
+              <StatCard key={index} {...stat} />
+            ))}
       </div>
     </div>
   )
