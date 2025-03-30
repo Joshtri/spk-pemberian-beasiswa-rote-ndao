@@ -119,14 +119,14 @@ export default function EditPenilaianPage() {
           // Redirect if deadline has passed
           if (deadlinePassed) {
             toast.error('Batas waktu edit penilaian telah berakhir')
-            router.push('/kandidat/penilaian')
+            router.push('/kandidat/formulir-beasiswa')
             return
           }
 
           // Redirect if not same period
           if (!isSamePeriod) {
             toast.error('Anda tidak dapat mengedit penilaian dari periode sebelumnya')
-            router.push('/kandidat/penilaian')
+            router.push('/kandidat/formulir-beasiswa')
             return
           }
         }
