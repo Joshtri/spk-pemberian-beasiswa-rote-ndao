@@ -23,7 +23,7 @@ export default function NormalisasiTerbobot({ weightedMatrix, kriteria }) {
                 <TableRow>
                   <TableHead className="font-semibold">Alternatif</TableHead>
                   {kriteria.map((krit, index) => (
-                    <TableHead key={krit.id_kriteria} className="font-semibold">
+                    <TableHead key={krit.id} className="font-semibold">
                       C{index + 1}
                     </TableHead>
                   ))}
@@ -31,11 +31,11 @@ export default function NormalisasiTerbobot({ weightedMatrix, kriteria }) {
               </TableHeader>
               <TableBody>
                 {Object.values(weightedMatrix).map((alt) => (
-                  <TableRow key={alt.nama_alternatif} className="even:bg-muted/50">
+                  <TableRow key={alt.alternatifId} className="even:bg-muted/50">
                     <TableCell className="font-medium">{alt.nama_alternatif}</TableCell>
                     {kriteria.map((krit) => (
-                      <TableCell key={krit.id_kriteria}>
-                        {alt.penilaian?.[krit.id_kriteria]?.toFixed(4) || "-"}
+                      <TableCell key={krit.id}>
+                        {alt.penilaian?.[krit.id]?.toFixed(4) ?? "-"}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -48,4 +48,3 @@ export default function NormalisasiTerbobot({ weightedMatrix, kriteria }) {
     </motion.div>
   )
 }
-
