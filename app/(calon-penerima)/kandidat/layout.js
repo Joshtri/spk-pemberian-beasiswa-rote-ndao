@@ -1,42 +1,57 @@
-import '../../globals.css'
-import React from 'react'
-import { Inter } from 'next/font/google'
-import { ThemeProvider } from '@/components/ThemeProvider'
-import SidebarCalonPenerima from './partials/Sidebar'
-import HeaderCalonPenerima from './partials/Header'
+"use client"
 
-const inter = Inter({ subsets: ['latin'] })
+import { useState, useEffect } from "react"
+import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/components/ThemeProvider"
+import SidebarCalonPenerima from "./partials/Sidebar"
+import HeaderCalonPenerima from "./partials/Header"
+import { Toaster } from "sonner"
+import "../../globals.css"
 
-export const metadata = {
-  title: 'Beasiswa Pemerintah Daerah Kabupaten Rote Ndao',
-  description: 'Program beasiswa untuk putra-putri daerah Kabupaten Rote Ndao',
-  manifest: '/manifest.json',
-  themeColor: '#4f46e5',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-}
+const inter = Inter({ subsets: ["latin"] })
 
 export default function RootCalonPenerima({ children }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const [isLargeScreen, setIsLargeScreen] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const largeScreen = window.innerWidth >= 1024
+      setIsLargeScreen(largeScreen)
+
+      if (largeScreen && !isSidebarOpen) {
+        setIsSidebarOpen(true)
+      }
+    }
+
+    handleResize()
+    setIsMounted(true)
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [isSidebarOpen])
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev)
+  }
+
+  if (!isMounted) return null
+
   return (
-    <html lang="id" suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-      </head>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+      <div className={`min-h-screen bg-gray-50 flex flex-col ${inter.className}`}>
+        <SidebarCalonPenerima isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isSidebarOpen && isLargeScreen ? "lg:ml-64" : ""
+          }`}
         >
-          <div className="min-h-screen bg-gray-50">
-            <SidebarCalonPenerima />
-            <div className="ml-64">
-              <HeaderCalonPenerima />
-              <main className="p-6">{children}</main>
-            </div>
-          </div>
-        </ThemeProvider>
-      </body>
-    </html>
+          <HeaderCalonPenerima toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+          <main className="p-4 sm:p-6">{children}</main>
+        </div>
+        <Toaster position="top-right" richColors />
+      </div>
+    </ThemeProvider>
   )
 }
