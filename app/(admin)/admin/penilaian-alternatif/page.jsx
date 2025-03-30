@@ -1,23 +1,37 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { FileText, Download, Eye } from "lucide-react"
-import ThreeLoading from "@/components/three-loading"
-import api from "@/lib/axios"
-import { toast } from "sonner"
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { FileText, Download, Eye } from 'lucide-react'
+import ThreeLoading from '@/components/three-loading'
+import api from '@/lib/axios'
+import { toast } from 'sonner'
+import { Switch } from '@/components/ui/switch'
 
 export default function PenilaianPage() {
   const [penilaianData, setPenilaianData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [periodes, setPeriodes] = useState([])
-  const [selectedPeriode, setSelectedPeriode] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedPeriode, setSelectedPeriode] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [pagination, setPagination] = useState({
@@ -39,10 +53,10 @@ export default function PenilaianPage() {
 
   const fetchPeriodes = async () => {
     try {
-      const res = await api.get("/periode")
+      const res = await api.get('/periode')
       setPeriodes(res.data)
     } catch (err) {
-      console.error("Gagal fetch periode:", err)
+      console.error('Gagal fetch periode:', err)
     }
   }
 
@@ -50,11 +64,11 @@ export default function PenilaianPage() {
     setIsLoading(true)
     try {
       const params = new URLSearchParams()
-      params.append("page", page.toString())
-      params.append("limit", limit.toString())
+      params.append('page', page.toString())
+      params.append('limit', limit.toString())
 
       if (selectedPeriode) {
-        params.append("periodeId", selectedPeriode)
+        params.append('periodeId', selectedPeriode)
       }
 
       const res = await api.get(`/penilaian/admin/list?${params.toString()}`)
@@ -67,20 +81,20 @@ export default function PenilaianPage() {
         processDataForTable(res.data.data)
       }
     } catch (err) {
-      console.error("Gagal fetch penilaian:", err)
-      toast.error("Gagal memuat data", {
-        description: "Terjadi kesalahan saat mengambil data penilaian.",
+      console.error('Gagal fetch penilaian:', err)
+      toast.error('Gagal memuat data', {
+        description: 'Terjadi kesalahan saat mengambil data penilaian.',
       })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const processDataForTable = (data) => {
+  const processDataForTable = data => {
     // Extract all unique kriteria for columns
-    const allKriteria = [...new Set(data.map((item) => item.kriteria.nama_kriteria))]
-      .map((nama) => {
-        const kriteria = data.find((item) => item.kriteria.nama_kriteria === nama).kriteria
+    const allKriteria = [...new Set(data.map(item => item.kriteria.nama_kriteria))]
+      .map(nama => {
+        const kriteria = data.find(item => item.kriteria.nama_kriteria === nama).kriteria
         return {
           id: kriteria.id,
           nama: nama,
@@ -95,7 +109,7 @@ export default function PenilaianPage() {
     // Group by calon penerima
     const grouped = {}
 
-    data.forEach((item) => {
+    data.forEach(item => {
       const calonId = item.calonPenerimaId
 
       if (!grouped[calonId]) {
@@ -104,6 +118,7 @@ export default function PenilaianPage() {
           periode: item.periode,
           penilaian: {},
           dokumen: [],
+          verifikasiStatus: item.verifikasiStatus,
         }
       }
 
@@ -118,8 +133,8 @@ export default function PenilaianPage() {
 
       // Add dokumen if any
       if (item.dokumen && item.dokumen.length > 0) {
-        item.dokumen.forEach((doc) => {
-          if (!grouped[calonId].dokumen.some((d) => d.id === doc.id)) {
+        item.dokumen.forEach(doc => {
+          if (!grouped[calonId].dokumen.some(d => d.id === doc.id)) {
             grouped[calonId].dokumen.push(doc)
           }
         })
@@ -131,32 +146,37 @@ export default function PenilaianPage() {
     setGroupedData(groupedArray)
   }
 
-  const handlePeriodeChange = (value) => {
+  const handlePeriodeChange = value => {
     setSelectedPeriode(value)
     setPage(1) // Reset to first page
   }
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     setSearchTerm(e.target.value)
     // Implement search logic here
   }
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     setPage(newPage)
   }
 
-  const filteredData = groupedData.filter((item) =>
-    item.calonPenerima.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredData = groupedData.filter(item =>
+    item.calonPenerima.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const renderDokumenBadge = (dokumen) => {
+  const renderDokumenBadge = dokumen => {
     if (!dokumen || dokumen.length === 0) return null
 
     return (
       <div className="flex flex-wrap gap-1 mt-1">
-        {dokumen.map((doc) => (
+        {dokumen.map(doc => (
           <Badge key={doc.id} variant="outline" className="text-xs">
-            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            <a
+              href={doc.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1"
+            >
               <FileText className="h-3 w-3" />
               {doc.tipe_dokumen}
             </a>
@@ -164,6 +184,25 @@ export default function PenilaianPage() {
         ))}
       </div>
     )
+  }
+
+  const handleToggleStatus = async (calonPenerimaId, currentStatus) => {
+    const newStatus = currentStatus === 'DITERIMA' ? 'DITOLAK' : 'DITERIMA'
+
+    try {
+      await api.patch('/penilaian/admin/verifikasi-status', {
+        calonPenerimaId,
+        verifikasiStatus: newStatus,
+      })
+
+      toast.success('Status verifikasi diperbarui')
+
+      // Refresh data
+      fetchPenilaian()
+    } catch (error) {
+      console.error('❌ Gagal mengubah status verifikasi:', error)
+      toast.error('Gagal mengubah status verifikasi')
+    }
   }
 
   return (
@@ -187,7 +226,7 @@ export default function PenilaianPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Semua Periode</SelectItem>
-                      {periodes.map((periode) => (
+                      {periodes.map(periode => (
                         <SelectItem key={periode.id} value={periode.id}>
                           {periode.nama_periode}
                         </SelectItem>
@@ -221,13 +260,13 @@ export default function PenilaianPage() {
                     <TableRow>
                       <TableHead className="w-[50px] text-center">No</TableHead>
                       <TableHead className="min-w-[200px]">Nama Calon</TableHead>
-                      {kriteriaColumns.map((kriteria) => (
+                      {kriteriaColumns.map(kriteria => (
                         <TableHead key={kriteria.id} className="min-w-[150px]">
                           <div className="flex flex-col">
                             <span>{kriteria.nama}</span>
                             <span className="text-xs text-muted-foreground">
                               Bobot: {kriteria.bobot}
-                              {kriteria.tipe === "BENEFIT" ? (
+                              {kriteria.tipe === 'BENEFIT' ? (
                                 <Badge variant="default" className="ml-1 text-[10px]">
                                   Benefit
                                 </Badge>
@@ -240,6 +279,7 @@ export default function PenilaianPage() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="w-[50px] text-center">verifikasiStatus</TableHead>
                       <TableHead className="w-[100px] text-right">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -248,18 +288,26 @@ export default function PenilaianPage() {
                     {filteredData.length > 0 ? (
                       filteredData.map((item, index) => (
                         <TableRow key={item.calonPenerima.id}>
-                          <TableCell className="text-center font-medium">{(page - 1) * limit + index + 1}</TableCell>
+                          <TableCell className="text-center font-medium">
+                            {(page - 1) * limit + index + 1}
+                          </TableCell>
                           <TableCell>
                             <div className="font-medium">{item.calonPenerima.nama_lengkap}</div>
-                            <div className="text-sm text-muted-foreground">{item.calonPenerima.perguruan_Tinggi}</div>
-                            <div className="text-xs text-muted-foreground">{item.calonPenerima.fakultas_prodi}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {item.calonPenerima.perguruan_Tinggi}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {item.calonPenerima.fakultas_prodi}
+                            </div>
                           </TableCell>
 
-                          {kriteriaColumns.map((kriteria) => (
+                          {kriteriaColumns.map(kriteria => (
                             <TableCell key={kriteria.id}>
                               {item.penilaian[kriteria.nama] ? (
                                 <>
-                                  <div className="font-medium">{item.penilaian[kriteria.nama].subKriteria}</div>
+                                  <div className="font-medium">
+                                    {item.penilaian[kriteria.nama].subKriteria}
+                                  </div>
                                   <div className="text-xs text-muted-foreground">
                                     Bobot: {item.penilaian[kriteria.nama].bobot}
                                   </div>
@@ -275,6 +323,32 @@ export default function PenilaianPage() {
                             </TableCell>
                           ))}
 
+                          <TableCell className="text-center capitalize">
+                            {/* <Badge
+                              variant={
+                                item.verifikasiStatus === 'DITERIMA'
+                                  ? 'default'
+                                  : item.verifikasiStatus === 'DITOLAK'
+                                    ? 'destructive'
+                                    : 'secondary'
+                              }
+                              className="text-xs px-2 py-0.5"
+                            >
+                              {item.verifikasiStatus}
+                            </Badge> */}
+
+                            <div className="flex flex-col items-center gap-1">
+                              <Switch
+                                checked={item.verifikasiStatus === 'DITERIMA'}
+                                onCheckedChange={() =>
+                                  handleToggleStatus(item.calonPenerima.id, item.verifikasiStatus)
+                                }
+                              />
+                              <span className="text-xs text-muted-foreground capitalize">
+                                {item.verifikasiStatus}
+                              </span>
+                            </div>
+                          </TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="icon" className="h-8 w-8">
                               <Eye className="h-4 w-4" />
@@ -284,7 +358,10 @@ export default function PenilaianPage() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={kriteriaColumns.length + 3} className="text-center py-8">
+                        <TableCell
+                          colSpan={kriteriaColumns.length + 3}
+                          className="text-center py-8"
+                        >
                           Tidak ada data penilaian
                         </TableCell>
                       </TableRow>
@@ -298,17 +375,22 @@ export default function PenilaianPage() {
             {pagination.totalPages > 1 && (
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Menampilkan {(page - 1) * limit + 1} - {Math.min(page * limit, pagination.total)} dari{" "}
-                  {pagination.total} data
+                  Menampilkan {(page - 1) * limit + 1} - {Math.min(page * limit, pagination.total)}{' '}
+                  dari {pagination.total} data
                 </div>
 
                 <div className="flex gap-1">
-                  <Button variant="outline" size="sm" onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
                     Sebelumnya
                   </Button>
 
                   {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                    .filter((p) => Math.abs(p - page) < 2 || p === 1 || p === pagination.totalPages)
+                    .filter(p => Math.abs(p - page) < 2 || p === 1 || p === pagination.totalPages)
                     .map((p, i, arr) => {
                       // Add ellipsis
                       if (i > 0 && p > arr[i - 1] + 1) {
@@ -322,7 +404,7 @@ export default function PenilaianPage() {
                       return (
                         <Button
                           key={p}
-                          variant={p === page ? "default" : "outline"}
+                          variant={p === page ? 'default' : 'outline'}
                           size="sm"
                           onClick={() => handlePageChange(p)}
                         >
@@ -348,4 +430,3 @@ export default function PenilaianPage() {
     </>
   )
 }
-
