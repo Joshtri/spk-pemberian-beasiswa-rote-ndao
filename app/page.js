@@ -9,6 +9,7 @@ import FeatureCard from '@/components/ui/feature-card'
 import Footer from '@/components/Public/Partials/Footer'
 import { motion } from 'framer-motion'
 import JadwalTimeline from '@/components/Public/JadwalTimeline'
+import AppDownloadSection from '@/components/Public/AppDownloadSection'
 
 export default function Home() {
   return (
@@ -74,6 +75,8 @@ export default function Home() {
           </div>
         </section>
 
+        {/* App Download Section */}
+        <AppDownloadSection />
         {/* CTA Section */}
         <section className="py-12 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-y border-primary/10">
           <motion.div
