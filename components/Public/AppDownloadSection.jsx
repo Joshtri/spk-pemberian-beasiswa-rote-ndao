@@ -20,7 +20,7 @@ export default function AppDownloadSection() {
     "Pengingat jadwal penting",
   ]
 
-  const downloadUrl = "/downloads/beasiswa-rote-ndao.apk" // Update with your actual download URL
+  const downloadUrl = "/SPK-Penentuan-Beasiswa-Kab-Rote-Ndao_1_1.0.apk" // Update with your actual download URL
 
   return (
     <section className="py-16 bg-gradient-to-b from-white to-primary/5 border-t border-primary/10">
