@@ -99,7 +99,7 @@ export default function HeroSection() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-2 hover:bg-primary/5">
-                <Link href="/about">Pelajari Lebih Lanjut</Link>
+                <Link href="#">Pelajari Lebih Lanjut</Link>
               </Button>
             </motion.div>
           </motion.div>
