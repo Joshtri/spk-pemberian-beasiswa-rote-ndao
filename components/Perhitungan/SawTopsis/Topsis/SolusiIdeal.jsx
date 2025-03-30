@@ -51,13 +51,13 @@ export default function SolusiIdeal({ idealSolutions, kriteria }) {
               </TableHeader>
               <TableBody>
                 {kriteria.map(krit => (
-                  <TableRow key={krit.id_kriteria} className="even:bg-muted/50">
+                  <TableRow key={krit.id} className="even:bg-muted/50">
                     <TableCell className="font-medium">{krit.nama_kriteria}</TableCell>
                     <TableCell>
-                      {idealSolutions?.idealPositif?.[krit.id_kriteria]?.toFixed(4) || '0.0000'}
+                      {idealSolutions?.idealPositif?.[krit.id]?.toFixed(4) ?? '0.0000'}
                     </TableCell>
                     <TableCell>
-                      {idealSolutions?.idealNegatif?.[krit.id_kriteria]?.toFixed(4) || '0.0000'}
+                      {idealSolutions?.idealNegatif?.[krit.id]?.toFixed(4) ?? '0.0000'}
                     </TableCell>
                   </TableRow>
                 ))}
