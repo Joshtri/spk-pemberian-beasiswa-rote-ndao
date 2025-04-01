@@ -7,6 +7,7 @@ import SidebarCalonPenerima from "./partials/Sidebar"
 import HeaderCalonPenerima from "./partials/Header"
 import { Toaster } from "sonner"
 import "../../globals.css"
+import CalonPenerimaLayoutGuard from "./CalonPenerimaLayoutGuard"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -40,6 +41,8 @@ export default function RootCalonPenerima({ children }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+      <CalonPenerimaLayoutGuard>
+
       <div className={`min-h-screen bg-gray-50 flex flex-col ${inter.className}`}>
         <SidebarCalonPenerima isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         <div
@@ -52,6 +55,7 @@ export default function RootCalonPenerima({ children }) {
         </div>
         <Toaster position="top-right" richColors />
       </div>
+      </CalonPenerimaLayoutGuard>
     </ThemeProvider>
   )
 }
