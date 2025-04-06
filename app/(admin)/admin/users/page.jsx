@@ -8,31 +8,34 @@ import DataTable from '@/components/ui/data-table'
 import ModalForm from '@/components/ui/modal-form'
 import FormField from '@/components/ui/form-field'
 import ThreeLoading from '@/components/three-loading'
+import { Eye, EyeOff } from 'lucide-react'  // Import icons
 
 export default function UsersPage() {
   const [userData, setUserData] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // React Hook Form initialization
   const {
     register,
     handleSubmit,
     reset,
     setValue,
     control,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
       username: '',
       email: '',
       password: '',
+      confirmPassword: '',
       role: 'ADMIN',
     },
   })
 
-  // Fetch users on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true)
@@ -80,6 +83,7 @@ export default function UsersPage() {
       username: '',
       email: '',
       password: '',
+      confirmPassword: '',
       role: 'ADMIN',
     })
     setEditingId(null)
@@ -115,12 +119,22 @@ export default function UsersPage() {
   const onSubmit = async data => {
     setIsLoading(true)
 
+    // Jika password diisi, pastikan konfirmasi sudah sama
+    if (data.password && data.password !== data.confirmPassword) {
+      console.error('Password tidak cocok')
+      setIsLoading(false)
+      return
+    }
+
     try {
       const url = editingId ? `/api/users/${editingId}` : '/api/users'
       const method = editingId ? 'PUT' : 'POST'
 
       // Jika edit dan password kosong, hapus field password
-      const payload = editingId && !data.password ? { ...data, password: undefined } : data
+      const payload =
+        editingId && !data.password
+          ? { ...data, password: undefined, confirmPassword: undefined }
+          : { ...data, confirmPassword: undefined }
 
       const response = await fetch(url, {
         method,
@@ -215,19 +229,48 @@ export default function UsersPage() {
           placeholder="Masukkan email"
         />
 
-        <FormField
-          label={editingId ? 'Password (kosongkan jika tidak diubah)' : 'Password'}
-          type="password"
-          {...register('password', {
-            required: editingId ? false : 'Password wajib diisi',
-            minLength: {
-              value: 6,
-              message: 'Password minimal 6 karakter',
-            },
-          })}
-          error={errors.password}
-          placeholder="Masukkan password"
-        />
+        <div className="relative">
+          <FormField
+            label={editingId ? 'Password (kosongkan jika tidak diubah)' : 'Password'}
+            type={showPassword ? 'text' : 'password'}
+            {...register('password', {
+              required: editingId ? false : 'Password wajib diisi',
+              minLength: {
+                value: 6,
+                message: 'Password minimal 6 karakter',
+              },
+            })}
+            error={errors.password}
+            placeholder="Masukkan password"
+          />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-2 flex items-center"
+            onClick={() => setShowPassword(prev => !prev)}
+          >
+            {showPassword ? <EyeOff /> : <Eye />}
+          </button>
+        </div>
+
+        <div className="relative mt-4">
+          <FormField
+            label="Confirm Password"
+            type={showConfirmPassword ? 'text' : 'password'}
+            {...register('confirmPassword', {
+              validate: value =>
+                !watch('password') || value === watch('password') || 'Password tidak cocok',
+            })}
+            error={errors.confirmPassword}
+            placeholder="Konfirmasi password"
+          />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-2 flex items-center"
+            onClick={() => setShowConfirmPassword(prev => !prev)}
+          >
+            {showConfirmPassword ? <EyeOff /> : <Eye />}
+          </button>
+        </div>
 
         <FormField
           label="Role"
@@ -235,7 +278,6 @@ export default function UsersPage() {
           {...register('role', { required: 'Role wajib dipilih' })}
           error={errors.role}
           control={control}
-
           options={[
             { value: 'ADMIN', label: 'Admin' },
             { value: 'KEPALA_BIDANG', label: 'Kepala Bidang' },

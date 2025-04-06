@@ -133,7 +133,7 @@ export default function RegisterPage() {
             onClick={() => router.push('/')}
           >
             <ArrowLeft className="h-4 w-4" />
-            Kembali ke Dashboard
+            Kembali ke Beranda
           </Button>
         )}
 
@@ -184,7 +184,7 @@ export default function RegisterPage() {
           onClick={() => router.push('/')}
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali ke Dashboard
+          Kembali ke Beranda
         </Button>
       )}
 

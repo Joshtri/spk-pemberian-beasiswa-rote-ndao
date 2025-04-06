@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react' // import icon tambahan
 
 import {
   Form,
@@ -27,7 +27,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
 
 // Schema
 const loginSchema = z.object({
@@ -39,6 +38,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isMobile, setIsMobile] = useState(true)
+  const [showPassword, setShowPassword] = useState(false) // state untuk toggle password
 
   // Check if device is mobile on client side
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function LoginPage() {
           onClick={() => router.push('/')}
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali ke Dashboard
+          Kembali ke Beranda
         </Button>
       )}
 
@@ -160,12 +160,22 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                        autoComplete="current-password"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="********"
+                          {...field}
+                          autoComplete="current-password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
