@@ -10,11 +10,13 @@ import Footer from '@/components/Public/Partials/Footer'
 import { motion } from 'framer-motion'
 import JadwalTimeline from '@/components/Public/JadwalTimeline'
 import AppDownloadSection from '@/components/Public/AppDownloadSection'
+import InstallPromptDialog from '@/components/InstallPromptDialog'
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <HeroSection />
+      <InstallPromptDialog/>
 
       <main className="flex-1">
         {/* About Section */}

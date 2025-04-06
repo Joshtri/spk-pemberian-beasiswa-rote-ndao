@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import MainImage from '@/public/randomImg.jpeg'
 import LogoRoteNdao from '@/public/logo-rote-ndao.png'
+
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background border-b border-primary/10">
