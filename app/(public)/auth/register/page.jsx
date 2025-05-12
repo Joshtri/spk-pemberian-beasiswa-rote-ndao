@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, Check, X } from 'lucide-react'
 
 import {
   Form,
@@ -53,11 +53,22 @@ const registerSchema = z
     path: ['confirmPassword'],
   })
 
+// Password requirement checklist
+const passwordRequirements = [
+  { id: 'length', label: 'Minimal 8 karakter', regex: /^.{8,}$/ },
+  { id: 'uppercase', label: 'Minimal 1 huruf besar', regex: /[A-Z]/ },
+  { id: 'number', label: 'Minimal 1 angka', regex: /[0-9]/ },
+  { id: 'special', label: 'Minimal 1 karakter khusus', regex: /[^A-Za-z0-9]/ },
+]
+
 export default function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [isMobile, setIsMobile] = useState(true)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordFocus, setPasswordFocus] = useState(false)
 
   // Check if device is mobile on client side
   useEffect(() => {
@@ -84,6 +95,16 @@ export default function RegisterPage() {
       confirmPassword: '',
     },
   })
+
+  const passwordValue = form.watch('password')
+
+  // Check password requirements
+  const checkPasswordRequirements = () => {
+    return passwordRequirements.map(req => ({
+      ...req,
+      valid: req.regex.test(passwordValue),
+    }))
+  }
 
   async function onSubmit(data) {
     setIsLoading(true)
@@ -237,13 +258,49 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                        autoComplete="new-password"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="********"
+                          {...field}
+                          autoComplete="new-password"
+                          onFocus={() => setPasswordFocus(true)}
+                          onBlur={() => setPasswordFocus(false)}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
+                    {passwordFocus && passwordValue && (
+                      <div className="mt-2 space-y-1 text-sm">
+                        <p className="text-muted-foreground">Password harus memenuhi:</p>
+                        <ul className="space-y-1">
+                          {checkPasswordRequirements().map(req => (
+                            <li key={req.id} className="flex items-center gap-2">
+                              {req.valid ? (
+                                <Check className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                              <span
+                                className={req.valid ? 'text-green-500' : 'text-muted-foreground'}
+                              >
+                                {req.label}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -255,13 +312,41 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Konfirmasi Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                        autoComplete="new-password"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder="********"
+                          {...field}
+                          autoComplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
+                    {field.value && passwordValue && (
+                      <div className="flex items-center gap-2 mt-1 text-sm">
+                        {field.value === passwordValue ? (
+                          <>
+                            <Check className="h-4 w-4 text-green-500" />
+                            <span className="text-green-500">Password cocok</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="h-4 w-4 text-red-500" />
+                            <span className="text-red-500">Password tidak cocok</span>
+                          </>
+                        )}
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

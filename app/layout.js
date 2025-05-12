@@ -2,6 +2,7 @@ import './globals.css'
 import React from 'react'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,6 +29,8 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster position="top-right" richColors />
+
           {children}
         </ThemeProvider>
       </body>
