@@ -157,8 +157,7 @@ export default function CalonPenerimaPage() {
 
   return (
     <>
-      {isLoading}
-
+ 
       <DataTable
         title="Calon Penerima Beasiswa"
         description="Daftar calon penerima beasiswa"
@@ -168,6 +167,7 @@ export default function CalonPenerimaPage() {
         addButtonText="Tambah Calon Penerima"
         addButtonAction={handleAddCalonPenerima}
         renderActions={renderActions}
+        isLoading={isLoading}
       />
 
       <ModalForm
