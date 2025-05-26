@@ -165,8 +165,7 @@ export default function SubKriteriaPage() {
 
   return (
     <>
-      {isLoading}
-
+ 
       <DataTable
         title="Sub Kriteria"
         description="Kelola sub kriteria untuk penilaian rumah layak huni"
@@ -177,6 +176,7 @@ export default function SubKriteriaPage() {
         addButtonText="Tambah Sub Kriteria"
         addButtonAction={handleAddSubKriteria}
         renderActions={renderActions}
+        isLoading={isLoading}
       />
 
       <ModalForm

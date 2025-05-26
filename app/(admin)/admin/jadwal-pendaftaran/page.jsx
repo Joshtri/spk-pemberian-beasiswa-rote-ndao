@@ -173,8 +173,7 @@ export default function JadwalPendaftaranPage() {
 
   return (
     <>
-      {isLoading}
-
+ 
       <DataTable
         title="Jadwal Pendaftaran"
         description="Kelola jadwal pendaftaran tiap periode"
@@ -185,6 +184,7 @@ export default function JadwalPendaftaranPage() {
         addButtonText="Tambah Jadwal"
         addButtonAction={handleAddJadwal}
         renderActions={renderActions}
+        isLoading={isLoading}
       />
 
       <ModalForm

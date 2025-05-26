@@ -108,8 +108,6 @@ export default function PenilaianPage() {
 
   return (
     <>
-      {isLoading}
-
       <div className="space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

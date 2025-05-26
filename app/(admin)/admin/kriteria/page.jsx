@@ -198,8 +198,7 @@ export default function KriteriaPage() {
 
   return (
     <>
-      {isLoading}
-      <DataTable
+       <DataTable
         title="Kriteria"
         description="Kelola kriteria untuk penilaian rumah layak huni"
         data={kriteriaData}
@@ -209,6 +208,7 @@ export default function KriteriaPage() {
         addButtonText="Tambah Kriteria"
         addButtonAction={handleAddKriteria}
         renderActions={renderActions}
+        isLoading={isLoading}
       />
 
       <ModalForm

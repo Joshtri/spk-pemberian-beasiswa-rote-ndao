@@ -188,8 +188,7 @@ export default function UsersPage() {
 
   return (
     <>
-      {isLoading}
-
+ 
       <DataTable
         title="Users Management"
         description="Kelola pengguna sistem SPK Penentuan Rumah Layak Huni"

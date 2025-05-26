@@ -227,8 +227,7 @@ export default function PeriodePage() {
 
   return (
     <>
-      {isLoading}
-
+ 
       <DataTable
         title="Periode"
         description="Kelola periode penilaian rumah layak huni"
@@ -239,6 +238,7 @@ export default function PeriodePage() {
         addButtonText="Tambah Periode"
         addButtonAction={handleAddPeriode}
         renderActions={renderActions}
+        isLoading={isLoading}
       />
 
       <ModalForm
