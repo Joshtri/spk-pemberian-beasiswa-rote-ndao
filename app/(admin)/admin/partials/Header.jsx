@@ -133,8 +133,7 @@ export default function HeaderAdmin({ title }) {
               <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={goToProfile}>Profil</DropdownMenuItem>
-              {/* <DropdownMenuItem>Pengaturan</DropdownMenuItem> */}
-              <DropdownMenuSeparator />
+               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                 Keluar
               </DropdownMenuItem>
