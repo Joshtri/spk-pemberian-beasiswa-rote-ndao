@@ -207,7 +207,7 @@ export default function PenilaianPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memuat data penilaian..." />}
+      {isLoading}
 
       <div className="space-y-4">
         <Card>

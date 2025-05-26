@@ -173,7 +173,7 @@ export default function JadwalPendaftaranPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
 
       <DataTable
         title="Jadwal Pendaftaran"

@@ -108,7 +108,7 @@ export default function PenilaianPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Menyimpan data penilaian..." />}
+      {isLoading}
 
       <div className="space-y-6">
         <motion.div

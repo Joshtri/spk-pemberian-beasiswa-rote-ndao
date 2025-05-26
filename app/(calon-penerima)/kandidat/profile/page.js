@@ -133,13 +133,13 @@ export default function CalonPenerimaProfile() {
     }
   }
 
-  if (isLoading) {
-    return <ThreeLoading text="Memuat data..." />
-  }
+  // if (isLoading) {
+  //   return <ThreeLoading text="Memuat data..." />
+  // }
 
   return (
     <>
-      {isSaving && <ThreeLoading text="Menyimpan data..." />}
+      {isSaving}
 
       <div className="space-y-6">
         <motion.div

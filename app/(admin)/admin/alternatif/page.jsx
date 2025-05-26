@@ -157,7 +157,7 @@ export default function CalonPenerimaPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
 
       <DataTable
         title="Calon Penerima Beasiswa"

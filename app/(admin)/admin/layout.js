@@ -22,7 +22,7 @@ export default function RootAdminLayout({ children }) {
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
           <AdminLayoutGuard>
             <div className="min-h-screen bg-gray-50 flex flex-col">
               <SidebarAdmin />
@@ -35,7 +35,7 @@ export default function RootAdminLayout({ children }) {
               </div>
             </div>
           </AdminLayoutGuard>
-        </ThemeProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   )

@@ -188,7 +188,7 @@ export default function UsersPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
 
       <DataTable
         title="Users Management"

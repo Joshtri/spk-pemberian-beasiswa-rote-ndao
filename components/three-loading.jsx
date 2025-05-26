@@ -5,7 +5,7 @@ import * as THREE from "three"
 import gsap from "gsap"
 import { motion } from "framer-motion"
 
-export default function ThreeLoading({ text = "...." }) {
+export default function ThreeLoading({ text }) {
   const containerRef = useRef(null)
   const rendererRef = useRef(null)
   const sceneRef = useRef(null)

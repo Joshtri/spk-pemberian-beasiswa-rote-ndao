@@ -40,7 +40,7 @@ export default function RootCalonPenerima({ children }) {
   if (!isMounted) return null
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    // <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <CalonPenerimaLayoutGuard>
 
       <div className={`min-h-screen bg-gray-50 flex flex-col ${inter.className}`}>
@@ -56,6 +56,6 @@ export default function RootCalonPenerima({ children }) {
         <Toaster position="top-right" richColors />
       </div>
       </CalonPenerimaLayoutGuard>
-    </ThemeProvider>
+    // </ThemeProvider>
   )
 }

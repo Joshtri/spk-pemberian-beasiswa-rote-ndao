@@ -29,7 +29,7 @@ export default function AdminProfilePage() {
     fetchProfile()
   }, [])
 
-  if (loading) return <ThreeLoading text="Memuat profil..." />
+  // if (loading) return <ThreeLoading text="Memuat profil..." />
 
   return (
     <motion.div

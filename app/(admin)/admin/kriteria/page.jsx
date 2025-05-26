@@ -198,7 +198,7 @@ export default function KriteriaPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
       <DataTable
         title="Kriteria"
         description="Kelola kriteria untuk penilaian rumah layak huni"

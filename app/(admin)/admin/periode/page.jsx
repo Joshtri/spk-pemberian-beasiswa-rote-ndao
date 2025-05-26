@@ -227,7 +227,7 @@ export default function PeriodePage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
 
       <DataTable
         title="Periode"

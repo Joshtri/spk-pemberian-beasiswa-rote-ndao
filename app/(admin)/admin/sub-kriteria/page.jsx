@@ -165,7 +165,7 @@ export default function SubKriteriaPage() {
 
   return (
     <>
-      {isLoading && <ThreeLoading text="Memproses data..." />}
+      {isLoading}
 
       <DataTable
         title="Sub Kriteria"

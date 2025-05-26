@@ -57,7 +57,7 @@ export default function RootKabidLayout({ children }) {
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
           <div className="min-h-screen bg-gray-50 flex flex-col">
             <SidebarKabid />
 
@@ -73,7 +73,7 @@ export default function RootKabidLayout({ children }) {
 
             <Toaster position="top-right" richColors />
           </div>
-        </ThemeProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   )

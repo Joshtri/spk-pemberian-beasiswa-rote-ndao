@@ -1,12 +1,26 @@
-// import { defineConfig } from "eslint/config";
-// import globals from "globals";
-// import js from "@eslint/js";
-// import pluginReact from "eslint-plugin-react";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// export default defineConfig([
-//   { files: ["**/*.{js,mjs,cjs,jsx}"] },
-//   { files: ["**/*.{js,mjs,cjs,jsx}"], languageOptions: { globals: globals.browser } },
-//   { files: ["**/*.{js,mjs,cjs,jsx}"], plugins: { js }, extends: ["js/recommended"] },
-//   pluginReact.configs.flat.recommended,
-// ]);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // ⛔ nonaktifkan error 'any'
+    },
+  },
+
+  {
+    extends: ["next/core-web-vitals", "next/typescript"],
+  },
+];
+
+export default eslintConfig;
