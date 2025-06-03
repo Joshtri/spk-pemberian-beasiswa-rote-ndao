@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { User, Save, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -12,134 +10,131 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import FormField from '@/components/ui/form-field'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import ThreeLoading from '@/components/three-loading'
-import { toast } from 'sonner'
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { motion } from 'framer-motion'
+import { AlertCircle, Save, User } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import axios from '@/lib/axios'
 
 export default function CalonPenerimaProfile() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('personal')
-  const [formData, setFormData] = useState({
-    nama_lengkap: '',
-    alamat: '',
-    tanggal_lahir: '',
-    rt_rw: '',
-    kelurahan_desa: '',
-    kecamatan: '',
-    perguruan_tinggi: '',
-    fakultas_prodi: '',
-    username: '',
-    email: '',
-    // Additional fields that might not be in the database yet
-    kabupaten: '',
-    provinsi: '',
-    kode_pos: '',
-    no_telepon: '',
-    jenjang: '',
-    semester: '',
-    tahun_masuk: '',
-    nim: '',
-    ipk: '',
-    password: '',
-    password_confirmation: '',
+  const [userId, setUserId] = useState(null)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      nama_lengkap: '',
+      alamat: '',
+      tanggal_lahir: '',
+      rt_rw: '',
+      kelurahan_desa: '',
+      kecamatan: '',
+      perguruan_tinggi: '',
+      fakultas_prodi: '',
+      username: '',
+      email: '',
+      password: '',
+      password_confirmation: '',
+    },
   })
 
+  const password = watch('password')
+
   useEffect(() => {
-    const fetchProfile = async () => {
+    async function fetchProfile() {
       try {
         setIsLoading(true)
-        const res = await axios.get('/kandidat/profile', {
-          withCredentials: true, // kirim cookie auth_token
-        })
+        const res = await axios.get('/kandidat/profile', { withCredentials: true })
+        const data = res.data
+        setUserId(data.id)
 
-        setFormData(prev => ({
-          ...prev,
-          // Map database fields
-          nama_lengkap: res.data.nama_lengkap || '',
-          alamat: res.data.alamat || '',
-          tanggal_lahir: res.data.tanggal_lahir || '',
-          rt_rw: res.data.rt_rw || '',
-          kelurahan_desa: res.data.kelurahan_desa || '',
-          kecamatan: res.data.kecamatan || '',
-          perguruan_tinggi: res.data.perguruan_Tinggi || '', // Note the capital T in the API response
-          fakultas_prodi: res.data.fakultas_prodi || '',
-          username: res.data.username || '',
-          email: res.data.email || '',
-        }))
-      } catch (err) {
-        console.error('Gagal fetch profil:', err)
-        toast({
-        variant: 'destructive',
-          title: 'Gagal memuat data',
-          description: 'Terjadi kesalahan saat mengambil data profil Anda.',
+        reset({
+          nama_lengkap: data.nama_lengkap || '',
+          alamat: data.alamat || '',
+          tanggal_lahir: data.tanggal_lahir || '',
+          rt_rw: data.rt_rw || '',
+          kelurahan_desa: data.kelurahan_desa || '',
+          kecamatan: data.kecamatan || '',
+          perguruan_tinggi: data.perguruan_Tinggi || '',
+          fakultas_prodi: data.fakultas_prodi || '',
+          username: data.user?.username || '',
+          email: data.user?.email || '',
+          password: '',
+          password_confirmation: '',
         })
+      } catch (error) {
+        console.error('Gagal fetch profil:', error)
+        alert('Gagal memuat data profil Anda.')
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchProfile()
-  }, [toast])
+  }, [reset])
 
-  const handleInputChange = e => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  const onSubmit = async formData => {
+    if (formData.password && formData.password !== formData.password_confirmation) {
+      alert('Password dan konfirmasi password tidak sama!')
+      return
+    }
 
-  const handleSubmit = async e => {
-    e.preventDefault()
+    if (!userId) {
+      alert('User ID tidak ditemukan.')
+      return
+    }
+
     setIsSaving(true)
 
     try {
-      // Prepare data for update based on your API requirements
       const updateData = {
+        userId,
         nama_lengkap: formData.nama_lengkap,
         alamat: formData.alamat,
         tanggal_lahir: formData.tanggal_lahir,
         rt_rw: formData.rt_rw,
         kelurahan_desa: formData.kelurahan_desa,
         kecamatan: formData.kecamatan,
-        perguruan_Tinggi: formData.perguruan_tinggi, // Match the database field name
+        perguruan_Tinggi: formData.perguruan_tinggi,
         fakultas_prodi: formData.fakultas_prodi,
+        ...(formData.password ? { password: formData.password } : {}),
       }
 
-      // If password fields are filled, add them to the update data
-      if (formData.password && formData.password === formData.password_confirmation) {
-        updateData.password = formData.password
-      }
+      await axios.put('/kandidat/profile', updateData, { withCredentials: true })
 
-      await axios.put('/api/kandidat/profile', updateData, {
-        withCredentials: true,
-      })
-
-      toast({
-        title: 'Berhasil',
-        description: 'Data profil berhasil disimpan',
-      })
-    } catch (err) {
-      console.error('Gagal update profil:', err)
-      toast({
-        variant: 'destructive',
-        title: 'Gagal menyimpan data',
-        description: 'Terjadi kesalahan saat menyimpan data profil Anda.',
-      })
+      alert('Data profil berhasil disimpan')
+    } catch (error) {
+      console.error('Gagal update profil:', error)
+      alert('Gagal menyimpan data profil Anda.')
     } finally {
       setIsSaving(false)
     }
   }
 
-  // if (isLoading) {
-  //   return <ThreeLoading text="Memuat data..." />
-  // }
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p>Loading data profil...</p>
+      </div>
+    )
+  }
 
   return (
     <>
-      {isSaving}
+      {isSaving && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded shadow">Menyimpan data...</div>
+        </div>
+      )}
 
       <div className="space-y-6">
         <motion.div
@@ -188,7 +183,7 @@ export default function CalonPenerimaProfile() {
               </TabsTrigger>
             </TabsList>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <TabsContent value="personal">
                 <Card>
                   <CardHeader>
@@ -200,19 +195,17 @@ export default function CalonPenerimaProfile() {
                       <FormField
                         label="Nama Lengkap"
                         name="nama_lengkap"
-                        value={formData.nama_lengkap}
-                        onChange={handleInputChange}
+                        {...register('nama_lengkap', { required: 'Nama lengkap wajib diisi' })}
                         placeholder="Masukkan nama lengkap"
-                        required
+                        error={errors.nama_lengkap?.message}
                       />
 
                       <FormField
                         label="Tanggal Lahir"
                         type="date"
                         name="tanggal_lahir"
-                        value={formData.tanggal_lahir}
-                        onChange={handleInputChange}
-                        required
+                        {...register('tanggal_lahir', { required: 'Tanggal lahir wajib diisi' })}
+                        error={errors.tanggal_lahir?.message}
                       />
                     </div>
 
@@ -220,72 +213,36 @@ export default function CalonPenerimaProfile() {
                       label="Alamat"
                       type="textarea"
                       name="alamat"
-                      value={formData.alamat}
-                      onChange={handleInputChange}
+                      {...register('alamat', { required: 'Alamat wajib diisi' })}
                       placeholder="Masukkan alamat lengkap"
-                      required
+                      error={errors.alamat?.message}
                     />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         label="RT/RW"
                         name="rt_rw"
-                        value={formData.rt_rw}
-                        onChange={handleInputChange}
+                        {...register('rt_rw', { required: 'RT/RW wajib diisi' })}
                         placeholder="Contoh: 001/002"
-                        required
+                        error={errors.rt_rw?.message}
                       />
 
                       <FormField
                         label="Kelurahan/Desa"
                         name="kelurahan_desa"
-                        value={formData.kelurahan_desa}
-                        onChange={handleInputChange}
+                        {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib diisi' })}
                         placeholder="Masukkan kelurahan/desa"
-                        required
+                        error={errors.kelurahan_desa?.message}
                       />
 
                       <FormField
                         label="Kecamatan"
                         name="kecamatan"
-                        value={formData.kecamatan}
-                        onChange={handleInputChange}
+                        {...register('kecamatan', { required: 'Kecamatan wajib diisi' })}
                         placeholder="Masukkan kecamatan"
-                        required
-                      />
-
-                      <FormField
-                        label="Kabupaten"
-                        name="kabupaten"
-                        value={formData.kabupaten}
-                        onChange={handleInputChange}
-                        placeholder="Masukkan kabupaten"
-                      />
-
-                      <FormField
-                        label="Provinsi"
-                        name="provinsi"
-                        value={formData.provinsi}
-                        onChange={handleInputChange}
-                        placeholder="Masukkan provinsi"
-                      />
-
-                      <FormField
-                        label="Kode Pos"
-                        name="kode_pos"
-                        value={formData.kode_pos}
-                        onChange={handleInputChange}
-                        placeholder="Masukkan kode pos"
+                        error={errors.kecamatan?.message}
                       />
                     </div>
-
-                    <FormField
-                      label="Nomor Telepon"
-                      name="no_telepon"
-                      value={formData.no_telepon}
-                      onChange={handleInputChange}
-                      placeholder="Masukkan nomor telepon"
-                    />
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <Button
@@ -316,76 +273,19 @@ export default function CalonPenerimaProfile() {
                       <FormField
                         label="Perguruan Tinggi"
                         name="perguruan_tinggi"
-                        value={formData.perguruan_tinggi}
-                        onChange={handleInputChange}
+                        {...register('perguruan_tinggi', {
+                          required: 'Perguruan tinggi wajib diisi',
+                        })}
                         placeholder="Masukkan nama perguruan tinggi"
-                        required
+                        error={errors.perguruan_tinggi?.message}
                       />
 
                       <FormField
                         label="Fakultas/Program Studi"
                         name="fakultas_prodi"
-                        value={formData.fakultas_prodi}
-                        onChange={handleInputChange}
+                        {...register('fakultas_prodi', { required: 'Fakultas/Prodi wajib diisi' })}
                         placeholder="Masukkan fakultas/prodi"
-                        required
-                      />
-
-                      <FormField
-                        label="Jenjang"
-                        type="select"
-                        name="jenjang"
-                        value={formData.jenjang}
-                        onChange={handleInputChange}
-                        options={[
-                          { value: 'D3', label: 'D3' },
-                          { value: 'D4', label: 'D4' },
-                          { value: 'S1', label: 'S1' },
-                          { value: 'S2', label: 'S2' },
-                          { value: 'S3', label: 'S3' },
-                        ]}
-                      />
-
-                      <FormField
-                        label="Semester"
-                        type="select"
-                        name="semester"
-                        value={formData.semester}
-                        onChange={handleInputChange}
-                        options={[
-                          { value: '1', label: '1' },
-                          { value: '2', label: '2' },
-                          { value: '3', label: '3' },
-                          { value: '4', label: '4' },
-                          { value: '5', label: '5' },
-                          { value: '6', label: '6' },
-                          { value: '7', label: '7' },
-                          { value: '8', label: '8' },
-                        ]}
-                      />
-
-                      <FormField
-                        label="Tahun Masuk"
-                        name="tahun_masuk"
-                        value={formData.tahun_masuk}
-                        onChange={handleInputChange}
-                        placeholder="Contoh: 2021"
-                      />
-
-                      <FormField
-                        label="NIM"
-                        name="nim"
-                        value={formData.nim}
-                        onChange={handleInputChange}
-                        placeholder="Masukkan NIM"
-                      />
-
-                      <FormField
-                        label="IPK"
-                        name="ipk"
-                        value={formData.ipk}
-                        onChange={handleInputChange}
-                        placeholder="Contoh: 3.75"
+                        error={errors.fakultas_prodi?.message}
                       />
                     </div>
                   </CardContent>
@@ -425,8 +325,7 @@ export default function CalonPenerimaProfile() {
                       <FormField
                         label="Username"
                         name="username"
-                        value={formData.username}
-                        onChange={handleInputChange}
+                        {...register('username')}
                         placeholder="Masukkan username"
                         disabled
                       />
@@ -435,8 +334,7 @@ export default function CalonPenerimaProfile() {
                         label="Email"
                         type="email"
                         name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
+                        {...register('email')}
                         placeholder="Masukkan email"
                         disabled
                       />
@@ -449,18 +347,21 @@ export default function CalonPenerimaProfile() {
                           label="Password Baru"
                           type="password"
                           name="password"
-                          value={formData.password}
-                          onChange={handleInputChange}
+                          {...register('password')}
                           placeholder="Masukkan password baru"
+                          error={errors.password?.message}
                         />
 
                         <FormField
                           label="Konfirmasi Password"
                           type="password"
                           name="password_confirmation"
-                          value={formData.password_confirmation}
-                          onChange={handleInputChange}
+                          {...register('password_confirmation', {
+                            validate: value =>
+                              !password || value === password || 'Konfirmasi password tidak cocok',
+                          })}
                           placeholder="Konfirmasi password baru"
+                          error={errors.password_confirmation?.message}
                         />
                       </div>
                     </div>

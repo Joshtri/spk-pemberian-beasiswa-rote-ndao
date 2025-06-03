@@ -53,7 +53,7 @@ export default function RootCalonPenerima({ children }) {
           <HeaderCalonPenerima toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
           <main className="p-4 sm:p-6">{children}</main>
         </div>
-        <Toaster position="top-right" richColors />
+        {/* <Toaster position="top-right" richColors /> */}
       </div>
       </CalonPenerimaLayoutGuard>
     // </ThemeProvider>

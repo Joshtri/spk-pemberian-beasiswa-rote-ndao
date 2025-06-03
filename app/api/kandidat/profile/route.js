@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
-import { getAuthUser } from "@/lib/auth"
+import prisma from '@/lib/prisma'
+import { getAuthUser, getAuthenticatedUser } from '@/lib/auth'
+import { NextResponse } from 'next/server'
 
 export async function GET(request) {
   try {
-    const user = await getAuthUser(request, ["CALON_PENERIMA"])
+    const user = await getAuthUser(request, ['CALON_PENERIMA'])
 
     const calon = await prisma.calonPenerima.findFirst({
       where: { userId: user.id },
@@ -19,7 +19,7 @@ export async function GET(request) {
     })
 
     if (!calon) {
-      return NextResponse.json({ message: "Data calon penerima tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: 'Data calon penerima tidak ditemukan' }, { status: 404 })
     }
 
     // Gabungkan data user dan calon penerima
@@ -31,17 +31,32 @@ export async function GET(request) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Gagal fetch profil calon penerima:", error)
-    return NextResponse.json({ message: "Terjadi kesalahan saat mengambil data" }, { status: 500 })
+    console.error('Gagal fetch profil calon penerima:', error)
+    return NextResponse.json({ message: 'Terjadi kesalahan saat mengambil data' }, { status: 500 })
   }
 }
 
 export async function PUT(request) {
   try {
-    const user = await getAuthUser(request, ["CALON_PENERIMA"])
+    // Ambil user dari token
+    const user = await getAuthenticatedUser(request)
+    if (!user || !user.id) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Ambil data dari body (tanpa userId)
     const data = await request.json()
 
-    // Update calon penerima data
+    // Cari calon penerima berdasar user.id dari token
+    const calon = await prisma.calonPenerima.findFirst({
+      where: { userId: user.id },
+    })
+
+    if (!calon) {
+      return NextResponse.json({ success: false, message: 'Data tidak ditemukan' }, { status: 404 })
+    }
+
+    // Data untuk update, userId tidak perlu
     const updateData = {
       nama_lengkap: data.nama_lengkap,
       alamat: data.alamat,
@@ -53,28 +68,21 @@ export async function PUT(request) {
       fakultas_prodi: data.fakultas_prodi,
     }
 
-    const updatedCalonPenerima = await prisma.calonPenerima.update({
-      where: { userId: user.id },
+    // Update data calon penerima
+    const updated = await prisma.calonPenerima.update({
+      where: { id: calon.id },
       data: updateData,
     })
 
-    // If password is provided, update user password
-    if (data.password) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          password: data.password, // Note: In a real app, you should hash this password
-        },
-      })
-    }
-
-    return NextResponse.json({
-      message: "Data berhasil diperbarui",
-      data: updatedCalonPenerima,
-    })
+    return NextResponse.json({ success: true, data: updated })
   } catch (error) {
-    console.error("Gagal update profil calon penerima:", error)
-    return NextResponse.json({ message: "Terjadi kesalahan saat memperbarui data" }, { status: 500 })
+    console.error('Gagal update data:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        message: error?.message || 'Terjadi kesalahan saat update',
+      },
+      { status: 500 }
+    )
   }
 }
-

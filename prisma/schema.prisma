@@ -7,9 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// generator zod {
-//   provider       = "zod-prisma-types"
-// }
 
 model User {
   id            String          @id @default(dbgenerated("concat('usr_', gen_random_uuid())")) @db.VarChar(40)
