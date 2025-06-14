@@ -227,9 +227,10 @@ export default function CalonPenerimaDashboard() {
                 variant="outline"
                 size="sm"
                 className="w-full"
-                onClick={() => setShowOnboarding(true)}
+                onClick={() => router.push('/kandidat/profile')}
               >
-                {isOnboarded ? 'Lihat Profil' : 'Lengkapi Profil'}
+                Lihat Profil
+                {/* {isOnboarded ? 'Lihat Profil' : 'Lengkapi Profil'} */}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardFooter>

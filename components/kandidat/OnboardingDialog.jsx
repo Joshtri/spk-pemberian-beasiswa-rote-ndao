@@ -25,6 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import FormField from '@/components/ui/form-field'
 import { useForm } from 'react-hook-form'
 import axios from '@/lib/axios'
+import { toast } from 'sonner'
 
 export default function OnboardingDialog({ open, onOpenChange }) {
   const router = useRouter()
@@ -62,14 +63,19 @@ export default function OnboardingDialog({ open, onOpenChange }) {
       const res = await axios.post('/kandidat', data, {
         withCredentials: true,
       })
+
       if (res.status !== 200) {
         throw new Error('Gagal menyimpan data')
       }
+
+      toast.success('Data berhasil disimpan!') // ✅ Toast sukses
+
       onOpenChange(false)
-      router.refresh()
       router.push('/kandidat/dashboard')
+      window.location.reload()
     } catch (err) {
       console.error('Gagal submit form:', err)
+      toast.error('Gagal menyimpan data. Silakan coba lagi.') // ❌ Toast gagal
     } finally {
       setIsLoading(false)
     }
