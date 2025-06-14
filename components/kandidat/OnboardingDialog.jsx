@@ -67,6 +67,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
       }
       onOpenChange(false)
       router.refresh()
+      router.push('/kandidat/dashboard')
     } catch (err) {
       console.error('Gagal submit form:', err)
     } finally {
