@@ -52,7 +52,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
       provinsi: 'Nusa Tenggara Timur',
       perguruan_tinggi: '',
       fakultas_prodi: '',
-      jenjang: 'S1',
+      jenjang: '',
     },
   })
 
