@@ -9,7 +9,7 @@ export async function GET(request) {
 
     const calonPenerima = await prisma.calonPenerima.findFirst({
       where: {
-        userId: user.id,
+        userId: user.user?.id,
       },
     })
 

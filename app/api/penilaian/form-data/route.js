@@ -12,7 +12,7 @@ export async function GET(request) {
 
     // ✅ Ambil calon penerima dari user yang login
     const calonPenerima = await prisma.calonPenerima.findFirst({
-      where: { userId: user.id },
+      where: { userId: user.user?.id },
     })
 
     if (!calonPenerima) {

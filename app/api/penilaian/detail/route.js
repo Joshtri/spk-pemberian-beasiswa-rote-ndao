@@ -10,7 +10,7 @@ export async function GET(request) {
 
     // Get calon penerima from logged in user
     const calonPenerima = await prisma.calonPenerima.findFirst({
-      where: { userId: user.id },
+      where: { userId: user.user?.id },
     })
 
     if (!calonPenerima) {

@@ -22,7 +22,7 @@ export async function PUT(request) {
 
     // Get calon penerima
     const calon = await prisma.calonPenerima.findFirst({
-      where: { userId: user.id },
+      where: { userId: user.user?.id },
     })
 
     if (!calon) {

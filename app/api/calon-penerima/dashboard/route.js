@@ -6,8 +6,9 @@ export async function GET(request) {
   try {
     const user = await getAuthUser(request, ['CALON_PENERIMA'])
 
+    console.log('id user:', user.user?.id)
     const calonPenerima = await prisma.calonPenerima.findFirst({
-      where: { userId: user.id },
+      where: { userId: user.user?.id },
       include: {
         user: true,
         penilaian: {
