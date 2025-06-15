@@ -39,6 +39,7 @@ const FormField = forwardRef(
       value,
       onChange,
       control,
+      description,
       rules,
       ...rest
     },
@@ -220,6 +221,7 @@ const FormField = forwardRef(
           </Label>
         )}
         {renderField()}
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
         {error && <p className="text-sm text-red-500">{error}</p>}
         {rest.children} {/* Tambahkan ini agar preview bisa tetap muncul */}
       </div>
