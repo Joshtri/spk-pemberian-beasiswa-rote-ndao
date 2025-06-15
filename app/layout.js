@@ -1,8 +1,6 @@
-import './globals.css'
-import React from 'react'
 import { Inter } from 'next/font/google'
-import { ThemeProvider } from '@/components/ThemeProvider'
 import { Toaster } from 'sonner'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,7 +21,6 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className={inter.className}>
- 
         <Toaster position="top-right" richColors />
 
         {children}
