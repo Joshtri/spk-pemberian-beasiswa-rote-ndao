@@ -1,16 +1,16 @@
-"use client"
+'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { User, Mail, Calendar, MapPin, School } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale'
+import { User, Mail, Calendar, MapPin, School } from 'lucide-react'
 
 export default function DetailCalonPenerimaModal({ open, onClose, calonPenerima }) {
   if (!calonPenerima) return null
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     try {
-      return format(new Date(dateString), "dd MMMM yyyy", { locale: id })
+      return format(new Date(dateString), 'dd MMMM yyyy', { locale: id })
     } catch (error) {
       return dateString
     }
@@ -94,6 +94,19 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerima 
 
           <div className="bg-primary/5 p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <User className="mr-2 h-5 w-5 text-primary" />
+              Informasi Bank Akun
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">No Rekening</p>
+                <p className="font-medium">{calonPenerima.noRekening}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-primary/5 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
               <Calendar className="mr-2 h-5 w-5 text-primary" />
               Informasi Tambahan
             </h3>
@@ -113,4 +126,3 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerima 
     </Dialog>
   )
 }
-
