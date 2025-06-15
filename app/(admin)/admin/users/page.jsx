@@ -8,7 +8,9 @@ import DataTable from '@/components/ui/data-table'
 import ModalForm from '@/components/ui/modal-form'
 import FormField from '@/components/ui/form-field'
 import ThreeLoading from '@/components/three-loading'
-import { Eye, EyeOff } from 'lucide-react'  // Import icons
+import { Eye, EyeOff } from 'lucide-react' // Import icons
+import ActionButtons from '@/components/ui/ActionButtons'
+import { toast } from 'sonner'
 
 export default function UsersPage() {
   const [userData, setUserData] = useState([])
@@ -106,10 +108,12 @@ export default function UsersPage() {
         method: 'DELETE',
       })
 
-      if (!response.ok) throw new Error('Failed to delete user')
+      if (!response.ok) throw new Error()
 
       setUserData(userData.filter(item => item.id !== id))
+      toast.success('User berhasil dihapus')
     } catch (error) {
+      toast.error('Gagal menghapus user')
       console.error('Error deleting user:', error)
     } finally {
       setIsLoading(false)
@@ -119,9 +123,8 @@ export default function UsersPage() {
   const onSubmit = async data => {
     setIsLoading(true)
 
-    // Jika password diisi, pastikan konfirmasi sudah sama
     if (data.password && data.password !== data.confirmPassword) {
-      console.error('Password tidak cocok')
+      toast.error('Password tidak cocok')
       setIsLoading(false)
       return
     }
@@ -130,7 +133,6 @@ export default function UsersPage() {
       const url = editingId ? `/api/users/${editingId}` : '/api/users'
       const method = editingId ? 'PUT' : 'POST'
 
-      // Jika edit dan password kosong, hapus field password
       const payload =
         editingId && !data.password
           ? { ...data, password: undefined, confirmPassword: undefined }
@@ -138,57 +140,34 @@ export default function UsersPage() {
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
-      if (!response.ok) {
-        throw new Error(editingId ? 'Failed to update user' : 'Failed to create user')
-      }
+      if (!response.ok) throw new Error()
 
       const result = await response.json()
 
       if (editingId) {
         setUserData(userData.map(item => (item.id === editingId ? result : item)))
+        toast.success('User berhasil diperbarui')
       } else {
         setUserData([...userData, result])
+        toast.success('User baru berhasil ditambahkan')
       }
+
       setIsModalOpen(false)
       reset()
-
     } catch (error) {
+      toast.error(editingId ? 'Gagal memperbarui user' : 'Gagal menambahkan user')
       console.error('Error submitting user:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const renderActions = item => (
-    <>
-      <Button
-        size="sm"
-        variant="default"
-        className="h-8 bg-amber-500 hover:bg-amber-600"
-        onClick={() => handleEditUser(item)}
-      >
-        Edit
-      </Button>
-      <Button
-        size="sm"
-        variant="destructive"
-        className="h-8"
-        onClick={() => handleDeleteUser(item.id)}
-      >
-        Hapus
-      </Button>
-    </>
-  )
-
   return (
     <>
- 
       <DataTable
         title="Users Management"
         description="Kelola pengguna sistem SPK Penentuan Rumah Layak Huni"
@@ -198,7 +177,9 @@ export default function UsersPage() {
         searchPlaceholder="Cari User"
         addButtonText="Tambah User"
         addButtonAction={handleAddUser}
-        renderActions={renderActions}
+        renderActions={item => (
+          <ActionButtons item={item} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+        )}
       />
 
       <ModalForm
