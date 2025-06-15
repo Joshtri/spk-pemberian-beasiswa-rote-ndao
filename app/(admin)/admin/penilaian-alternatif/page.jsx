@@ -25,6 +25,7 @@ import ThreeLoading from '@/components/three-loading'
 import api from '@/lib/axios'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
+import SkeletonTable from '@/components/ui/skeleton-table'
 
 export default function PenilaianPage() {
   const [penilaianData, setPenilaianData] = useState([])
@@ -207,7 +208,6 @@ export default function PenilaianPage() {
 
   return (
     <>
- 
       <div className="space-y-4">
         <Card>
           <CardHeader className="pb-3">
@@ -254,119 +254,116 @@ export default function PenilaianPage() {
           <CardContent>
             <div className="rounded-md border overflow-hidden">
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px] text-center">No</TableHead>
-                      <TableHead className="min-w-[200px]">Nama Calon</TableHead>
-                      {kriteriaColumns.map(kriteria => (
-                        <TableHead key={kriteria.id} className="min-w-[150px]">
-                          <div className="flex flex-col">
-                            <span>{kriteria.nama}</span>
-                            <span className="text-xs text-muted-foreground">
-                              Bobot: {kriteria.bobot}
-                              {kriteria.tipe === 'BENEFIT' ? (
-                                <Badge variant="default" className="ml-1 text-[10px]">
-                                  Benefit
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="ml-1 text-[10px]">
-                                  Cost
-                                </Badge>
-                              )}
-                            </span>
-                          </div>
-                        </TableHead>
-                      ))}
-                      <TableHead className="w-[50px] text-center">verifikasiStatus</TableHead>
-                      <TableHead className="w-[100px] text-right">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {filteredData.length > 0 ? (
-                      filteredData.map((item, index) => (
-                        <TableRow key={item.calonPenerima.id}>
-                          <TableCell className="text-center font-medium">
-                            {(page - 1) * limit + index + 1}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{item.calonPenerima.nama_lengkap}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {item.calonPenerima.perguruan_Tinggi}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {item.calonPenerima.fakultas_prodi}
-                            </div>
-                          </TableCell>
-
-                          {kriteriaColumns.map(kriteria => (
-                            <TableCell key={kriteria.id}>
-                              {item.penilaian[kriteria.nama] ? (
-                                <>
-                                  <div className="font-medium">
-                                    {item.penilaian[kriteria.nama].subKriteria}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Bobot: {item.penilaian[kriteria.nama].bobot}
-                                  </div>
-
-                                  {/* Show dokumen badges if this is the first column and there are documents */}
-                                  {kriteria.id === kriteriaColumns[0].id &&
-                                    item.dokumen.length > 0 &&
-                                    renderDokumenBadge(item.dokumen)}
-                                </>
-                              ) : (
-                                <span className="text-muted-foreground text-sm">-</span>
-                              )}
-                            </TableCell>
-                          ))}
-
-                          <TableCell className="text-center capitalize">
-                            {/* <Badge
-                              variant={
-                                item.verifikasiStatus === 'DITERIMA'
-                                  ? 'default'
-                                  : item.verifikasiStatus === 'DITOLAK'
-                                    ? 'destructive'
-                                    : 'secondary'
-                              }
-                              className="text-xs px-2 py-0.5"
-                            >
-                              {item.verifikasiStatus}
-                            </Badge> */}
-
-                            <div className="flex flex-col items-center gap-1">
-                              <Switch
-                                checked={item.verifikasiStatus === 'DITERIMA'}
-                                onCheckedChange={() =>
-                                  handleToggleStatus(item.calonPenerima.id, item.verifikasiStatus)
-                                }
-                              />
-                              <span className="text-xs text-muted-foreground capitalize">
-                                {item.verifikasiStatus}
+                {isLoading ? (
+                  <div className="p-4">
+                    <SkeletonTable
+                      rows={limit}
+                      cols={kriteriaColumns.length + 3} // Nama calon + kriteria + verifikasi + aksi
+                    />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px] text-center">No</TableHead>
+                        <TableHead className="min-w-[200px]">Nama Calon</TableHead>
+                        {kriteriaColumns.map(kriteria => (
+                          <TableHead key={kriteria.id} className="min-w-[150px]">
+                            <div className="flex flex-col">
+                              <span>{kriteria.nama}</span>
+                              <span className="text-xs text-muted-foreground">
+                                Bobot: {kriteria.bobot}
+                                {kriteria.tipe === 'BENEFIT' ? (
+                                  <Badge variant="default" className="ml-1 text-[10px]">
+                                    Benefit
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="ml-1 text-[10px]">
+                                    Cost
+                                  </Badge>
+                                )}
                               </span>
                             </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                          </TableHead>
+                        ))}
+                        <TableHead className="w-[50px] text-center">Verifikasi</TableHead>
+                        <TableHead className="w-[100px] text-right">Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                      {filteredData.length > 0 ? (
+                        filteredData.map((item, index) => (
+                          <TableRow key={item.calonPenerima.id}>
+                            <TableCell className="text-center font-medium">
+                              {(page - 1) * limit + index + 1}
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{item.calonPenerima.nama_lengkap}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {item.calonPenerima.perguruan_Tinggi}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {item.calonPenerima.fakultas_prodi}
+                              </div>
+                            </TableCell>
+
+                            {kriteriaColumns.map(kriteria => (
+                              <TableCell key={kriteria.id}>
+                                {item.penilaian[kriteria.nama] ? (
+                                  <>
+                                    <div className="font-medium">
+                                      {item.penilaian[kriteria.nama].subKriteria}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      Bobot: {item.penilaian[kriteria.nama].bobot}
+                                    </div>
+
+                                    {/* Dokumen hanya di kolom pertama */}
+                                    {kriteria.id === kriteriaColumns[0].id &&
+                                      item.dokumen.length > 0 &&
+                                      renderDokumenBadge(item.dokumen)}
+                                  </>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">-</span>
+                                )}
+                              </TableCell>
+                            ))}
+
+                            <TableCell className="text-center capitalize">
+                              <div className="flex flex-col items-center gap-1">
+                                <Switch
+                                  checked={item.verifikasiStatus === 'DITERIMA'}
+                                  onCheckedChange={() =>
+                                    handleToggleStatus(item.calonPenerima.id, item.verifikasiStatus)
+                                  }
+                                />
+                                <span className="text-xs text-muted-foreground capitalize">
+                                  {item.verifikasiStatus}
+                                </span>
+                              </div>
+                            </TableCell>
+
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={kriteriaColumns.length + 3}
+                            className="text-center py-8"
+                          >
+                            Tidak ada data penilaian
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={kriteriaColumns.length + 3}
-                          className="text-center py-8"
-                        >
-                          Tidak ada data penilaian
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
               </div>
             </div>
 
