@@ -23,12 +23,21 @@ export default function CalonPenerimaProfile() {
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('personal')
   const [userId, setUserId] = useState(null)
+  const [isRekeningMasked, setIsRekeningMasked] = useState(true)
+
+  const maskRekening = (value = '') => {
+    if (!value) return ''
+    const visible = value.slice(-4)
+    const masked = '•'.repeat(value.length - 4)
+    return masked + visible
+  }
 
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -40,6 +49,7 @@ export default function CalonPenerimaProfile() {
       kecamatan: '',
       perguruan_tinggi: '',
       fakultas_prodi: '',
+      noRekening: '',
       username: '',
       email: '',
       password: '',
@@ -69,6 +79,8 @@ export default function CalonPenerimaProfile() {
           username: data.user?.username || '',
           email: data.user?.email || '',
           password: '',
+          noRekening: data.noRekening || '',
+
           password_confirmation: '',
         })
       } catch (error) {
@@ -167,7 +179,8 @@ export default function CalonPenerimaProfile() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Tabs defaultValue="personal" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
+            {/*set this as a grid-cols-4 because we have 4 tabs*/}
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="personal" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Data Pribadi</span>
@@ -180,6 +193,10 @@ export default function CalonPenerimaProfile() {
               <TabsTrigger value="account">
                 <span className="hidden sm:inline">Data Akun</span>
                 <span className="sm:hidden">Akun</span>
+              </TabsTrigger>
+              <TabsTrigger value="bank_account">
+                <span className="hidden sm:inline">Data Akun Bank</span>
+                <span className="sm:hidden">Akun Bank</span>
               </TabsTrigger>
             </TabsList>
 
@@ -306,6 +323,55 @@ export default function CalonPenerimaProfile() {
                         Selanjutnya
                       </Button>
                     </div>
+                    <Button type="submit">
+                      <Save className="mr-2 h-4 w-4" />
+                      Simpan
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="bank_account">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Data Akun Bank</CardTitle>
+                    <CardDescription>
+                      Masukkan data akun bank Anda untuk pencairan beasiswa
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      label="Nomor Rekening"
+                      name="noRekening"
+                      type="text"
+                      value={
+                        isRekeningMasked ? maskRekening(watch('noRekening')) : watch('noRekening')
+                      }
+                      onFocus={() => setIsRekeningMasked(false)}
+                      onBlur={() => setIsRekeningMasked(true)}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/[^0-9]/g, '')
+                        setValue('noRekening', raw)
+                      }}
+                      placeholder="Masukkan nomor rekening"
+                      error={errors.noRekening?.message}
+                    />
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={() => setActiveTab('education')}
+                    >
+                      Sebelumnya
+                    </Button>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={() => setActiveTab('account')}
+                    >
+                      Selanjutnya
+                    </Button>
                     <Button type="submit">
                       <Save className="mr-2 h-4 w-4" />
                       Simpan
