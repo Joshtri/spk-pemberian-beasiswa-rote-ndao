@@ -15,7 +15,7 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerimaI
       fetchCalonPenerima()
     }
   }, [open, calonPenerimaId])
-  
+
   const fetchCalonPenerima = async () => {
     setIsLoading(true)
     try {
@@ -32,14 +32,14 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerimaI
   }
 
   // Format tanggal untuk tampilan yang lebih baik
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
+  const formatDate = dateString => {
+    if (!dateString) return '-'
+    const date = new Date(dateString)
     return date.toLocaleDateString('id-ID', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
-    });
+      year: 'numeric',
+    })
   }
 
   return (
@@ -95,6 +95,16 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerimaI
                 </div>
               </div>
 
+              {/* Informasi Kontak */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 border-b pb-2">Informasi Bank Account</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>No Rekening:</strong> {calonPenerima.noRekening || '-'}
+                  </div>
+                </div>
+              </div>
+
               {/* Informasi User (jika ada) */}
               {calonPenerima.user && (
                 <div>
@@ -109,7 +119,6 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerimaI
                     <div>
                       <strong>Role:</strong> {calonPenerima.user.role || '-'}
                     </div>
- 
                   </div>
                 </div>
               )}
@@ -122,7 +131,8 @@ export default function DetailCalonPenerimaModal({ open, onClose, calonPenerimaI
                     <strong>Tanggal Dibuat:</strong> {formatDate(calonPenerima.createdAt) || '-'}
                   </div>
                   <div>
-                    <strong>Terakhir Diperbarui:</strong> {formatDate(calonPenerima.updatedAt) || '-'}
+                    <strong>Terakhir Diperbarui:</strong>{' '}
+                    {formatDate(calonPenerima.updatedAt) || '-'}
                   </div>
                 </div>
               </div>
