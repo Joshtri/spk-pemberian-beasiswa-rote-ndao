@@ -282,7 +282,7 @@ export default function CalonPenerimaDashboard() {
             </CardFooter>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Award className="mr-2 h-5 w-5 text-primary" />
@@ -311,7 +311,7 @@ export default function CalonPenerimaDashboard() {
                 </Link>
               </Button>
             </CardFooter>
-          </Card>
+          </Card> */}
         </motion.div>
 
         {/* Timeline and Kriteria */}
