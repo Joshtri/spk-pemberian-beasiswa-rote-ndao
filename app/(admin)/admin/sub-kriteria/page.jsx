@@ -9,6 +9,7 @@ import FormField from '@/components/ui/form-field'
 import ThreeLoading from '@/components/three-loading'
 import { Badge } from '@/components/ui/badge'
 import api from '@/lib/axios'
+import ActionButtons from '@/components/ui/ActionButtons'
 
 export default function SubKriteriaPage() {
   const [subKriteriaData, setSubKriteriaData] = useState([])
@@ -148,24 +149,8 @@ export default function SubKriteriaPage() {
     },
   ]
 
-  const renderActions = item => (
-    <>
-      <Button
-        size="sm"
-        onClick={() => handleEditSubKriteria(item)}
-        className="bg-blue-500 hover:bg-blue-600 text-white"
-      >
-        Edit
-      </Button>
-      <Button size="sm" variant="destructive" onClick={() => handleDeleteSubKriteria(item.id)}>
-        Hapus
-      </Button>
-    </>
-  )
-
   return (
     <>
- 
       <DataTable
         title="Sub Kriteria"
         description="Kelola sub kriteria untuk penilaian rumah layak huni"
@@ -175,7 +160,14 @@ export default function SubKriteriaPage() {
         searchPlaceholder="Cari Sub Kriteria"
         addButtonText="Tambah Sub Kriteria"
         addButtonAction={handleAddSubKriteria}
-        renderActions={renderActions}
+        // renderActions={renderActions}
+        renderActions={item => (
+          <ActionButtons
+            item={item}
+            onDelete={handleDeleteSubKriteria}
+            onEdit={handleEditSubKriteria}
+          />
+        )}
         isLoading={isLoading}
       />
 
