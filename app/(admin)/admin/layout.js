@@ -1,10 +1,8 @@
-import "../../globals.css"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/ThemeProvider"
-import SidebarAdmin from "./partials/Sidebar"
-import HeaderAdmin from "./partials/Header"
+import "../../globals.css"
 import AdminLayoutGuard from "./AdminLayoutGuard"
-import { Toaster } from "sonner"
+import HeaderAdmin from "./partials/Header"
+import SidebarAdmin from "./partials/Sidebar"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
@@ -29,8 +27,7 @@ export default function RootAdminLayout({ children }) {
               <div className="flex flex-col min-h-screen lg:ml-[80px] xl:ml-[256px] transition-all duration-300">
                 <HeaderAdmin />
                 <main className="p-4 sm:p-6 flex-1">
-                  <Toaster position="top-right" richColors />
-                  {children}
+                   {children}
                 </main>
               </div>
             </div>
