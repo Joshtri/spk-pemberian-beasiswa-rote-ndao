@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/ThemeProvider"
-import SidebarCalonPenerima from "./partials/Sidebar"
-import HeaderCalonPenerima from "./partials/Header"
-import { Toaster } from "sonner"
+import { useEffect, useState } from "react"
 import "../../globals.css"
 import CalonPenerimaLayoutGuard from "./CalonPenerimaLayoutGuard"
+import HeaderCalonPenerima from "./partials/Header"
+import SidebarCalonPenerima from "./partials/Sidebar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -53,8 +51,7 @@ export default function RootCalonPenerima({ children }) {
           <HeaderCalonPenerima toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
           <main className="p-4 sm:p-6">{children}</main>
         </div>
-        {/* <Toaster position="top-right" richColors /> */}
-      </div>
+       </div>
       </CalonPenerimaLayoutGuard>
     // </ThemeProvider>
   )
