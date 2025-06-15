@@ -9,6 +9,7 @@ import FormField from '@/components/ui/form-field'
 import ThreeLoading from '@/components/three-loading'
 import api from '@/lib/axios'
 import { formatDate } from '@/utils/formatDate'
+import ActionButtons from '@/components/ui/ActionButtons'
 
 export default function JadwalPendaftaranPage() {
   const [jadwalData, setJadwalData] = useState([])
@@ -150,30 +151,8 @@ export default function JadwalPendaftaranPage() {
     },
   ]
 
-  const renderActions = item => (
-    <>
-      <Button
-        size="sm"
-        variant="default"
-        className="h-8 bg-amber-500 hover:bg-amber-600"
-        onClick={() => handleEditJadwal(item)}
-      >
-        Edit
-      </Button>
-      <Button
-        size="sm"
-        variant="destructive"
-        className="h-8"
-        onClick={() => handleDeleteJadwal(item.id)}
-      >
-        Hapus
-      </Button>
-    </>
-  )
-
   return (
     <>
- 
       <DataTable
         title="Jadwal Pendaftaran"
         description="Kelola jadwal pendaftaran tiap periode"
@@ -183,7 +162,9 @@ export default function JadwalPendaftaranPage() {
         searchPlaceholder="Cari Periode"
         addButtonText="Tambah Jadwal"
         addButtonAction={handleAddJadwal}
-        renderActions={renderActions}
+        renderActions={item => (
+          <ActionButtons item={item} onEdit={handleEditJadwal} onDelete={handleDeleteJadwal} />
+        )}
         isLoading={isLoading}
       />
 
