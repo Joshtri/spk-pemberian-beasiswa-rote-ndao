@@ -1,10 +1,12 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Inter } from "next/font/google"
-import { useEffect, useState } from "react"
-import "../../globals.css"
-import HeaderKabid from "./partials/Header"
+import { ThemeProvider } from "@/components/ThemeProvider"
 import SidebarKabid from "./partials/Sidebar"
+import HeaderKabid from "./partials/Header"
+import { Toaster } from "sonner"
+import "../../globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -69,7 +71,8 @@ export default function RootKabidLayout({ children }) {
               <main className="p-4 sm:p-6">{children}</main>
             </div>
 
-           </div>
+            <Toaster position="top-right" richColors />
+          </div>
         {/* </ThemeProvider> */}
       </body>
     </html>
