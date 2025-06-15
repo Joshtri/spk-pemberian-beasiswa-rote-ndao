@@ -10,6 +10,7 @@ import ThreeLoading from '@/components/three-loading'
 import api from '@/lib/axios'
 import { toast } from 'sonner'
 import DetailCalonPenerimaModal from '@/components/admin/kandidat/DetailCalonPenerimaModal'
+import ActionButtons from '@/components/ui/ActionButtons'
 
 export default function CalonPenerimaPage() {
   const [calonPenerimaData, setCalonPenerimaData] = useState([])
@@ -136,24 +137,24 @@ export default function CalonPenerimaPage() {
     { header: 'Fakultas/Prodi', accessorKey: 'fakultas_prodi' },
   ]
 
-  const renderActions = item => (
-    <>
-      <Button size="sm" variant="default" onClick={() => handleEditCalonPenerima(item)}>
-        Edit
-      </Button>
-      <Button size="sm" variant="destructive" onClick={() => handleDeleteCalonPenerima(item.id)}>
-        Hapus
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        className="bg-blue-500 hover:bg-blue-600 text-white border-0"
-        onClick={() => handleViewDetail(item)}
-      >
-        Detail
-      </Button>
-    </>
-  )
+  // const renderActions = item => (
+  //   <>
+  //     <Button size="sm" variant="default" onClick={() => handleEditCalonPenerima(item)}>
+  //       Edit
+  //     </Button>
+  //     <Button size="sm" variant="destructive" onClick={() => handleDeleteCalonPenerima(item.id)}>
+  //       Hapus
+  //     </Button>
+  //     <Button
+  //       size="sm"
+  //       variant="outline"
+  //       className="bg-blue-500 hover:bg-blue-600 text-white border-0"
+  //       onClick={() => handleViewDetail(item)}
+  //     >
+  //       Detail
+  //     </Button>
+  //   </>
+  // )
 
   return (
     <>
@@ -166,7 +167,14 @@ export default function CalonPenerimaPage() {
         searchKey="nama_lengkap"
         addButtonText="Tambah Calon Penerima"
         addButtonAction={handleAddCalonPenerima}
-        renderActions={renderActions}
+        renderActions={item => (
+          <ActionButtons
+            item={item}
+            onEdit={handleEditCalonPenerima}
+            onDelete={handleDeleteCalonPenerima}
+            onDetail={handleViewDetail}
+          />
+        )}
         isLoading={isLoading}
       />
 
