@@ -12,6 +12,7 @@ import api from '@/lib/axios'
 import { toast } from 'sonner'
 import SubkriteriaAddModal from '@/components/kriteria/SubKriteriaAddModal'
 import SubkriteriaListModal from '@/components/kriteria/SubKriteriaListModal'
+import ActionButtons from '@/components/ui/ActionButtons'
 
 export default function KriteriaPage() {
   const [kriteriaData, setKriteriaData] = useState([])
@@ -158,47 +159,9 @@ export default function KriteriaPage() {
     },
   ]
 
-  const renderActions = item => (
-    <>
-      <Button
-        size="sm"
-        variant="default"
-        className="h-8 bg-blue-500 hover:bg-blue-600"
-        onClick={() => handleEditKriteria(item)}
-      >
-        Edit
-      </Button>
-      <Button
-        size="sm"
-        variant="destructive"
-        className="h-8"
-        onClick={() => handleDeleteKriteria(item.id)}
-      >
-        Hapus
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        className="h-8 bg-green-500 hover:bg-green-600 text-white border-0"
-        onClick={() => handleAddSubkriteria(item.id, item.nama_kriteria)}
-      >
-        Tambah Subkriteria
-      </Button>
-
-      <Button
-        size="sm"
-        variant="outline"
-        className="h-8 bg-purple-500 hover:bg-purple-600 text-white border-0"
-        onClick={() => handleViewSubkriteria(item.id)}
-      >
-        Lihat Subkriteria
-      </Button>
-    </>
-  )
-
   return (
     <>
-       <DataTable
+      <DataTable
         title="Kriteria"
         description="Kelola kriteria untuk penilaian rumah layak huni"
         data={kriteriaData}
@@ -207,7 +170,27 @@ export default function KriteriaPage() {
         searchPlaceholder="Cari Kriteria"
         addButtonText="Tambah Kriteria"
         addButtonAction={handleAddKriteria}
-        renderActions={renderActions}
+        renderActions={item => (
+          <ActionButtons
+            item={item}
+            onEdit={handleEditKriteria}
+            onDelete={handleDeleteKriteria}
+            customActions={[
+              {
+                label: 'Tambah Subkriteria',
+                variant: 'outline',
+                className: 'bg-green-500 hover:bg-green-600 text-white border-0',
+                onClick: () => handleAddSubkriteria(item.id, item.nama_kriteria),
+              },
+              {
+                label: 'Lihat Subkriteria',
+                variant: 'outline',
+                className: 'bg-purple-500 hover:bg-purple-600 text-white border-0',
+                onClick: () => handleViewSubkriteria(item.id),
+              },
+            ]}
+          />
+        )}
         isLoading={isLoading}
       />
 
