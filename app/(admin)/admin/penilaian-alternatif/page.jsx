@@ -72,7 +72,7 @@ export default function PenilaianPage() {
         params.append('periodeId', selectedPeriode)
       }
 
-      const res = await api.get(`/penilaian/admin/list?${params.toString()}`)
+      const res = await api.get(`/penilaian/admin/list`)
 
       if (res.data.success) {
         setPenilaianData(res.data.data)
