@@ -393,13 +393,24 @@ export default function CreatePenilaianPage() {
                           <Select
                             value={formData[kriteria.id] || ''}
                             onValueChange={value => handleSelectChange(kriteria.id, value)}
+                            disabled={
+                              kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                              kriteria.nama_kriteria.toLowerCase().includes('indeks')
+                            }
                           >
                             <SelectTrigger>
                               <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
                             </SelectTrigger>
                             <SelectContent>
                               {currentSubKriteria.map(subKriteria => (
-                                <SelectItem key={subKriteria.id} value={subKriteria.id}>
+                                <SelectItem
+                                  key={subKriteria.id}
+                                  value={subKriteria.id}
+                                  disabled={
+                                    kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                                    kriteria.nama_kriteria.toLowerCase().includes('indeks')
+                                  }
+                                >
                                   {subKriteria.nama_sub_kriteria} - bobot:{' '}
                                   {subKriteria.bobot_sub_kriteria}
                                 </SelectItem>
@@ -407,7 +418,7 @@ export default function CreatePenilaianPage() {
                             </SelectContent>
                           </Select>
 
-                          {/* Input Manual IPK - hanya tampil kalau nama kriteria mengandung IPK */}
+                          {/* Input Manual IPK */}
                           {(kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
                             kriteria.nama_kriteria.toLowerCase().includes('indeks')) && (
                             <div className="mt-2">
@@ -419,8 +430,11 @@ export default function CreatePenilaianPage() {
                                 max="4"
                                 className="mt-1 border px-3 py-2 rounded-md w-full"
                                 placeholder="Contoh: 3.75"
+                                value={ipkValue}
                                 onChange={e => {
                                   const value = parseFloat(e.target.value)
+                                  setIpkValue(e.target.value)
+
                                   if (isNaN(value)) return
 
                                   const matched = currentSubKriteria.find(sub => {
@@ -439,6 +453,12 @@ export default function CreatePenilaianPage() {
 
                                   if (matched) {
                                     handleSelectChange(kriteria.id, matched.id)
+                                  } else {
+                                    // Nilai tidak valid untuk range yang tersedia
+                                    toast.warning(
+                                      'Nilai IPK tidak sesuai dengan rentang yang tersedia.'
+                                    )
+                                    handleSelectChange(kriteria.id, '') // reset pilihan
                                   }
                                 }}
                               />
