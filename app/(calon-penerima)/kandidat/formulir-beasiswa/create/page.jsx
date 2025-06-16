@@ -50,6 +50,7 @@ export default function CreatePenilaianPage() {
     PRESTASI: null,
   })
   const [fileErrors, setFileErrors] = useState({})
+  const [ipkValue, setIpkValue] = useState('')
 
   // Fetch all data in a single API call
   useEffect(() => {
@@ -284,7 +285,7 @@ export default function CreatePenilaianPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl font-bold">Tambah Penilaian Kriteria</h1>
+        <h1 className="text-2xl font-bold">Pengisian Kriteria</h1>
         <p className="text-muted-foreground">
           Lengkapi data penilaian kriteria untuk pengajuan beasiswa periode:{' '}
           {activePeriode?.nama || ''}
@@ -374,19 +375,21 @@ export default function CreatePenilaianPage() {
                         <div className="bg-gray-50 p-4 rounded-md mb-4">
                           <h3 className="font-medium text-sm mb-2">Deskripsi Kriteria</h3>
                           <p className="text-sm text-muted-foreground">
-                            {kriteria.keterangan ||
-                              `Kriteria ${kriteria.nama_kriteria} dengan bobot ${kriteria.bobot_kriteria}`}
+                            {kriteria.keterangan || `Kriteria ${kriteria.nama_kriteria}`}
+                            {/*  // `Kriteria ${kriteria.nama_kriteria} dengan bobot ${kriteria.bobot_kriteria}`}
+                             */}
                           </p>
-                          <p className="text-sm text-muted-foreground mt-2">
+                          {/* <p className="text-sm text-muted-foreground mt-2">
                             <span className="font-medium">Tipe Kriteria:</span>{' '}
                             {kriteria.tipe_kriteria}
-                          </p>
+                          </p> */}
                         </div>
 
                         <div>
                           <label className="text-sm font-medium mb-1 block">
                             Pilih {kriteria.nama_kriteria}
                           </label>
+
                           <Select
                             value={formData[kriteria.id] || ''}
                             onValueChange={value => handleSelectChange(kriteria.id, value)}
@@ -403,6 +406,44 @@ export default function CreatePenilaianPage() {
                               ))}
                             </SelectContent>
                           </Select>
+
+                          {/* Input Manual IPK - hanya tampil kalau nama kriteria mengandung IPK */}
+                          {(kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                            kriteria.nama_kriteria.toLowerCase().includes('indeks')) && (
+                            <div className="mt-2">
+                              <label className="text-sm">Isi IPK Anda</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="4"
+                                className="mt-1 border px-3 py-2 rounded-md w-full"
+                                placeholder="Contoh: 3.75"
+                                onChange={e => {
+                                  const value = parseFloat(e.target.value)
+                                  if (isNaN(value)) return
+
+                                  const matched = currentSubKriteria.find(sub => {
+                                    const label = sub.nama_sub_kriteria
+                                    if (label.includes('<')) return value < 3.0
+                                    if (label.includes('3.00') && label.includes('3.19'))
+                                      return value >= 3.0 && value <= 3.19
+                                    if (label.includes('3.20') && label.includes('3.39'))
+                                      return value >= 3.2 && value <= 3.39
+                                    if (label.includes('3.40') && label.includes('3.59'))
+                                      return value >= 3.4 && value <= 3.59
+                                    if (label.includes('3.60') && label.includes('4.00'))
+                                      return value >= 3.6 && value <= 4.0
+                                    return false
+                                  })
+
+                                  if (matched) {
+                                    handleSelectChange(kriteria.id, matched.id)
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
