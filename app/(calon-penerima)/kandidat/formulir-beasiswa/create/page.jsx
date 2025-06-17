@@ -418,6 +418,92 @@ export default function CreatePenilaianPage() {
                             </SelectContent>
                           </Select>
 
+                          {/* Input manual untuk Semester */}
+                          {kriteria.nama_kriteria.toLowerCase().includes('semester') && (
+                            <div className="mt-2">
+                              <label className="text-sm">Isi Semester Anda</label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="8"
+                                className="mt-1 border px-3 py-2 rounded-md w-full"
+                                placeholder="Contoh: 3"
+                                onChange={e => {
+                                  const value = parseInt(e.target.value)
+                                  if (isNaN(value) || value < 1 || value > 8) {
+                                    toast.warning('Semester hanya valid antara 1 - 8')
+                                    handleSelectChange(kriteria.id, '')
+                                    return
+                                  }
+
+                                  const matched = currentSubKriteria.find(sub =>
+                                    sub.nama_sub_kriteria.includes(`${value}`)
+                                  )
+
+                                  if (matched) {
+                                    handleSelectChange(kriteria.id, matched.id)
+                                  } else {
+                                    toast.warning('Semester tidak sesuai rentang subkriteria')
+                                    handleSelectChange(kriteria.id, '')
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {/* Input manual untuk UKT */}
+                          {kriteria.nama_kriteria.toLowerCase().includes('ukt') && (
+                            <div className="mt-2">
+                              <label className="text-sm">Isi Jumlah UKT Anda (Rp)</label>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                className="mt-1 border px-3 py-2 rounded-md w-full"
+                                placeholder="Contoh: 1.500.000"
+                                onChange={e => {
+                                  // Hapus titik & karakter non-digit
+                                  const raw = e.target.value.replace(/\./g, '').replace(/\D/g, '')
+                                  const value = parseInt(raw)
+
+                                  // Format kembali ke nominal dengan titik
+                                  const formatted = new Intl.NumberFormat('id-ID').format(
+                                    value || 0
+                                  )
+                                  e.target.value = formatted // tampilkan angka format
+
+                                  if (isNaN(value)) {
+                                    handleSelectChange(kriteria.id, '')
+                                    return
+                                  }
+
+                                  const matched = currentSubKriteria.find(sub => {
+                                    const nama = sub.nama_sub_kriteria
+                                      .replace(/\./g, '')
+                                      .replace(/RP|Rp/gi, '')
+                                      .replace(/\s/g, '')
+                                    if (nama.includes('≤999000')) return value <= 999000
+                                    if (nama.includes('≥4000000')) return value >= 4000000
+
+                                    const matchRange = nama.match(/(\d+)-(\d+)/)
+                                    if (matchRange) {
+                                      const [_, min, max] = matchRange
+                                      return value >= parseInt(min) && value <= parseInt(max)
+                                    }
+
+                                    return false
+                                  })
+
+                                  if (matched) {
+                                    handleSelectChange(kriteria.id, matched.id)
+                                  } else {
+                                    toast.warning('Nilai UKT tidak sesuai rentang yang tersedia.')
+                                    handleSelectChange(kriteria.id, '')
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+
                           {/* Input Manual IPK */}
                           {(kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
                             kriteria.nama_kriteria.toLowerCase().includes('indeks')) && (

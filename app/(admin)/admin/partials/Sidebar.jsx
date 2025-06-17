@@ -249,7 +249,7 @@ export default function SidebarAdmin() {
                 </button>
               </div>
 
-              {!isMobile && <DesktopSidebarToggle />}
+              {/* {!isMobile && <DesktopSidebarToggle />} */}
             </motion.div>
           </>
         )}

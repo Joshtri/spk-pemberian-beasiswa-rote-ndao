@@ -1,16 +1,19 @@
-import { Inter } from "next/font/google"
-import "../../globals.css"
-import AdminLayoutGuard from "./AdminLayoutGuard"
-import HeaderAdmin from "./partials/Header"
-import SidebarAdmin from "./partials/Sidebar"
-const inter = Inter({ subsets: ["latin"] })
+import { Inter } from 'next/font/google'
+import '../../globals.css'
+import AdminLayoutGuard from './AdminLayoutGuard'
+import HeaderAdmin from './partials/Header'
+import SidebarAdmin from './partials/Sidebar'
+const inter = Inter({ subsets: ['latin'] })
+import { SidebarProvider } from '@/contexts/SidebarContext' // path sesuaikan
+import ContentLayout from '@/components/layouts/ContentLayout' // pastikan path benar
+import ContentWrapper from '@/components/ContentWrapper'
 
 export const metadata = {
-  title: "Beasiswa Pemerintah Daerah Kabupaten Rote Ndao",
-  description: "Program beasiswa untuk putra-putri daerah Kabupaten Rote Ndao",
-  manifest: "/manifest.json",
-  themeColor: "#4f46e5",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  title: 'Beasiswa Pemerintah Daerah Kabupaten Rote Ndao',
+  description: 'Program beasiswa untuk putra-putri daerah Kabupaten Rote Ndao',
+  manifest: '/manifest.json',
+  themeColor: '#4f46e5',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 }
 
 export default function RootAdminLayout({ children }) {
@@ -21,20 +24,19 @@ export default function RootAdminLayout({ children }) {
       </head>
       <body className={inter.className}>
         {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
+        <SidebarProvider>
           <AdminLayoutGuard>
             <div className="min-h-screen bg-gray-50 flex flex-col">
               <SidebarAdmin />
-              <div className="flex flex-col min-h-screen lg:ml-[80px] xl:ml-[256px] transition-all duration-300">
+              <ContentWrapper>
                 <HeaderAdmin />
-                <main className="p-4 sm:p-6 flex-1">
-                   {children}
-                </main>
-              </div>
+                <main className="p-4 sm:p-6 flex-1">{children}</main>
+              </ContentWrapper>
             </div>
           </AdminLayoutGuard>
+        </SidebarProvider>
         {/* </ThemeProvider> */}
       </body>
     </html>
   )
 }
-
