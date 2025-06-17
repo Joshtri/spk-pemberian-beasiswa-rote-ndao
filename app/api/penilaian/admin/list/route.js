@@ -1,36 +1,42 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic' // To prevent static behavior
+export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
   try {
-    // Parse query parameters
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const periodeId = searchParams.get('periodeId')
-    const calonPenerimaId = searchParams.get('calonPenerimaId')
-    const kriteriaId = searchParams.get('kriteriaId')
 
-    // Build where clause
     const where = {}
-
     if (periodeId) {
       where.periodeId = periodeId
     }
 
-    if (calonPenerimaId) {
-      where.calonPenerimaId = calonPenerimaId
-    }
-
-    if (kriteriaId) {
-      where.kriteriaId = kriteriaId
-    }
-
-    // Fetch data with relations
-    const penilaianList = await prisma.penilaian.findMany({
+    // 1. Ambil semua calonPenerimaId unik dengan filter yang sesuai
+    const groupedCalon = await prisma.penilaian.groupBy({
+      by: ['calonPenerimaId'],
       where,
+    })
+
+    const total = groupedCalon.length
+    const totalPages = Math.ceil(total / limit)
+
+    // 2. Ambil calonPenerimaId yang hanya sesuai dengan halaman ini
+    const paginatedCalon = groupedCalon
+      .slice((page - 1) * limit, page * limit)
+      .map(g => g.calonPenerimaId)
+
+    // 3. Ambil semua data penilaian yang berelasi dengan calon tersebut
+    const penilaianList = await prisma.penilaian.findMany({
+      where: {
+        ...where,
+        calonPenerimaId: {
+          in: paginatedCalon,
+        },
+      },
       include: {
         calonPenerima: true,
         periode: true,
@@ -47,9 +53,6 @@ export async function GET(request) {
       },
     })
 
-    // Get total count for pagination
-    const total = await prisma.penilaian.count({ where })
-
     return NextResponse.json({
       success: true,
       data: penilaianList,
@@ -57,7 +60,7 @@ export async function GET(request) {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages,
       },
     })
   } catch (error) {

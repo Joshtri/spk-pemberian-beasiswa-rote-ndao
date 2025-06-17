@@ -64,25 +64,23 @@ export default function PenilaianPage() {
   const fetchPenilaian = async () => {
     setIsLoading(true)
     try {
-      const params = new URLSearchParams()
-      params.append('page', page.toString())
-      params.append('limit', limit.toString())
-
-      if (selectedPeriode) {
-        params.append('periodeId', selectedPeriode)
+      const query = {
+        page,
+        limit,
       }
 
-      const res = await api.get(`/penilaian/admin/list`)
+      if (selectedPeriode && selectedPeriode !== 'all') {
+        query.periodeId = selectedPeriode
+      }
+
+      const res = await api.get('/penilaian/admin/list', { params: query })
 
       if (res.data.success) {
         setPenilaianData(res.data.data)
         setPagination(res.data.pagination)
-
-        // Process data for table display
         processDataForTable(res.data.data)
       }
     } catch (err) {
-      console.error('Gagal fetch penilaian:', err)
       toast.error('Gagal memuat data', {
         description: 'Terjadi kesalahan saat mengambil data penilaian.',
       })
