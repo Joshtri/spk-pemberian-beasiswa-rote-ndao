@@ -101,7 +101,7 @@ export default function LoginPage() {
             : role === 'CALON_PENERIMA'
               ? '/kandidat/dashboard'
               : '/kabid/dashboard'
-        router.push(redirectPath)
+        router.replace(redirectPath)
       }, 1000)
     } catch (err) {
       let errorMessage = 'Gagal login. Silakan coba lagi.'
@@ -120,6 +120,8 @@ export default function LoginPage() {
           shouldLock = true
         }
       }
+
+      
 
       // Show error notification with X icon
       toast.error(errorMessage, {

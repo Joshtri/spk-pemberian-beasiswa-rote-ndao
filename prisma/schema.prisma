@@ -123,6 +123,7 @@ model Periode {
   isActived        Boolean            @default(false)
   Penilaian        Penilaian[]
   HasilPerhitungan HasilPerhitungan[]
+  kouta_kelulusan Int?
 
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
