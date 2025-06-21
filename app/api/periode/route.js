@@ -17,6 +17,7 @@ export async function POST(request) {
       ...data,
       tanggal_mulai: new Date(data.tanggal_mulai),
       tanggal_selesai: new Date(data.tanggal_selesai),
+      kuota_kelulusan: parseInt(data.kuota_kelulusan, 10) || 0,
     },
   })
 

@@ -24,6 +24,7 @@ export default function PeriodePage() {
       nama_periode: '',
       tanggal_mulai: '',
       tanggal_selesai: '',
+      kuota_kelulusan: 0,
     },
   })
 
@@ -64,6 +65,7 @@ export default function PeriodePage() {
       nama_periode: periode.nama_periode,
       tanggal_mulai: periode.tanggal_mulai?.slice(0, 10),
       tanggal_selesai: periode.tanggal_selesai?.slice(0, 10),
+      kuota_kelulusan: periode.kuota_kelulusan || 0,
     })
     setEditingId(periode.id)
     setIsModalOpen(true)
@@ -161,6 +163,15 @@ export default function PeriodePage() {
       header: 'TANGGAL SELESAI',
       accessorKey: 'tanggal_selesai',
       cell: row => formatDate(row.tanggal_selesai),
+    },
+    {
+      header: 'KUOTA KELULUSAN',
+      accessorKey: 'kuota_kelulusan',
+      cell: row => (
+        <span className="text-sm font-medium">
+          {row.kuota_kelulusan ? row.kuota_kelulusan : 'Tidak ada kuota'}
+        </span>
+      ),
     },
 
     {
@@ -270,6 +281,14 @@ export default function PeriodePage() {
             placeholder="Pilih tanggal selesai"
             error={errors.tanggal_selesai?.message}
             {...register('tanggal_selesai', { required: 'Tanggal selesai wajib diisi' })}
+          />
+
+          <FormField
+            label="Kuota Kelulusan"
+            name="kuota_kelulusan"
+            placeholder="Kuota Kelulusan"
+            error={errors.kuota_kelulusan?.message}
+            {...register('kuota_kelulusan', { required: false })}
           />
         </FormProvider>
       </ModalForm>

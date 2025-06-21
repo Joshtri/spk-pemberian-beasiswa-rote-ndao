@@ -1,13 +1,20 @@
-"use client"
+'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
-import { Loader2 } from "lucide-react"
-import { toast } from "sonner"
-import axios from "@/lib/axios"
-import { useState, useEffect } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import axios from '@/lib/axios'
+import { useState, useEffect } from 'react'
 
 export default function NilaiPreferensi({ finalScores = [], selectedPeriod, selectedPeriodName }) {
   const [existingData, setExistingData] = useState(false)
@@ -19,12 +26,12 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
     }
   }, [selectedPeriod])
 
-  const checkExistingData = async (periodeId) => {
+  const checkExistingData = async periodeId => {
     try {
       const response = await axios.get(`/hasil-perhitungan/${periodeId}`)
       setExistingData(response.data.length > 0)
     } catch (error) {
-      console.error("❌ Gagal mengecek hasil perhitungan:", error)
+      console.error('❌ Gagal mengecek hasil perhitungan:', error)
       setExistingData(false)
     }
   }
@@ -32,12 +39,14 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
   const saveResults = async () => {
     if (isSaving) return
     if (!selectedPeriod) {
-      toast.error("❌ Periode tidak tersedia.")
+      toast.error('❌ Periode tidak tersedia.')
       return
     }
 
     if (existingData) {
-      toast.error("Hasil perhitungan sudah ada untuk periode ini. Harap hapus data sebelum menyimpan ulang.")
+      toast.error(
+        'Hasil perhitungan sudah ada untuk periode ini. Harap hapus data sebelum menyimpan ulang.'
+      )
       return
     }
 
@@ -48,19 +57,18 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
         calonPenerimaId: alt.alternatifId,
         rangking: index + 1,
         nilai_akhir: Number.parseFloat(alt.preference),
-        status: index + 1 <= 10 ? "LOLOS" : "TIDAK LOLOS",
         periodeId: selectedPeriod,
       }))
 
-      await axios.post("/hasil-perhitungan", {
+      await axios.post('/hasil-perhitungan', {
         results: formattedResults,
       })
 
-      toast.success("✅ Hasil perhitungan berhasil disimpan!")
+      toast.success('✅ Hasil perhitungan berhasil disimpan!')
       checkExistingData(selectedPeriod)
     } catch (error) {
-      console.error("❌ Error saving results:", error)
-      toast.error("❌ Gagal menyimpan hasil perhitungan.")
+      console.error('❌ Error saving results:', error)
+      toast.error('❌ Gagal menyimpan hasil perhitungan.')
     } finally {
       setIsSaving(false)
     }
@@ -69,11 +77,11 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
   const deleteResults = async () => {
     try {
       await axios.delete(`/hasil-perhitungan/${selectedPeriod}`)
-      toast.success("Hasil perhitungan berhasil dihapus.")
+      toast.success('Hasil perhitungan berhasil dihapus.')
       setExistingData(false)
     } catch (error) {
-      console.error("❌ Error deleting results:", error)
-      toast.error("Gagal menghapus hasil perhitungan.")
+      console.error('❌ Error deleting results:', error)
+      toast.error('Gagal menghapus hasil perhitungan.')
     }
   }
 
@@ -86,11 +94,14 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
     >
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold text-gray-700">Nilai Preferensi & Urutan Alternatif</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-700">
+            Nilai Preferensi & Urutan Alternatif
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="mb-4 text-sm text-muted-foreground">
-            Simpan hasil perhitungan untuk periode: <span className="font-semibold">{selectedPeriodName}</span>
+            Simpan hasil perhitungan untuk periode:{' '}
+            <span className="font-semibold">{selectedPeriodName}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
@@ -110,7 +121,7 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
                     Menyimpan...
                   </>
                 ) : (
-                  "Simpan Hasil Perhitungan"
+                  'Simpan Hasil Perhitungan'
                 )}
               </Button>
             )}
@@ -130,7 +141,10 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
                 </TableHeader>
                 <TableBody>
                   {finalScores.map((alt, index) => (
-                    <TableRow key={alt.alternatifId} className={index + 1 <= 10 ? "bg-green-100" : "bg-red-100"}>
+                    <TableRow
+                      key={alt.alternatifId}
+                      className={'bg-green-100'}
+                    >
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell>{alt.nama_alternatif}</TableCell>
                       <TableCell>{alt.preference}</TableCell>

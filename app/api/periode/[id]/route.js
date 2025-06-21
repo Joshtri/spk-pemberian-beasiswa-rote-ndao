@@ -46,6 +46,12 @@ export async function PUT(request, context) {
       updatePayload.isActived = body.isActived
     }
 
+    if (body.kuota_kelulusan !== undefined) {
+      const kuota = parseInt(body.kuota_kelulusan, 10)
+      if (isNaN(kuota) || kuota < 0) throw new Error('Kuota kelulusan tidak valid')
+      updatePayload.kuota_kelulusan = kuota
+    }
+
     const updated = await prisma.periode.update({
       where: { id },
       data: updatePayload,

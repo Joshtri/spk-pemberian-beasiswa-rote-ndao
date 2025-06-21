@@ -81,7 +81,7 @@ export default function PerhitunganSawTopsis() {
 
       // 🔹 Matriks Keputusan
       const grouped = {}
-      penilaian.forEach((item) => {
+      penilaian.forEach(item => {
         const penerimaId = item.calonPenerimaId
         if (!grouped[penerimaId]) {
           grouped[penerimaId] = {
@@ -96,8 +96,8 @@ export default function PerhitunganSawTopsis() {
       setDecisionMatrix(grouped)
 
       // 🔹 Normalisasi SAW
-      kriteria.forEach((krit) => {
-        const values = Object.values(grouped).map((alt) => alt.penilaian[krit.id] || 0)
+      kriteria.forEach(krit => {
+        const values = Object.values(grouped).map(alt => alt.penilaian[krit.id] || 0)
         maxValues[krit.id] = Math.max(...values)
         minValues[krit.id] = Math.min(...values)
       })
@@ -109,12 +109,10 @@ export default function PerhitunganSawTopsis() {
           alternatifId: alt.alternatifId,
           penilaian: {},
         }
-        kriteria.forEach((krit) => {
+        kriteria.forEach(krit => {
           const raw = alt.penilaian[krit.id] || 0
           const norm =
-            krit.tipe_kriteria === 'BENEFIT'
-              ? raw / maxValues[krit.id]
-              : minValues[krit.id] / raw
+            krit.tipe_kriteria === 'BENEFIT' ? raw / maxValues[krit.id] : minValues[krit.id] / raw
           normMatrix[altId].penilaian[krit.id] = norm
         })
       })
@@ -128,7 +126,7 @@ export default function PerhitunganSawTopsis() {
           alternatifId: alt.alternatifId,
           penilaian: {},
         }
-        kriteria.forEach((krit) => {
+        kriteria.forEach(krit => {
           const bobot = krit.bobot_kriteria > 1 ? krit.bobot_kriteria / 100 : krit.bobot_kriteria
           const nilai = alt.penilaian[krit.id] * bobot
           weightMatrix[altId].penilaian[krit.id] = nilai
@@ -139,8 +137,8 @@ export default function PerhitunganSawTopsis() {
       // 🔹 Solusi Ideal
       const idealPositif = {}
       const idealNegatif = {}
-      kriteria.forEach((krit) => {
-        const values = Object.values(weightMatrix).map((alt) => alt.penilaian[krit.id] || 0)
+      kriteria.forEach(krit => {
+        const values = Object.values(weightMatrix).map(alt => alt.penilaian[krit.id] || 0)
         idealPositif[krit.id] = Math.max(...values)
         idealNegatif[krit.id] = Math.min(...values)
       })
@@ -194,10 +192,16 @@ export default function PerhitunganSawTopsis() {
 
   return (
     <div className="p-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-800">Perhitungan SAW & TOPSIS</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              Perhitungan SAW & TOPSIS
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="mb-4">
@@ -207,7 +211,7 @@ export default function PerhitunganSawTopsis() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default">Pilih Periode</SelectItem>
-                  {periode.map((p) => (
+                  {periode.map(p => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.nama_periode}
                     </SelectItem>
@@ -226,7 +230,11 @@ export default function PerhitunganSawTopsis() {
         </div>
       ) : (
         <>
-          <MatriksKeputusan decisionMatrix={decisionMatrix} kriteria={kriteria} />
+          <MatriksKeputusan
+            decisionMatrix={decisionMatrix}
+            kriteria={kriteria}
+            periodeList={periode}
+          />
           <NormalisasiSAW normalizedMatrix={normalizedMatrix} kriteria={kriteria} />
           <NormalisasiTerbobot weightedMatrix={weightedMatrix} kriteria={kriteria} />
           <SolusiIdeal idealSolutions={idealSolutions} kriteria={kriteria} />
@@ -234,7 +242,7 @@ export default function PerhitunganSawTopsis() {
           <NilaiPreferensi
             finalScores={finalScores}
             selectedPeriod={selectedPeriod}
-            selectedPeriodName={periode.find((p) => p.id === selectedPeriod)?.nama_periode || '-'}
+            selectedPeriodName={periode.find(p => p.id === selectedPeriod)?.nama_periode || '-'}
           />
         </>
       )}

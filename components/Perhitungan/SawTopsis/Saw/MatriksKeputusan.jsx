@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 
-export default function MatriksKeputusan({ decisionMatrix, kriteria }) {
+export default function MatriksKeputusan({ decisionMatrix, kriteria, periodeList }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -35,18 +35,21 @@ export default function MatriksKeputusan({ decisionMatrix, kriteria }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Object.values(decisionMatrix).map((alt) => (
-                  <TableRow key={alt.alternatifId} className="even:bg-muted/50">
-                    <TableCell className="font-medium">
-                      {alt.nama_alternatif}-{alt.alternatifId} - {alt.periodeId}
-                    </TableCell>
-                    {kriteria.map((krit) => (
-                      <TableCell key={krit.id}>
-                        {alt.penilaian[krit.id] ?? "-"}
+                {Object.values(decisionMatrix).map((alt) => {
+                  const periodeNama = periodeList.find((p) => p.id === alt.periodeId)?.nama_periode || '-'
+                  return (
+                    <TableRow key={alt.alternatifId} className="even:bg-muted/50">
+                      <TableCell className="font-medium">
+                        {alt.nama_alternatif} Periode : ({periodeNama})
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                      {kriteria.map((krit) => (
+                        <TableCell key={krit.id}>
+                          {alt.penilaian[krit.id] ?? "-"}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </div>

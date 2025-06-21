@@ -20,8 +20,23 @@ export async function GET(req, { params }) {
       prisma.hasilPerhitungan.findMany({
         where,
         include: {
-          calonPenerima: true,
           periode: true,
+          calonPenerima: {
+            include: {
+              user: true,
+              penilaian: {
+                where: {
+                  periodeId,
+                },
+                include: {
+                  kriteria: true,
+                  subKriteria: true,
+                  dokumen: true,
+                  periode: true,
+                },
+              },
+            },
+          },
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -44,10 +59,13 @@ export async function GET(req, { params }) {
     })
   } catch (error) {
     console.error('[HASIL_PERHITUNGAN_GET_ERROR]', error)
-    return NextResponse.json({
-      success: false,
-      message: 'Gagal mengambil hasil perhitungan',
-      error: error.message,
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Gagal mengambil hasil perhitungan',
+        error: error.message,
+      },
+      { status: 500 }
+    )
   }
 }
