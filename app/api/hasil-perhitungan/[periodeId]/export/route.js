@@ -29,42 +29,66 @@ export async function GET(req, { params }) {
     }
 
     const pdfDoc = await PDFDocument.create()
-    const page = pdfDoc.addPage()
-    const { width, height } = page.getSize()
-
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const fontSize = 12
+    const rowHeight = 20
+    const marginTop = 50
+    const marginBottom = 50
+    const colX = [50, 120, 350, 450]
 
+    let page = pdfDoc.addPage()
+    const { width, height } = page.getSize()
+    let y = height - marginTop
+
+    // Draw header
     page.drawText(`Hasil Perhitungan - Periode: ${data[0].periode.nama_periode}`, {
       x: 50,
-      y: height - 50,
+      y,
       size: 14,
       font,
       color: rgb(0, 0, 0),
     })
 
-    const headers = ['Ranking', 'Nama Calon', 'Nilai Akhir', 'Status']
-    const startY = height - 80
-    const rowHeight = 20
-    const colX = [50, 120, 350, 450]
+    y -= rowHeight + 10
 
+    const headers = ['Ranking', 'Nama Calon', 'Nilai Akhir', 'Status']
     headers.forEach((header, i) => {
       page.drawText(header, {
         x: colX[i],
-        y: startY,
+        y,
         size: fontSize,
         font,
       })
     })
 
-    data.forEach((item, rowIndex) => {
-      const y = startY - (rowIndex + 1) * rowHeight
+    y -= rowHeight
+
+    for (const item of data) {
+      if (y < marginBottom) {
+        // Buat halaman baru
+        page = pdfDoc.addPage()
+        y = height - marginTop
+
+        // Redraw header on new page
+        headers.forEach((header, i) => {
+          page.drawText(header, {
+            x: colX[i],
+            y,
+            size: fontSize,
+            font,
+          })
+        })
+
+        y -= rowHeight
+      }
+
       const values = [
         String(item.rangking),
         item.calonPenerima?.nama_lengkap || '-',
-        item.nilai_akhir.toFixed(4),
+        Number(item.nilai_akhir).toFixed(4),
         item.status,
       ]
+
       values.forEach((text, colIndex) => {
         page.drawText(text, {
           x: colX[colIndex],
@@ -73,7 +97,9 @@ export async function GET(req, { params }) {
           font,
         })
       })
-    })
+
+      y -= rowHeight
+    }
 
     const pdfBytes = await pdfDoc.save()
 
