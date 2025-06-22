@@ -243,6 +243,7 @@ export default function PerhitunganSawTopsis() {
             finalScores={finalScores}
             selectedPeriod={selectedPeriod}
             selectedPeriodName={periode.find(p => p.id === selectedPeriod)?.nama_periode || '-'}
+            kuotaKelulusan={periode.find(p => p.id === selectedPeriod)?.kuota_kelulusan ?? 0}
           />
         </>
       )}
