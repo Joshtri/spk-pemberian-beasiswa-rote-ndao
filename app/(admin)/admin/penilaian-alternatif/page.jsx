@@ -46,18 +46,57 @@ export default function PenilaianPage() {
   const [groupedData, setGroupedData] = useState([])
   // Store all unique kriteria for columns
   const [kriteriaColumns, setKriteriaColumns] = useState([])
-
+  const [kuotaAktif, setKuotaAktif] = useState(null)
+  const [jumlahDiterima, setJumlahDiterima] = useState(0)
+  // ✅ Ambil semua periode saat pertama kali halaman dibuka
   useEffect(() => {
-    fetchPenilaian()
     fetchPeriodes()
-  }, [page, limit, selectedPeriode])
+  }, [])
+
+  // ✅ Ambil data penilaian + jumlah DITERIMA setiap kali periode dipilih atau pagination berubah
+  useEffect(() => {
+    if (selectedPeriode && selectedPeriode !== 'all') {
+      fetchPenilaian()
+      fetchTotalDiterimaByPeriode()
+    } else {
+      // Jika "Semua Periode" dipilih, reset jumlah diterima
+      setJumlahDiterima(0)
+    }
+  }, [selectedPeriode, page, limit])
 
   const fetchPeriodes = async () => {
     try {
       const res = await api.get('/periode')
       setPeriodes(res.data)
+
+      const aktif = res.data.find(p => p.isActived)
+      if (aktif) {
+        setSelectedPeriode(aktif.id) // ini otomatis pilih periode aktif
+        setKuotaAktif(aktif.kuota_kelulusan || 0)
+      }
     } catch (err) {
       console.error('Gagal fetch periode:', err)
+    }
+  }
+
+  const fetchTotalDiterima = async () => {
+    try {
+      const res = await api.get('/penilaian/admin/list', {
+        params: {
+          periodeId: selectedPeriode,
+          limit: 9999,
+          page: 1,
+        },
+      })
+
+      const diterimaSet = new Set(
+        res.data.data.filter(p => p.verifikasiStatus === 'DITERIMA').map(p => p.calonPenerimaId)
+      )
+
+      setJumlahDiterima(diterimaSet.size)
+    } catch (error) {
+      console.error('Gagal menghitung total DITERIMA:', error)
+      setJumlahDiterima(0)
     }
   }
 
@@ -79,13 +118,46 @@ export default function PenilaianPage() {
         setPenilaianData(res.data.data)
         setPagination(res.data.pagination)
         processDataForTable(res.data.data)
+
+        // ✅ HITUNG JUMLAH DITERIMA BERDASARKAN CALON UNIK
+        const diterimaSet = new Set(
+          res.data.data.filter(p => p.verifikasiStatus === 'DITERIMA').map(p => p.calonPenerimaId)
+        )
+        setJumlahDiterima(diterimaSet.size)
       }
     } catch (err) {
       toast.error('Gagal memuat data', {
         description: 'Terjadi kesalahan saat mengambil data penilaian.',
       })
+      setJumlahDiterima(0)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchTotalDiterimaByPeriode = async () => {
+    try {
+      if (!selectedPeriode || selectedPeriode === 'all') {
+        setJumlahDiterima(0)
+        return
+      }
+
+      const res = await api.get('/penilaian/admin/list', {
+        params: {
+          periodeId: selectedPeriode,
+          limit: 9999,
+          page: 1,
+        },
+      })
+
+      const diterimaSet = new Set(
+        res.data.data.filter(p => p.verifikasiStatus === 'DITERIMA').map(p => p.calonPenerimaId)
+      )
+
+      setJumlahDiterima(diterimaSet.size)
+    } catch (error) {
+      console.error('❌ Gagal mengambil jumlah DITERIMA:', error)
+      setJumlahDiterima(0)
     }
   }
 
@@ -197,7 +269,8 @@ export default function PenilaianPage() {
       toast.success('Status verifikasi diperbarui')
 
       // Refresh data
-      fetchPenilaian()
+      await fetchPenilaian()
+      await fetchTotalDiterima()
     } catch (error) {
       console.error('❌ Gagal mengubah status verifikasi:', error)
       toast.error('Gagal mengubah status verifikasi')
@@ -248,6 +321,28 @@ export default function PenilaianPage() {
               </div>
             </div>
           </CardHeader>
+
+          {/* KUOTA INFO */}
+          {kuotaAktif !== null && (
+            <div className="px-6">
+              <div className="flex flex-wrap items-center justify-between rounded-lg border bg-muted p-4 shadow-sm">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-semibold text-foreground">Kuota Kelulusan:</span>{' '}
+                    {kuotaAktif}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-foreground">Sudah Diterima:</span>{' '}
+                    {jumlahDiterima}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-foreground">Sisa Kuota:</span>{' '}
+                    {Math.max(kuotaAktif - jumlahDiterima, 0)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <CardContent>
             <div className="rounded-md border overflow-hidden">
@@ -350,14 +445,7 @@ export default function PenilaianPage() {
                           </TableRow>
                         ))
                       ) : (
-                        <TableRow>
-                          <TableCell
-                            colSpan={kriteriaColumns.length + 3}
-                            className="text-center py-8"
-                          >
-                            Tidak ada data penilaian
-                          </TableCell>
-                        </TableRow>
+                      null
                       )}
                     </TableBody>
                   </Table>
