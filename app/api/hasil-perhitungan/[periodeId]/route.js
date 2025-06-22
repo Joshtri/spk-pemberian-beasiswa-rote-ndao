@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
+// GET hasil perhitungan berdasarkan periode
 export async function GET(req, { params }) {
   try {
     const { searchParams } = new URL(req.url)
@@ -12,9 +13,7 @@ export async function GET(req, { params }) {
     const sort = searchParams.get('sort') || 'rangking'
     const order = searchParams.get('order') || 'asc'
 
-    const where = {
-      periodeId,
-    }
+    const where = { periodeId }
 
     const [results, total] = await Promise.all([
       prisma.hasilPerhitungan.findMany({
@@ -25,9 +24,7 @@ export async function GET(req, { params }) {
             include: {
               user: true,
               penilaian: {
-                where: {
-                  periodeId,
-                },
+                where: { periodeId },
                 include: {
                   kriteria: true,
                   subKriteria: true,
@@ -63,6 +60,43 @@ export async function GET(req, { params }) {
       {
         success: false,
         message: 'Gagal mengambil hasil perhitungan',
+        error: error.message,
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE semua hasil perhitungan berdasarkan periode
+export async function DELETE(req, { params }) {
+  try {
+    const periodeId = params.periodeId
+
+    if (!periodeId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Periode ID tidak ditemukan',
+        },
+        { status: 400 }
+      )
+    }
+
+    const deleted = await prisma.hasilPerhitungan.deleteMany({
+      where: { periodeId },
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `Berhasil menghapus ${deleted.count} hasil perhitungan untuk periode ini.`,
+      deletedCount: deleted.count,
+    })
+  } catch (error) {
+    console.error('[HASIL_PERHITUNGAN_DELETE_ERROR]', error)
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Gagal menghapus hasil perhitungan',
         error: error.message,
       },
       { status: 500 }
