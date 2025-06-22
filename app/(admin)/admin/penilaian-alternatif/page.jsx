@@ -322,27 +322,6 @@ export default function PenilaianPage() {
             </div>
           </CardHeader>
 
-          {/* KUOTA INFO */}
-          {kuotaAktif !== null && (
-            <div className="px-6">
-              <div className="flex flex-wrap items-center justify-between rounded-lg border bg-muted p-4 shadow-sm">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 text-sm text-muted-foreground">
-                  <div>
-                    <span className="font-semibold text-foreground">Kuota Kelulusan:</span>{' '}
-                    {kuotaAktif}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-foreground">Sudah Diterima:</span>{' '}
-                    {jumlahDiterima}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-foreground">Sisa Kuota:</span>{' '}
-                    {Math.max(kuotaAktif - jumlahDiterima, 0)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <CardContent>
             <div className="rounded-md border overflow-hidden">
