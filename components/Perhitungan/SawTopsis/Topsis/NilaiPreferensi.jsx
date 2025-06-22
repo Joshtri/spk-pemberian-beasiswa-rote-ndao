@@ -16,7 +16,12 @@ import { toast } from 'sonner'
 import axios from '@/lib/axios'
 import { useState, useEffect } from 'react'
 
-export default function NilaiPreferensi({ finalScores = [], selectedPeriod, selectedPeriodName }) {
+export default function NilaiPreferensi({
+  finalScores = [],
+  selectedPeriod,
+  selectedPeriodName,
+  kuotaKelulusan,
+}) {
   const [existingData, setExistingData] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -53,22 +58,27 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
     try {
       setIsSaving(true)
 
-      const formattedResults = finalScores.map((alt, index) => ({
-        calonPenerimaId: alt.alternatifId,
-        rangking: index + 1,
-        nilai_akhir: Number.parseFloat(alt.preference),
-        periodeId: selectedPeriod,
-      }))
+      const formattedResults = finalScores.map((alt, index) => {
+        const isAccepted = index + 1 <= kuotaKelulusan
+        return {
+          calonPenerimaId: alt.alternatifId,
+          rangking: index + 1,
+          nilai_akhir: Number.parseFloat(alt.preference),
+          periodeId: selectedPeriod,
+          status: isAccepted ? 'DITERIMA' : 'DITOLAK', // ✅ Fix added here
+        }
+      })
 
       await axios.post('/hasil-perhitungan', {
         results: formattedResults,
       })
 
-      toast.success('✅ Hasil perhitungan berhasil disimpan!')
+      toast.success(`✅ ${finalScores.length} hasil perhitungan berhasil disimpan!`)
       checkExistingData(selectedPeriod)
     } catch (error) {
-      console.error('❌ Error saving results:', error)
-      toast.error('❌ Gagal menyimpan hasil perhitungan.')
+      const errorMessage = error?.response?.data?.message || '❌ Gagal menyimpan hasil perhitungan.'
+
+      toast.error(errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -99,60 +109,79 @@ export default function NilaiPreferensi({ finalScores = [], selectedPeriod, sele
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Informasi periode */}
           <p className="mb-4 text-sm text-muted-foreground">
             Simpan hasil perhitungan untuk periode:{' '}
-            <span className="font-semibold">{selectedPeriodName}</span>
+            <span className="font-semibold">{selectedPeriodName}</span> | Kuota Kelulusan:{' '}
+            <span className="font-semibold">{kuotaKelulusan}</span> | Total Alternatif:{' '}
+            <span className="font-semibold">{finalScores.length}</span>
           </p>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
-            {existingData ? (
-              <Button onClick={deleteResults} variant="destructive" className="w-full sm:w-auto">
-                Hapus Hasil Perhitungan
-              </Button>
-            ) : (
-              <Button
-                onClick={saveResults}
-                disabled={!selectedPeriod || isSaving}
-                className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Menyimpan...
-                  </>
-                ) : (
-                  'Simpan Hasil Perhitungan'
-                )}
-              </Button>
-            )}
-          </div>
-
+          {/* Tabel atau pesan kosong */}
           {finalScores.length === 0 ? (
             <p className="text-red-500 py-4">❌ Tidak ada hasil perhitungan tersedia.</p>
           ) : (
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-semibold">Ranking</TableHead>
-                    <TableHead className="font-semibold">Alternatif</TableHead>
-                    <TableHead className="font-semibold">Nilai Preferensi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {finalScores.map((alt, index) => (
-                    <TableRow
-                      key={alt.alternatifId}
-                      className={'bg-green-100'}
-                    >
-                      <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell>{alt.nama_alternatif}</TableCell>
-                      <TableCell>{alt.preference}</TableCell>
+            <>
+              <div className="rounded-md border overflow-x-auto mb-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-semibold">Ranking</TableHead>
+                      <TableHead className="font-semibold">Alternatif</TableHead>
+                      <TableHead className="font-semibold">Nilai Preferensi</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {finalScores.map((alt, index) => {
+                      const isAccepted = index + 1 <= kuotaKelulusan
+                      return (
+                        <TableRow
+                          key={alt.alternatifId}
+                          className={isAccepted ? 'bg-green-100' : 'bg-red-100'}
+                        >
+                          <TableCell className="font-medium">{index + 1}</TableCell>
+                          <TableCell>{alt.nama_alternatif}</TableCell>
+                          <TableCell>{alt.preference}</TableCell>
+                          <TableCell>
+                            <span
+                              className={
+                                isAccepted
+                                  ? 'text-green-700 font-semibold'
+                                  : 'text-red-700 font-semibold'
+                              }
+                            >
+                              {isAccepted ? 'Lolos' : 'Tidak Lolos'}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Tombol Aksi */}
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={saveResults}
+                  disabled={isSaving || existingData}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {isSaving && <Loader2 className="animate-spin w-4 h-4 mr-2" />}
+                  Simpan Hasil
+                </Button>
+                {existingData && (
+                  <Button
+                    onClick={deleteResults}
+                    variant="destructive"
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Hapus Hasil
+                  </Button>
+                )}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
