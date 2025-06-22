@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { motion } from "framer-motion"
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { motion } from 'framer-motion'
 import {
   Search,
   FileDown,
@@ -17,20 +17,38 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
-} from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { useReactToPrint } from "react-to-print"
-import axios from "@/lib/axios"
-import { toast } from "sonner"
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale'
+import { useReactToPrint } from 'react-to-print'
+import axios from '@/lib/axios'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
 import {
   Pagination,
   PaginationContent,
@@ -39,7 +57,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from '@/components/ui/pagination'
 import {
   Dialog,
   DialogContent,
@@ -47,9 +65,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+} from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export default function HasilPerhitunganClient() {
   const router = useRouter()
@@ -60,27 +78,29 @@ export default function HasilPerhitunganClient() {
   const [loading, setLoading] = useState(true)
   const [results, setResults] = useState([])
   const [periods, setPeriods] = useState([])
-  const [selectedPeriod, setSelectedPeriod] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedPeriod, setSelectedPeriod] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [sortConfig, setSortConfig] = useState({ key: "rangking", direction: "asc" })
+  const [sortConfig, setSortConfig] = useState({ key: 'rangking', direction: 'asc' })
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
   const [selectedResult, setSelectedResult] = useState(null)
-  const [periodName, setPeriodName] = useState("")
+  const [periodName, setPeriodName] = useState('')
   const [isDisplayed, setIsDisplayed] = useState(false)
   const [isTogglingDisplay, setIsTogglingDisplay] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [displayAction, setDisplayAction] = useState(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deletePeriodId, setDeletePeriodId] = useState('')
 
   // Fetch data on mount and when dependencies change
   useEffect(() => {
     fetchPeriods()
 
     // Check if period is in URL
-    const periodFromUrl = searchParams.get("period")
+    const periodFromUrl = searchParams.get('period')
     if (periodFromUrl) {
       setSelectedPeriod(periodFromUrl)
     }
@@ -99,11 +119,11 @@ export default function HasilPerhitunganClient() {
   // Fetch periods
   const fetchPeriods = async () => {
     try {
-      const response = await axios.get("/periode")
+      const response = await axios.get('/periode')
       setPeriods(response.data)
     } catch (error) {
-      console.error("Error fetching periods:", error)
-      toast.error("Gagal memuat data periode")
+      console.error('Error fetching periods:', error)
+      toast.error('Gagal memuat data periode')
     }
   }
 
@@ -111,36 +131,33 @@ export default function HasilPerhitunganClient() {
   const fetchResults = async () => {
     setLoading(true)
     try {
-      // Build query params
       const params = new URLSearchParams()
-      params.append("page", currentPage)
-      params.append("limit", itemsPerPage)
-      params.append("sort", sortConfig.key)
-      params.append("order", sortConfig.direction)
-
-      if (searchQuery) {
-        params.append("search", searchQuery)
-      }
+      params.append('page', currentPage)
+      params.append('limit', itemsPerPage)
+      params.append('sort', sortConfig.key)
+      params.append('order', sortConfig.direction)
+      if (searchQuery) params.append('search', searchQuery)
 
       const response = await axios.get(`/hasil-perhitungan/${selectedPeriod}?${params.toString()}`)
 
       setResults(response.data.data || [])
-      setTotalPages(response.data.totalPages || 1)
-      setTotalItems(response.data.totalItems || 0)
 
-      // Get period name
-      if (response.data.data && response.data.data.length > 0) {
-        const periodData = periods.find((p) => p.id === selectedPeriod)
-        setPeriodName(periodData?.nama_periode || "")
+      // ✅ Gunakan response.pagination
+      const { pagination } = response.data
+      setTotalPages(pagination?.totalPages || 1)
+      setTotalItems(pagination?.total || 0)
 
-        // Check if results are displayed to users
-        if (response.data.data.length > 0) {
-          setIsDisplayed(response.data.data[0].ditampilkanKeUser || false)
-        }
+      // Optional: tampilkan nama periode
+      const periodData = periods.find(p => p.id === selectedPeriod)
+      setPeriodName(periodData?.nama_periode || '')
+
+      // Check apakah ditampilkan
+      if (response.data.data.length > 0) {
+        setIsDisplayed(response.data.data[0].ditampilkanKeUser || false)
       }
     } catch (error) {
-      console.error("Error fetching results:", error)
-      toast.error("Gagal memuat data hasil perhitungan")
+      console.error('Error fetching results:', error)
+      toast.error('Gagal memuat data hasil perhitungan')
       setResults([])
     } finally {
       setLoading(false)
@@ -148,27 +165,27 @@ export default function HasilPerhitunganClient() {
   }
 
   // Handle period change
-  const handlePeriodChange = (value) => {
+  const handlePeriodChange = value => {
     setSelectedPeriod(value)
     setCurrentPage(1)
 
     // Update URL
     const params = new URLSearchParams(searchParams)
-    params.set("period", value)
+    params.set('period', value)
     router.push(`?${params.toString()}`)
   }
 
   // Handle search
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     e.preventDefault()
     fetchResults()
   }
 
   // Handle sort
-  const handleSort = (key) => {
-    setSortConfig((prevConfig) => ({
+  const handleSort = key => {
+    setSortConfig(prevConfig => ({
       key,
-      direction: prevConfig.key === key && prevConfig.direction === "asc" ? "desc" : "asc",
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc',
     }))
   }
 
@@ -176,49 +193,49 @@ export default function HasilPerhitunganClient() {
   const handlePrint = useReactToPrint({
     content: useCallback(() => printRef.current, []),
     documentTitle: `Hasil Perhitungan Beasiswa - ${periodName}`,
-    onAfterPrint: () => toast.success("Dokumen berhasil dicetak"),
+    onAfterPrint: () => toast.success('Dokumen berhasil dicetak'),
   })
 
   // Handle export to PDF
   const handleExportPDF = async () => {
-    if (!selectedPeriod || selectedPeriod === "default") {
-      toast.error("Pilih periode terlebih dahulu!")
+    if (!selectedPeriod || selectedPeriod === 'default') {
+      toast.error('Pilih periode terlebih dahulu!')
       return
     }
 
     try {
-      toast.loading("Mengunduh PDF...")
+      toast.loading('Mengunduh PDF...')
 
       const response = await axios.get(`/hasil-perhitungan/${selectedPeriod}/export`, {
-        responseType: "blob",
+        responseType: 'blob',
       })
 
       const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement("a")
+      const link = document.createElement('a')
       link.href = url
-      link.setAttribute("download", `Hasil-Perhitungan-${periodName}.pdf`)
+      link.setAttribute('download', `Hasil-Perhitungan-${periodName}.pdf`)
       document.body.appendChild(link)
       link.click()
       link.remove()
       toast.dismiss()
-      toast.success("PDF berhasil diunduh")
+      toast.success('PDF berhasil diunduh')
     } catch (error) {
-      console.error("❌ Gagal mengunduh PDF:", error)
+      console.error('Gagal mengunduh PDF:', error)
       toast.dismiss()
-      toast.error("Gagal mengunduh PDF")
+      toast.error('Gagal mengunduh PDF')
     }
   }
 
   // Show detail dialog
-  const showDetailDialog = (result) => {
+  const showDetailDialog = result => {
     setSelectedResult(result)
     setDetailDialogOpen(true)
   }
 
   // Toggle display confirmation
-  const confirmToggleDisplay = (action) => {
+  const confirmToggleDisplay = action => {
     if (!selectedPeriod) {
-      toast.error("Pilih periode terlebih dahulu!")
+      toast.error('Pilih periode terlebih dahulu!')
       return
     }
 
@@ -232,17 +249,17 @@ export default function HasilPerhitunganClient() {
 
     setIsTogglingDisplay(true)
     try {
-      const response = await axios.patch("/hasil-perhitungan/toggle-display", {
+      const response = await axios.patch('/hasil-perhitungan/toggle-display', {
         periodeId: selectedPeriod,
-        tampilkan: displayAction === "show",
+        tampilkan: displayAction === 'show',
       })
 
-      setIsDisplayed(displayAction === "show")
-      toast.success(response.data.message || "Status tampilan berhasil diperbarui")
+      setIsDisplayed(displayAction === 'show')
+      toast.success(response.data.message || 'Status tampilan berhasil diperbarui')
       fetchResults() // Refresh data
     } catch (error) {
-      console.error("Error toggling display:", error)
-      toast.error("Gagal memperbarui status tampilan")
+      console.error('Error toggling display:', error)
+      toast.error('Gagal memperbarui status tampilan')
     } finally {
       setIsTogglingDisplay(false)
       setConfirmDialogOpen(false)
@@ -267,7 +284,11 @@ export default function HasilPerhitunganClient() {
 
   return (
     <>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card>
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -282,7 +303,7 @@ export default function HasilPerhitunganClient() {
                     <SelectValue placeholder="Pilih Periode" />
                   </SelectTrigger>
                   <SelectContent>
-                    {periods.map((period) => (
+                    {periods.map(period => (
                       <SelectItem key={period.id} value={period.id}>
                         {period.nama_periode}
                       </SelectItem>
@@ -298,16 +319,29 @@ export default function HasilPerhitunganClient() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleExportPDF} disabled={!selectedPeriod || results.length === 0}>
+                    <DropdownMenuItem
+                      onClick={handleExportPDF}
+                      disabled={!selectedPeriod || results.length === 0}
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       <span>Export PDF</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handlePrint} disabled={!selectedPeriod || results.length === 0}>
+                    <DropdownMenuItem
+                      onClick={handlePrint}
+                      disabled={!selectedPeriod || results.length === 0}
+                    >
                       <Printer className="mr-2 h-4 w-4" />
                       <span>Print</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <Button
+                  variant="destructive"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  disabled={periods.length === 0}
+                >
+                  Hapus Semua Data
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -323,7 +357,7 @@ export default function HasilPerhitunganClient() {
                     placeholder="Cari nama calon penerima..."
                     className="pl-8"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Button type="submit" disabled={!selectedPeriod}>
@@ -334,11 +368,11 @@ export default function HasilPerhitunganClient() {
               {selectedPeriod && results.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Badge
-                    variant={isDisplayed ? "success" : "outline"}
+                    variant={isDisplayed ? 'success' : 'outline'}
                     className={
                       isDisplayed
-                        ? "bg-green-100 text-green-800 hover:bg-green-100"
-                        : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                     }
                   >
                     {isDisplayed ? (
@@ -357,7 +391,7 @@ export default function HasilPerhitunganClient() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => confirmToggleDisplay(isDisplayed ? "hide" : "show")}
+                    onClick={() => confirmToggleDisplay(isDisplayed ? 'hide' : 'show')}
                   >
                     {isDisplayed ? (
                       <>
@@ -389,7 +423,9 @@ export default function HasilPerhitunganClient() {
               <Alert className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Pilih periode</AlertTitle>
-                <AlertDescription>Silakan pilih periode untuk melihat hasil perhitungan.</AlertDescription>
+                <AlertDescription>
+                  Silakan pilih periode untuk melihat hasil perhitungan.
+                </AlertDescription>
               </Alert>
             )}
 
@@ -401,17 +437,22 @@ export default function HasilPerhitunganClient() {
                   <div className="hidden print:block mb-4 text-center">
                     <h1 className="text-xl font-bold">Hasil Perhitungan Beasiswa</h1>
                     <p className="text-sm">Periode: {periodName}</p>
-                    <p className="text-sm">Tanggal: {format(new Date(), "dd MMMM yyyy", { locale: id })}</p>
+                    <p className="text-sm">
+                      Tanggal: {format(new Date(), 'dd MMMM yyyy', { locale: id })}
+                    </p>
                   </div>
 
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[60px]">
-                          <div className="flex items-center cursor-pointer" onClick={() => handleSort("rangking")}>
+                          <div
+                            className="flex items-center cursor-pointer"
+                            onClick={() => handleSort('rangking')}
+                          >
                             Rank
-                            {sortConfig.key === "rangking" &&
-                              (sortConfig.direction === "asc" ? (
+                            {sortConfig.key === 'rangking' &&
+                              (sortConfig.direction === 'asc' ? (
                                 <ChevronUp className="ml-1 h-4 w-4" />
                               ) : (
                                 <ChevronDown className="ml-1 h-4 w-4" />
@@ -421,11 +462,11 @@ export default function HasilPerhitunganClient() {
                         <TableHead>
                           <div
                             className="flex items-center cursor-pointer"
-                            onClick={() => handleSort("calonPenerima.nama_lengkap")}
+                            onClick={() => handleSort('calonPenerima.nama_lengkap')}
                           >
                             Nama
-                            {sortConfig.key === "calonPenerima.nama_lengkap" &&
-                              (sortConfig.direction === "asc" ? (
+                            {sortConfig.key === 'calonPenerima.nama_lengkap' &&
+                              (sortConfig.direction === 'asc' ? (
                                 <ChevronUp className="ml-1 h-4 w-4" />
                               ) : (
                                 <ChevronDown className="ml-1 h-4 w-4" />
@@ -434,16 +475,20 @@ export default function HasilPerhitunganClient() {
                         </TableHead>
                         <TableHead>Perguruan Tinggi</TableHead>
                         <TableHead>
-                          <div className="flex items-center cursor-pointer" onClick={() => handleSort("nilai_akhir")}>
+                          <div
+                            className="flex items-center cursor-pointer"
+                            onClick={() => handleSort('nilai_akhir')}
+                          >
                             Nilai
-                            {sortConfig.key === "nilai_akhir" &&
-                              (sortConfig.direction === "asc" ? (
+                            {sortConfig.key === 'nilai_akhir' &&
+                              (sortConfig.direction === 'asc' ? (
                                 <ChevronUp className="ml-1 h-4 w-4" />
                               ) : (
                                 <ChevronDown className="ml-1 h-4 w-4" />
                               ))}
                           </div>
                         </TableHead>
+
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right print:hidden">Aksi</TableHead>
                       </TableRow>
@@ -458,11 +503,13 @@ export default function HasilPerhitunganClient() {
                       ) : results.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={6} className="h-24 text-center">
-                            {selectedPeriod ? "Tidak ada data hasil perhitungan" : "Pilih periode untuk melihat data"}
+                            {selectedPeriod
+                              ? 'Tidak ada data hasil perhitungan'
+                              : 'Pilih periode untuk melihat data'}
                           </TableCell>
                         </TableRow>
                       ) : (
-                        results.map((result) => (
+                        results.map(result => (
                           <TableRow key={result.id}>
                             <TableCell className="font-medium">
                               {result.rangking <= 3 ? (
@@ -474,25 +521,27 @@ export default function HasilPerhitunganClient() {
                               )}
                             </TableCell>
                             <TableCell>
-                              <div className="font-medium">{result.calonPenerima?.nama_lengkap || "-"}</div>
+                              <div className="font-medium">
+                                {result.calonPenerima?.nama_lengkap || '-'}
+                              </div>
                               <div className="text-sm text-muted-foreground">
-                                {result.calonPenerima?.fakultas_prodi || "-"}
+                                {result.calonPenerima?.fakultas_prodi || '-'}
                               </div>
                             </TableCell>
-                            <TableCell>{result.calonPenerima?.perguruan_Tinggi || "-"}</TableCell>
+                            <TableCell>{result.calonPenerima?.perguruan_Tinggi || '-'}</TableCell>
                             <TableCell className="font-medium">
                               {Number.parseFloat(result.nilai_akhir).toFixed(4)}
                             </TableCell>
                             <TableCell>
                               <Badge
-                                variant={result.status === "LOLOS" ? "success" : "destructive"}
+                                variant={result.status === 'DITERIMA' ? 'success' : 'destructive'}
                                 className={
-                                  result.status === "LOLOS"
-                                    ? "bg-green-100 text-green-800 hover:bg-green-100"
-                                    : "bg-red-100 text-red-800 hover:bg-red-100"
+                                  result.status === 'DITERIMA'
+                                    ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                                    : 'bg-red-100 text-red-800 hover:bg-red-100'
                                 }
                               >
-                                {result.status === "LOLOS" ? (
+                                {result.status === 'DITERIMA' ? (
                                   <Check className="mr-1 h-3 w-3" />
                                 ) : (
                                   <X className="mr-1 h-3 w-3" />
@@ -501,7 +550,11 @@ export default function HasilPerhitunganClient() {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right print:hidden">
-                              <Button variant="ghost" size="sm" onClick={() => showDetailDialog(result)}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => showDetailDialog(result)}
+                              >
                                 Detail
                               </Button>
                             </TableCell>
@@ -518,15 +571,15 @@ export default function HasilPerhitunganClient() {
             {!loading && results.length > 0 && (
               <div className="flex items-center justify-between mt-4 print:hidden">
                 <div className="text-sm text-muted-foreground">
-                  Menampilkan {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalItems)}{" "}
-                  dari {totalItems} hasil
+                  Menampilkan {(currentPage - 1) * itemsPerPage + 1}-
+                  {Math.min(currentPage * itemsPerPage, totalItems)} dari {totalItems} hasil
                 </div>
 
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
                       />
                     </PaginationItem>
@@ -535,10 +588,17 @@ export default function HasilPerhitunganClient() {
                       const page = i + 1
 
                       // Show first page, last page, and pages around current page
-                      if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
                         return (
                           <PaginationItem key={page}>
-                            <PaginationLink isActive={page === currentPage} onClick={() => setCurrentPage(page)}>
+                            <PaginationLink
+                              isActive={page === currentPage}
+                              onClick={() => setCurrentPage(page)}
+                            >
                               {page}
                             </PaginationLink>
                           </PaginationItem>
@@ -562,7 +622,7 @@ export default function HasilPerhitunganClient() {
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
                       />
                     </PaginationItem>
@@ -589,33 +649,43 @@ export default function HasilPerhitunganClient() {
                   {selectedResult.rangking <= 3 ? (
                     <Trophy className="h-8 w-8 text-primary" />
                   ) : (
-                    <span className="text-2xl font-bold text-primary">{selectedResult.rangking}</span>
+                    <span className="text-2xl font-bold text-primary">
+                      {selectedResult.rangking}
+                    </span>
                   )}
                 </div>
               </div>
 
               <div className="text-center">
-                <h3 className="text-lg font-semibold">{selectedResult.calonPenerima?.nama_lengkap || "-"}</h3>
-                <p className="text-sm text-muted-foreground">{selectedResult.calonPenerima?.perguruan_Tinggi || "-"}</p>
-                <p className="text-sm text-muted-foreground">{selectedResult.calonPenerima?.fakultas_prodi || "-"}</p>
+                <h3 className="text-lg font-semibold">
+                  {selectedResult.calonPenerima?.nama_lengkap || '-'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {selectedResult.calonPenerima?.perguruan_Tinggi || '-'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedResult.calonPenerima?.fakultas_prodi || '-'}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
                   <p className="text-sm text-muted-foreground">Nilai Akhir</p>
-                  <p className="font-semibold">{Number.parseFloat(selectedResult.nilai_akhir).toFixed(4)}</p>
+                  <p className="font-semibold">
+                    {Number.parseFloat(selectedResult.nilai_akhir).toFixed(4)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
                   <Badge
-                    variant={selectedResult.status === "LOLOS" ? "success" : "destructive"}
+                    variant={selectedResult.status === 'DITERIMA' ? 'success' : 'destructive'}
                     className={
-                      selectedResult.status === "LOLOS"
-                        ? "bg-green-100 text-green-800 hover:bg-green-100"
-                        : "bg-red-100 text-red-800 hover:bg-red-100"
+                      selectedResult.status === 'DITERIMA'
+                        ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                        : 'bg-red-100 text-red-800 hover:bg-red-100'
                     }
                   >
-                    {selectedResult.status === "LOLOS" ? (
+                    {selectedResult.status === 'DITERIMA' ? (
                       <Check className="mr-1 h-3 w-3" />
                     ) : (
                       <X className="mr-1 h-3 w-3" />
@@ -630,20 +700,20 @@ export default function HasilPerhitunganClient() {
                 <div>
                   <p className="text-sm text-muted-foreground">Tanggal Perhitungan</p>
                   <p className="font-semibold">
-                    {format(new Date(selectedResult.createdAt), "dd MMM yyyy", { locale: id })}
+                    {format(new Date(selectedResult.createdAt), 'dd MMM yyyy', { locale: id })}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Ditampilkan ke User</p>
                   <Badge
-                    variant={selectedResult.ditampilkanKeUser ? "success" : "outline"}
+                    variant={selectedResult.ditampilkanKeUser ? 'success' : 'outline'}
                     className={
                       selectedResult.ditampilkanKeUser
-                        ? "bg-green-100 text-green-800 hover:bg-green-100"
-                        : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                     }
                   >
-                    {selectedResult.ditampilkanKeUser ? "Ya" : "Tidak"}
+                    {selectedResult.ditampilkanKeUser ? 'Ya' : 'Tidak'}
                   </Badge>
                 </div>
               </div>
@@ -657,21 +727,25 @@ export default function HasilPerhitunganClient() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {displayAction === "show" ? "Tampilkan Hasil Perhitungan" : "Sembunyikan Hasil Perhitungan"}
+              {displayAction === 'show'
+                ? 'Tampilkan Hasil Perhitungan'
+                : 'Sembunyikan Hasil Perhitungan'}
             </DialogTitle>
             <DialogDescription>
-              {displayAction === "show"
-                ? "Hasil perhitungan akan ditampilkan kepada semua calon penerima beasiswa."
-                : "Hasil perhitungan akan disembunyikan dari calon penerima beasiswa."}
+              {displayAction === 'show'
+                ? 'Hasil perhitungan akan ditampilkan kepada semua calon penerima beasiswa.'
+                : 'Hasil perhitungan akan disembunyikan dari calon penerima beasiswa.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-3">
-            <Alert variant={displayAction === "show" ? "default" : "destructive"}>
+            <Alert variant={displayAction === 'show' ? 'default' : 'destructive'}>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{displayAction === "show" ? "Konfirmasi Tampilkan" : "Konfirmasi Sembunyikan"}</AlertTitle>
+              <AlertTitle>
+                {displayAction === 'show' ? 'Konfirmasi Tampilkan' : 'Konfirmasi Sembunyikan'}
+              </AlertTitle>
               <AlertDescription>
-                {displayAction === "show"
+                {displayAction === 'show'
                   ? `Apakah Anda yakin ingin menampilkan hasil perhitungan periode "${periodName}" kepada semua calon penerima beasiswa?`
                   : `Apakah Anda yakin ingin menyembunyikan hasil perhitungan periode "${periodName}" dari calon penerima beasiswa?`}
               </AlertDescription>
@@ -679,20 +753,24 @@ export default function HasilPerhitunganClient() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)} disabled={isTogglingDisplay}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialogOpen(false)}
+              disabled={isTogglingDisplay}
+            >
               Batal
             </Button>
             <Button
               onClick={toggleDisplayToUsers}
               disabled={isTogglingDisplay}
-              variant={displayAction === "show" ? "default" : "destructive"}
+              variant={displayAction === 'show' ? 'default' : 'destructive'}
             >
               {isTogglingDisplay ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Memproses...
                 </>
-              ) : displayAction === "show" ? (
+              ) : displayAction === 'show' ? (
                 <>
                   <Eye className="mr-2 h-4 w-4" />
                   Tampilkan
@@ -707,7 +785,66 @@ export default function HasilPerhitunganClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Hapus Data Hasil Perhitungan</DialogTitle>
+            <DialogDescription>
+              Pilih periode yang datanya ingin dihapus dari hasil perhitungan.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Select value={deletePeriodId} onValueChange={setDeletePeriodId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih Periode" />
+              </SelectTrigger>
+              <SelectContent>
+                {periods.map(period => (
+                  <SelectItem key={period.id} value={period.id}>
+                    {period.nama_periode}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Peringatan!</AlertTitle>
+              <AlertDescription>
+                Semua data hasil perhitungan untuk periode ini akan dihapus permanen. Tindakan ini
+                tidak bisa dibatalkan.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!deletePeriodId}
+              onClick={async () => {
+                try {
+                  await axios.delete(`/hasil-perhitungan/${deletePeriodId}`)
+                  toast.success('Data hasil perhitungan berhasil dihapus.')
+                  setDeleteDialogOpen(false)
+                  if (deletePeriodId === selectedPeriod) {
+                    fetchResults() // refresh if current is affected
+                  }
+                } catch (error) {
+                  console.error('Error deleting results:', error)
+                  toast.error('Gagal menghapus data hasil perhitungan.')
+                }
+              }}
+            >
+              Hapus
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
-
