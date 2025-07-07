@@ -57,21 +57,22 @@ export default function PenilaianPage() {
         const result = await response.json()
 
         if (!result.success) {
+          // Handle specific case where no assessment for current period
+          if (result.code === 'NO_ASSESSMENT_CURRENT_PERIOD') {
+            toast.info(
+              'Belum ada data penilaian untuk periode aktif. Redirecting ke halaman tambah penilaian...'
+            )
+            router.push('/kandidat/formulir-beasiswa/create')
+            return
+          }
           throw new Error(result.message || 'Failed to fetch penilaian data')
         }
 
         const { penilaian, kriteria, subKriteria, activePeriode, calonPenerima, documents } =
           result.data
 
-        // If no assessment data, redirect to create page
-        if (!penilaian || penilaian.length === 0) {
-          toast.info(
-            'Anda belum memiliki data penilaian. Redirecting ke halaman tambah penilaian...'
-          )
-          router.push('/kandidat/formulir-beasiswa/create')
-          return
-        }
-
+        // Since we now only get data for current active period,
+        // we don't need to check if assessment is from different period
         setPenilaianData(penilaian)
         setActivePeriode(activePeriode)
         setCalonPenerima(calonPenerima)
@@ -102,11 +103,8 @@ export default function PenilaianPage() {
         setKriteriaMap(kriteriaObj)
         setSubKriteriaMap(subKriteriaObj)
 
-        // Check period and registration status
+        // Check registration status for current period
         const now = new Date()
-        const assessmentPeriodId = penilaian[0]?.periodeId
-        const isSamePeriod = assessmentPeriodId === activePeriode?.id
-
         let isRegistrationOpen = false
         let deadlinePassed = false
 
@@ -120,15 +118,13 @@ export default function PenilaianPage() {
         }
 
         setCurrentPeriodStatus({
-          isSamePeriod,
+          isSamePeriod: true, // Always true since we only show current period data
           isRegistrationOpen,
           deadlinePassed,
         })
 
-        // Can edit if:
-        // 1. Assessment is from current active period
-        // 2. Registration is still open (now <= batas_akhir)
-        setCanEdit(isSamePeriod && isRegistrationOpen)
+        // Can edit if registration is still open
+        setCanEdit(isRegistrationOpen)
       } catch (error) {
         console.error('Error fetching penilaian data:', error)
         setError(error.message || 'Terjadi kesalahan saat memuat data')
@@ -142,12 +138,8 @@ export default function PenilaianPage() {
   }, [router])
 
   const handleEditClick = () => {
-    if (currentPeriodStatus.isSamePeriod) {
-      router.push('/kandidat/formulir-beasiswa/edit')
-    } else {
-      // If assessment is from previous period or no active period
-      router.push('/kandidat/formulir-beasiswa/create')
-    }
+    // Since we only show current period data, always go to edit page
+    router.push('/kandidat/formulir-beasiswa/edit')
   }
 
   const handleDownloadDocument = async documentType => {
@@ -219,9 +211,6 @@ export default function PenilaianPage() {
             <h1 className="text-2xl font-bold">Detail Penilaian</h1>
             <p className="text-muted-foreground">
               Data penilaian kriteria untuk pengajuan beasiswa periode: {activePeriode?.nama || ''}
-              {!currentPeriodStatus.isSamePeriod && (
-                <span className="text-amber-600 ml-2">(Periode sebelumnya)</span>
-              )}
             </p>
           </div>
 
@@ -242,7 +231,7 @@ export default function PenilaianPage() {
               className="border-primary text-primary hover:bg-primary/10"
             >
               <Edit className="mr-2 h-4 w-4" />
-              {currentPeriodStatus.isSamePeriod ? 'Edit Penilaian' : 'Buat Penilaian Baru'}
+              Edit Penilaian
             </Button>
           )}
         </div>

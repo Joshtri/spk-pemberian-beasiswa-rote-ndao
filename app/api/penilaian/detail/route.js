@@ -56,14 +56,27 @@ export async function GET(request) {
       orderBy: { createdAt: 'asc' },
     })
 
-    // Get user's assessments for this period
+    // Get user's assessments ONLY for the current active period
     const penilaian = await prisma.penilaian.findMany({
       where: {
         calonPenerimaId: calonPenerima.id,
-        periodeId: activePeriode.id,
+        periodeId: activePeriode.id, // Only current active period
       },
       orderBy: { createdAt: 'asc' },
     })
+
+    // If no assessment data for current period, this means fresh start
+    // User should be redirected to create new assessment
+    if (!penilaian || penilaian.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Belum ada data penilaian untuk periode aktif saat ini',
+          code: 'NO_ASSESSMENT_CURRENT_PERIOD',
+        },
+        { status: 404 }
+      )
+    }
 
     // Get all documents related to these assessments
     const documents = {}

@@ -7,18 +7,29 @@ export async function GET(request) {
     const user = await getAuthUser(request, ['CALON_PENERIMA'])
 
     console.log('id user:', user.user?.id)
+
+    // === 🔹 Get Active Period First ===
+    const activePeriode = await prisma.periode.findFirst({
+      where: { isActived: true },
+      include: { JadwalPendaftaran: true },
+    })
+
     const calonPenerima = await prisma.calonPenerima.findFirst({
       where: { userId: user.user?.id },
       include: {
         user: true,
+        // Only get penilaian for active period
         penilaian: {
+          where: activePeriode ? { periodeId: activePeriode.id } : { periodeId: 'none' }, // If no active period, get none
           include: {
             kriteria: true,
             subKriteria: true,
             periode: true,
           },
         },
+        // Only get hasil perhitungan for active period
         hasilPerhitungan: {
+          where: activePeriode ? { periodeId: activePeriode.id } : { periodeId: 'none' },
           include: { periode: true },
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -43,9 +54,10 @@ export async function GET(request) {
     const filledProfil = profilFields.filter(Boolean).length
     const profileCompletion = Math.round((filledProfil / profilFields.length) * 100)
 
-    // === 🔹 Status Kriteria ===
+    // === 🔹 Status Kriteria (Only for Active Period) ===
     const allKriteria = await prisma.kriteria.findMany()
     const kriteriaStatus = allKriteria.map(kriteria => {
+      // Only check penilaian from active period
       const penilaian = calonPenerima.penilaian.find(p => p.kriteriaId === kriteria.id)
       return {
         name: kriteria.nama_kriteria,
@@ -53,13 +65,13 @@ export async function GET(request) {
       }
     })
 
-    // === 🔹 Kelengkapan Penilaian ===
+    // === 🔹 Kelengkapan Penilaian (Only for Active Period) ===
     const penilaianCompletion =
       allKriteria.length > 0
         ? Math.round((calonPenerima.penilaian.length / allKriteria.length) * 100)
         : 0
 
-    // === 🔹 Hasil Perhitungan ===
+    // === 🔹 Hasil Perhitungan (Only for Active Period) ===
     const hasilPerhitunganTerbaru = calonPenerima.hasilPerhitungan[0]
     let pengumuman = []
     let applicationStatus = 'pending'
@@ -77,21 +89,10 @@ export async function GET(request) {
       ]
     }
 
-    // === 🔹 Periode Aktif ===
-    const activePeriode = await prisma.periode.findFirst({
-      where: { isActived: true },
-      include: { JadwalPendaftaran: true },
-    })
-
+    // Check if user has penilaian for active period
     let hasActivePenilaian = false
     if (activePeriode) {
-      const penilaianCount = await prisma.penilaian.count({
-        where: {
-          calonPenerimaId: calonPenerima.id,
-          periodeId: activePeriode.id,
-        },
-      })
-      hasActivePenilaian = penilaianCount > 0
+      hasActivePenilaian = calonPenerima.penilaian.length > 0
     }
 
     // === ✅ Return Final JSON ===

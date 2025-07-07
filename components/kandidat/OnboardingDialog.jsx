@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   User,
   School,
@@ -14,19 +14,23 @@ import {
   AlertCircle,
   Loader2,
   PiggyBank,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useForm, FormProvider } from "react-hook-form"
-import axios from "@/lib/axios"
-import { toast } from "sonner"
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { useForm, FormProvider } from 'react-hook-form'
+import axios from '@/lib/axios'
+import { toast } from 'sonner'
 
-import StepPersonalData from "./onboarding/StepPersonalData"
-import StepEducationData from "./onboarding/StepEducationData"
-import StepConfirmation from "./onboarding/StepConfirmation"
-import StepBankAccount from "./onboarding/StepBankAccount"
-
- 
+import StepPersonalData from './onboarding/StepPersonalData'
+import StepEducationData from './onboarding/StepEducationData'
+import StepConfirmation from './onboarding/StepConfirmation'
+import StepBankAccount from './onboarding/StepBankAccount'
 
 export default function OnboardingDialog({ open, onOpenChange }) {
   const router = useRouter()
@@ -44,39 +48,39 @@ export default function OnboardingDialog({ open, onOpenChange }) {
     control,
   } = useForm({
     defaultValues: {
-      nama_lengkap: "",
-      tanggal_lahir: "",
-      alamat: "",
-      rt_rw: "",
-      kelurahan_desa: "",
-      kecamatan: "",
-      kabupaten: "Rote Ndao",
-      provinsi: "Nusa Tenggara Timur",
-      perguruan_tinggi: "",
-      fakultas_prodi: "",
-      jenjang: "",
-      noRekening: "",
+      nama_lengkap: '',
+      tanggal_lahir: '',
+      alamat: '',
+      rt_rw: '',
+      kelurahan_desa: '',
+      kecamatan: '',
+      kabupaten: 'Rote Ndao',
+      provinsi: 'Nusa Tenggara Timur',
+      perguruan_tinggi: '',
+      fakultas_prodi: '',
+      jenjang: '',
+      noRekening: '',
     },
   })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     setIsLoading(true)
     try {
-      const res = await axios.post("/kandidat", data, {
+      const res = await axios.post('/kandidat', data, {
         withCredentials: true,
       })
 
       if (res.status !== 200) {
-        throw new Error("Gagal menyimpan data")
+        throw new Error('Gagal menyimpan data')
       }
 
-      toast.success("Data berhasil disimpan!")
+      toast.success('Data berhasil disimpan!')
       onOpenChange(false)
-      router.push("/kandidat/dashboard")
+      router.push('/kandidat/dashboard')
       window.location.reload()
     } catch (err) {
-      console.error("Gagal submit form:", err)
-      toast.error("Gagal menyimpan data. Silakan coba lagi.")
+      console.error('Gagal submit form:', err)
+      toast.error('Gagal menyimpan data. Silakan coba lagi.')
     } finally {
       setIsLoading(false)
     }
@@ -84,26 +88,26 @@ export default function OnboardingDialog({ open, onOpenChange }) {
 
   const steps = [
     {
-      title: "Data Pribadi",
-      description: "Masukkan data pribadi Anda sesuai dengan KTP",
+      title: 'Data Pribadi',
+      description: 'Masukkan data pribadi Anda sesuai dengan KTP',
       icon: <User className="h-5 w-5" />,
-      fields: ["nama_lengkap", "tanggal_lahir", "alamat", "rt_rw", "kelurahan_desa", "kecamatan"],
+      fields: ['nama_lengkap', 'tanggal_lahir', 'alamat', 'rt_rw', 'kelurahan_desa', 'kecamatan'],
     },
     {
-      title: "Data Pendidikan",
-      description: "Masukkan data pendidikan Anda sesuai dengan dokumen resmi",
+      title: 'Data Pendidikan',
+      description: 'Masukkan data pendidikan Anda sesuai dengan dokumen resmi',
       icon: <School className="h-5 w-5" />,
-      fields: ["perguruan_tinggi", "fakultas_prodi", "jenjang"],
+      fields: ['perguruan_tinggi', 'fakultas_prodi', 'jenjang'],
     },
     {
-      title: "Informasi Rekening Bank",
-      description: "Masukkan informasi rekening bank Anda",
+      title: 'Informasi Rekening Bank',
+      description: 'Masukkan informasi rekening bank Anda',
       icon: <PiggyBank className="h-5 w-5" />,
-      fields: ["noRekening"],
+      fields: ['noRekening'],
     },
     {
-      title: "Konfirmasi",
-      description: "Periksa kembali data yang telah Anda masukkan",
+      title: 'Konfirmasi',
+      description: 'Periksa kembali data yang telah Anda masukkan',
       icon: <CheckCircle className="h-5 w-5" />,
     },
   ]
@@ -114,14 +118,14 @@ export default function OnboardingDialog({ open, onOpenChange }) {
       const isValid = await trigger(currentStepFields)
       if (!isValid) return
     }
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length))
+    setCurrentStep(prev => Math.min(prev + 1, steps.length))
   }
 
   const handleBack = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1))
+    setCurrentStep(prev => Math.max(prev - 1, 1))
   }
 
-  const handleConfirmChange = (checked) => {
+  const handleConfirmChange = checked => {
     setIsConfirmed(checked)
     if (attemptedClose && checked) {
       setAttemptedClose(false)
@@ -131,12 +135,22 @@ export default function OnboardingDialog({ open, onOpenChange }) {
   return (
     <Dialog
       open={open}
-      onOpenChange={(value) => {
+      modal={true}
+      onOpenChange={value => {
         if (!value) {
+          // Cegah penutupan jika masih dalam proses onboarding
+          if (currentStep < steps.length) {
+            toast.info('Harap selesaikan proses onboarding terlebih dahulu')
+            return
+          }
+
+          // Cegah penutupan jika di step konfirmasi tapi belum confirm
           if (currentStep === steps.length && !isConfirmed && !isLoading) {
             setAttemptedClose(true)
             return
           }
+
+          // Cegah penutupan saat loading
           if (isLoading) {
             return
           }
@@ -184,10 +198,10 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                           border-2 transition-all duration-200 ease-in-out
                           ${
                             isCompleted
-                              ? "bg-primary border-primary text-white shadow-md"
+                              ? 'bg-primary border-primary text-white shadow-md'
                               : isActive
-                                ? "bg-white border-primary text-primary shadow-lg ring-4 ring-primary/20"
-                                : "bg-white border-gray-300 text-gray-400"
+                                ? 'bg-white border-primary text-primary shadow-lg ring-4 ring-primary/20'
+                                : 'bg-white border-gray-300 text-gray-400'
                           }
                         `}
                       >
@@ -203,7 +217,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                         <div
                           className={`
                             text-sm font-medium transition-colors duration-200
-                            ${isActive ? "text-primary" : isCompleted ? "text-gray-700" : "text-gray-500"}
+                            ${isActive ? 'text-primary' : isCompleted ? 'text-gray-700' : 'text-gray-500'}
                           `}
                         >
                           {step.title}
@@ -211,7 +225,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                         <div
                           className={`
                             text-xs mt-1 transition-colors duration-200
-                            ${isActive ? "text-primary/70" : "text-gray-400"}
+                            ${isActive ? 'text-primary/70' : 'text-gray-400'}
                           `}
                         >
                           {step.description}
@@ -225,13 +239,18 @@ export default function OnboardingDialog({ open, onOpenChange }) {
           </div>
         </div>
 
-        <FormProvider {...{ register, handleSubmit, formState: { errors }, watch, trigger, control }}>
+        <FormProvider
+          {...{ register, handleSubmit, formState: { errors }, watch, trigger, control }}
+        >
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="px-6 pt-2 pb-4">
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
                 <p className="flex items-start">
                   <AlertCircle className="h-4 w-4 mr-3 flex-shrink-0 mt-0.5" />
-                  <span>Anda harus menyelesaikan proses onboarding ini untuk dapat mengakses fitur aplikasi.</span>
+                  <span>
+                    Anda harus menyelesaikan proses onboarding ini untuk dapat mengakses fitur
+                    aplikasi.
+                  </span>
                 </p>
               </div>
 
@@ -243,7 +262,10 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                 >
                   <p className="flex items-start">
                     <AlertCircle className="h-4 w-4 mr-3 flex-shrink-0 mt-0.5" />
-                    <span>Harap centang kotak konfirmasi dan klik tombol Simpan untuk menyelesaikan proses.</span>
+                    <span>
+                      Harap centang kotak konfirmasi dan klik tombol Simpan untuk menyelesaikan
+                      proses.
+                    </span>
                   </p>
                 </motion.div>
               )}
@@ -256,13 +278,16 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   {currentStep === 1 && <StepPersonalData errors={errors} />}
                   {currentStep === 2 && <StepEducationData errors={errors} />}
                   {currentStep === 3 && <StepBankAccount />}
                   {currentStep === 4 && (
-                    <StepConfirmation isConfirmed={isConfirmed} onCheckedChange={handleConfirmChange} />
+                    <StepConfirmation
+                      isConfirmed={isConfirmed}
+                      onCheckedChange={handleConfirmChange}
+                    />
                   )}
                 </motion.div>
               </AnimatePresence>
@@ -292,7 +317,12 @@ export default function OnboardingDialog({ open, onOpenChange }) {
                   </span>
 
                   {currentStep < steps.length ? (
-                    <Button type="button" onClick={handleNext} disabled={isLoading} className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleNext}
+                      disabled={isLoading}
+                      className="flex items-center gap-2"
+                    >
                       Selanjutnya
                       <ArrowRight className="h-4 w-4" />
                     </Button>

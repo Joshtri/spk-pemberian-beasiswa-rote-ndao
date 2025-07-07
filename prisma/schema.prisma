@@ -8,12 +8,14 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(dbgenerated("concat('usr_', gen_random_uuid())")) @db.VarChar(40)
-  username      String          @unique
-  password      String
-  email         String          @unique
-  role          Role            @default(ADMIN)
-  calonPenerima CalonPenerima[]
+  id               String          @id @default(dbgenerated("concat('usr_', gen_random_uuid())")) @db.VarChar(40)
+  username         String          @unique
+  password         String
+  email            String          @unique
+  role             Role            @default(ADMIN)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  calonPenerima    CalonPenerima[]
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -123,7 +125,7 @@ model Periode {
   isActived        Boolean            @default(false)
   Penilaian        Penilaian[]
   HasilPerhitungan HasilPerhitungan[]
-  kuota_kelulusan Int?
+  kuota_kelulusan  Int?
 
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt

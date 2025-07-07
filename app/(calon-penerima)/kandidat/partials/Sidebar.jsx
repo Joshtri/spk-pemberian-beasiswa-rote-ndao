@@ -59,6 +59,11 @@ export default function SidebarCalonPenerima({ isOpen, setIsOpen }) {
       icon: <FileText className="h-5 w-5" />,
       path: "/kandidat/formulir-beasiswa",
     },
+    {
+      title: "Riwayat Beasiswa",
+      icon: <Award className="h-5 w-5" />,
+      path: "/kandidat/riwayat-beasiswa",
+    }
   ]
 
   // Sidebar variants for animation
