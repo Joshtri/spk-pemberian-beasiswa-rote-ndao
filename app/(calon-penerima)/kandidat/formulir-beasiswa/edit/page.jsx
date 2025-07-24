@@ -693,7 +693,7 @@ export default function EditPenilaianPage() {
               {/* UKT */}
               <div>
                 <FormField
-                  label="Bukti Pembayaran UKT"
+                  label="Bukti Pembayaran SPP"
                   name="ukt"
                   type="file"
                   required={false}

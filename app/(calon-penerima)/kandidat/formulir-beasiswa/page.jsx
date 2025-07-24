@@ -285,18 +285,18 @@ export default function PenilaianPage() {
                     <div className="mb-2">
                       <h3 className="font-medium">{kriteria.nama_kriteria}</h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge
+                        {/* <Badge
                           variant="outline"
                           className="text-xs bg-primary/5 text-primary border-primary/20"
                         >
                           Bobot: {kriteria.bobot_kriteria}
-                        </Badge>
-                        <Badge
+                        </Badge> */}
+                        {/* <Badge
                           variant="outline"
                           className="text-xs bg-blue-50 text-blue-700 border-blue-200"
                         >
                           {kriteria.tipe_kriteria}
-                        </Badge>
+                        </Badge> */}
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-200">

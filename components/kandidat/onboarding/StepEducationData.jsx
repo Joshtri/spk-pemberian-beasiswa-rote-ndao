@@ -26,9 +26,9 @@ export default function StepEducationData({ errors }) {
           name="jenjang"
           control={control}
           options={[
+            { value: 'S1', label: 'S1 ' },
             { value: 'D3', label: 'D3' },
             { value: 'D4', label: 'D4' },
-            { value: 'S1', label: 'S1' },
             { value: 'S2', label: 'S2' },
             { value: 'S3', label: 'S3' },
           ]}

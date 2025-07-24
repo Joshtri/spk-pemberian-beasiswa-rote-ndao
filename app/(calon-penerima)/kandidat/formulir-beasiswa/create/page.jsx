@@ -140,7 +140,7 @@ export default function CreatePenilaianPage() {
     }
 
     if (!files.UKT) {
-      newErrors.UKT = 'File bukti pembayaran UKT wajib diunggah'
+      newErrors.UKT = 'File bukti pembayaran SPP wajib diunggah'
       isValid = false
     }
 
@@ -386,9 +386,15 @@ export default function CreatePenilaianPage() {
                         </div>
 
                         <div>
-                          <label className="text-sm font-medium mb-1 block">
-                            Pilih {kriteria.nama_kriteria}
-                          </label>
+                          {/* Select dropdown for sub-kriteria (skip label if IPK) */}
+                          {!(
+                            kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                            kriteria.nama_kriteria.toLowerCase().includes('indeks')
+                          ) && (
+                            <label className="text-sm font-medium mb-1 block">
+                              Pilih {kriteria.nama_kriteria}
+                            </label>
+                          )}
 
                           <Select
                             value={formData[kriteria.id] || ''}
@@ -496,7 +502,7 @@ export default function CreatePenilaianPage() {
                                   if (matched) {
                                     handleSelectChange(kriteria.id, matched.id)
                                   } else {
-                                    toast.warning('Nilai UKT tidak sesuai rentang yang tersedia.')
+                                    toast.warning('Nilai SPP tidak sesuai rentang yang tersedia.')
                                     handleSelectChange(kriteria.id, '')
                                   }
                                 }}
@@ -612,17 +618,22 @@ export default function CreatePenilaianPage() {
                   error={fileErrors.KHS}
                 />
 
-                <FormField
-                  label="Kartu Rencana Studi (KRS)"
-                  name="krs"
-                  type="file"
-                  required={true}
-                  onChange={e => handleFileChange(e, 'KRS')}
-                  error={fileErrors.KRS}
-                />
+                <div>
+                  <FormField
+                    label="Kartu Rencana Studi (KRS)"
+                    name="krs"
+                    type="file"
+                    required={true}
+                    onChange={e => handleFileChange(e, 'KRS')}
+                    error={fileErrors.KRS}
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Unggah KRS untuk semester terakhir yang sedang Anda jalani.
+                  </p>
+                </div>
 
                 <FormField
-                  label="Bukti Pembayaran UKT"
+                  label="Bukti Pembayaran SPP"
                   name="ukt"
                   type="file"
                   required={true}
