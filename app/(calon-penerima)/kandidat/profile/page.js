@@ -13,10 +13,21 @@ import {
 import FormField from '@/components/ui/form-field'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion } from 'framer-motion'
-import { AlertCircle, Save, User } from 'lucide-react'
+import { AlertCircle, Check, ChevronsUpDown, Save, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from '@/lib/axios'
+import { Popover, PopoverTrigger } from '@radix-ui/react-popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { PopoverContent } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 export default function CalonPenerimaProfile() {
   const [isLoading, setIsLoading] = useState(true)
@@ -31,6 +42,21 @@ export default function CalonPenerimaProfile() {
     const masked = '•'.repeat(value.length - 4)
     return masked + visible
   }
+
+  const kecamatanList = [
+    'Rote Barat Daya',
+    'Rote Barat Laut',
+    'Lobalain',
+    'Rote Tengah',
+    'Pantai Baru',
+    'Rote Timur',
+    'Rote Barat',
+    'Rote Selatan',
+    'Ndao Nuse',
+    'Landu Leko',
+  ]
+
+  const [openKecamatan, setOpenKecamatan] = useState(false)
 
   const {
     register,
@@ -58,6 +84,7 @@ export default function CalonPenerimaProfile() {
   })
 
   const password = watch('password')
+  const selectedKecamatan = watch('kecamatan')
 
   useEffect(() => {
     async function fetchProfile() {
@@ -252,13 +279,62 @@ export default function CalonPenerimaProfile() {
                         error={errors.kelurahan_desa?.message}
                       />
 
-                      <FormField
+                      {/* <FormField
                         label="Kecamatan"
                         name="kecamatan"
                         {...register('kecamatan', { required: 'Kecamatan wajib diisi' })}
                         placeholder="Masukkan kecamatan"
                         error={errors.kecamatan?.message}
-                      />
+                      /> */}
+
+                      {/* Combobox Kecamatan */}
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Kecamatan</label>
+                        <Popover open={openKecamatan} onOpenChange={setOpenKecamatan}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openKecamatan}
+                              className="w-full justify-between"
+                            >
+                              {selectedKecamatan || 'Pilih kecamatan...'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0">
+                            <Command>
+                              <CommandInput placeholder="Cari kecamatan..." />
+                              <CommandList>
+                                <CommandEmpty>Kecamatan tidak ditemukan.</CommandEmpty>
+                                <CommandGroup>
+                                  {kecamatanList.map(item => (
+                                    <CommandItem
+                                      key={item}
+                                      value={item}
+                                      onSelect={() => {
+                                        setValue('kecamatan', item, { shouldValidate: true })
+                                        setOpenKecamatan(false)
+                                      }}
+                                    >
+                                      {item}
+                                      <Check
+                                        className={cn(
+                                          'ml-auto h-4 w-4',
+                                          selectedKecamatan === item ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {errors.kecamatan?.message && (
+                          <p className="text-sm text-red-500">{errors.kecamatan.message}</p>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between">
@@ -365,11 +441,7 @@ export default function CalonPenerimaProfile() {
                     >
                       Sebelumnya
                     </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => setActiveTab('account')}
-                    >
+                    <Button variant="outline" type="button" onClick={() => setActiveTab('account')}>
                       Selanjutnya
                     </Button>
                     <Button type="submit">
