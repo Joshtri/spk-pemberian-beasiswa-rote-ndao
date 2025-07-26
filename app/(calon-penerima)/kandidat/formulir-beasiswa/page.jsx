@@ -42,6 +42,7 @@ export default function PenilaianPage() {
     KRS: null,
     SPP: null,
     PRESTASI: null,
+    ORGANISASI: null,
   })
   const [currentPeriodStatus, setCurrentPeriodStatus] = useState({
     isSamePeriod: false,
@@ -85,6 +86,7 @@ export default function PenilaianPage() {
             KRS: documents.KRS || null,
             SPP: documents.SPP || null,
             PRESTASI: documents.PRESTASI || null,
+            ORGANISASI: documents.ORGANISASI || null,
           })
         }
 
