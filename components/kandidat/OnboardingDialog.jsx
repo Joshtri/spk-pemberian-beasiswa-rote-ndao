@@ -45,6 +45,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
     formState: { errors },
     watch,
     trigger,
+    setValue,
     control,
   } = useForm({
     defaultValues: {
@@ -58,8 +59,9 @@ export default function OnboardingDialog({ open, onOpenChange }) {
       provinsi: 'Nusa Tenggara Timur',
       perguruan_tinggi: '',
       fakultas_prodi: '',
-      jenjang: '',
+      jenjang: 'S1',
       noRekening: '',
+      buktiRekening: '',
     },
   })
 
@@ -240,7 +242,7 @@ export default function OnboardingDialog({ open, onOpenChange }) {
         </div>
 
         <FormProvider
-          {...{ register, handleSubmit, formState: { errors }, watch, trigger, control }}
+          {...{ register, handleSubmit, formState: { errors }, watch, trigger, control, setValue }}
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="px-6 pt-2 pb-4">

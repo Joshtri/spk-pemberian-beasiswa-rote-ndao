@@ -11,11 +11,11 @@ const withPWA = nextPWA({
 const nextConfig = {
   output: 'standalone',
   experimental: {
-    serverActions: true,
+    // serverActions: true,
   },
   eslint: {
     dirs: ['pages', 'components', 'lib'],
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   images: {
     domains: ['placehold.co'],

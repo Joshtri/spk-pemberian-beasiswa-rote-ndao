@@ -19,6 +19,7 @@ export async function POST(request) {
       perguruan_tinggi,
       fakultas_prodi,
       noRekening,
+      buktiRekening,
   } = body
 
     const created = await prisma.calonPenerima.create({
@@ -33,6 +34,7 @@ export async function POST(request) {
         perguruan_Tinggi: perguruan_tinggi,
         fakultas_prodi,
         noRekening,
+        buktiRekening,
       },
     })
 

@@ -40,7 +40,7 @@ export default function PenilaianPage() {
   const [documents, setDocuments] = useState({
     KHS: null,
     KRS: null,
-    UKT: null,
+    SPP: null,
     PRESTASI: null,
   })
   const [currentPeriodStatus, setCurrentPeriodStatus] = useState({
@@ -83,7 +83,7 @@ export default function PenilaianPage() {
           setDocuments({
             KHS: documents.KHS || null,
             KRS: documents.KRS || null,
-            UKT: documents.UKT || null,
+            SPP: documents.SPP || null,
             PRESTASI: documents.PRESTASI || null,
           })
         }

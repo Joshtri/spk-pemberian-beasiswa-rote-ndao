@@ -34,6 +34,7 @@ model CalonPenerima {
   perguruan_Tinggi String
   fakultas_prodi   String
   noRekening       String?
+  buktiRekening   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -161,8 +162,10 @@ enum TipeKriteria {
 enum TipeDokumen {
   KHS
   KRS
+  SPP
   UKT
   PRESTASI
+  ORGANISASI
 }
 
 model Notifikasi {

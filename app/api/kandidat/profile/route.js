@@ -66,6 +66,9 @@ export async function PUT(request) {
       kecamatan: data.kecamatan,
       perguruan_Tinggi: data.perguruan_Tinggi,
       fakultas_prodi: data.fakultas_prodi,
+
+      noRekening: data.noRekening,
+      buktiRekening: data.buktiRekening,
     }
 
     // Update data calon penerima

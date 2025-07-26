@@ -46,8 +46,9 @@ export default function CreatePenilaianPage() {
   const [files, setFiles] = useState({
     KHS: null,
     KRS: null,
-    UKT: null,
+    SPP: null,
     PRESTASI: null,
+    ORGANISASI: null
   })
   const [fileErrors, setFileErrors] = useState({})
   const [ipkValue, setIpkValue] = useState('')
@@ -139,12 +140,19 @@ export default function CreatePenilaianPage() {
       isValid = false
     }
 
-    if (!files.UKT) {
-      newErrors.UKT = 'File bukti pembayaran SPP wajib diunggah'
+    if (!files.SPP) {
+      newErrors.SPP = 'File bukti pembayaran SPP wajib diunggah'
+      isValid = false
+    };
+    if (!files.PRESTASI) {
+      newErrors.PRESTASI = 'File bukti prestasi wajib diunggah'
       isValid = false
     }
 
-    // PRESTASI is optional, no validation needed
+    if (!files.ORGANISASI) {
+      newErrors.ORGANISASI = 'File bukti organisasi wajib diunggah'
+      isValid = false
+    }
 
     setFileErrors(newErrors)
     return isValid
@@ -188,8 +196,9 @@ export default function CreatePenilaianPage() {
       // Append files
       if (files.KHS) formDataWithFiles.append('KHS', files.KHS)
       if (files.KRS) formDataWithFiles.append('KRS', files.KRS)
-      if (files.UKT) formDataWithFiles.append('UKT', files.UKT)
+      if (files.SPP) formDataWithFiles.append('SPP', files.SPP)
       if (files.PRESTASI) formDataWithFiles.append('PRESTASI', files.PRESTASI)
+      if (files.ORGANISASI) formDataWithFiles.append('ORGANISASI', files.ORGANISASI)
 
       // Submit data
       const response = await fetch('/api/penilaian', {
@@ -457,10 +466,10 @@ export default function CreatePenilaianPage() {
                             </div>
                           )}
 
-                          {/* Input manual untuk UKT */}
-                          {kriteria.nama_kriteria.toLowerCase().includes('ukt') && (
+                          {/* Input manual untuk SPP */}
+                          {kriteria.nama_kriteria.toLowerCase().includes('spp') && (
                             <div className="mt-2">
-                              <label className="text-sm">Isi Jumlah UKT Anda (Rp)</label>
+                              <label className="text-sm">Isi Jumlah SPP Anda (Rp)</label>
                               <input
                                 type="text"
                                 inputMode="numeric"
@@ -617,7 +626,6 @@ export default function CreatePenilaianPage() {
                   onChange={e => handleFileChange(e, 'KHS')}
                   error={fileErrors.KHS}
                 />
-
                 <div>
                   <FormField
                     label="Kartu Rencana Studi (KRS)"
@@ -631,16 +639,14 @@ export default function CreatePenilaianPage() {
                     Unggah KRS untuk semester terakhir yang sedang Anda jalani.
                   </p>
                 </div>
-
                 <FormField
                   label="Bukti Pembayaran SPP"
-                  name="ukt"
+                  name="spp"
                   type="file"
                   required={true}
-                  onChange={e => handleFileChange(e, 'UKT')}
-                  error={fileErrors.UKT}
+                  onChange={e => handleFileChange(e, 'SPP')}
+                  error={fileErrors.SPP}
                 />
-
                 <FormField
                   label="Sertifikat Prestasi (Opsional)"
                   name="prestasi"
@@ -649,6 +655,14 @@ export default function CreatePenilaianPage() {
                   onChange={e => handleFileChange(e, 'PRESTASI')}
                   error={fileErrors.PRESTASI}
                 />
+                <FormField
+                  label="Bukti Pernah Mengikuti Organisasi (Opsional)"
+                  name="organisasi"
+                  type="file"
+                  required={false}
+                  onChange={e => handleFileChange(e, 'ORGANISASI')}
+                  error={fileErrors.ORGANISASI}
+                />{' '}
               </div>
             </CardContent>
           </Card>

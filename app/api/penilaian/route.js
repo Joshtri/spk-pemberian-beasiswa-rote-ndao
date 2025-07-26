@@ -51,7 +51,7 @@ export async function POST(request) {
 
     if (formData.has('KHS')) uploadPromises.push(uploadFile(formData.get('KHS'), 'KHS'))
     if (formData.has('KRS')) uploadPromises.push(uploadFile(formData.get('KRS'), 'KRS'))
-    if (formData.has('UKT')) uploadPromises.push(uploadFile(formData.get('UKT'), 'UKT'))
+    if (formData.has('SPP')) uploadPromises.push(uploadFile(formData.get('SPP'), 'SPP'))
     if (formData.has('PRESTASI'))
       uploadPromises.push(uploadFile(formData.get('PRESTASI'), 'PRESTASI'))
 
@@ -95,11 +95,11 @@ export async function POST(request) {
             tipe_dokumen: 'KRS',
             fileUrl: fileUploads.KRS,
           })
-        if (fileUploads.UKT)
+        if (fileUploads.SPP)
           dokumenData.push({
             penilaianId: firstPenilaian.id,
-            tipe_dokumen: 'UKT',
-            fileUrl: fileUploads.UKT,
+            tipe_dokumen: 'SPP',
+            fileUrl: fileUploads.SPP,
           })
         if (fileUploads.PRESTASI)
           dokumenData.push({

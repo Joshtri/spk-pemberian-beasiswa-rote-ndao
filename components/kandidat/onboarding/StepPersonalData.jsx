@@ -15,25 +15,24 @@ import { cn } from '@/lib/utils'
 import FormField from '@/components/ui/form-field'
 import { useFormContext } from 'react-hook-form'
 import { useState } from 'react'
+import { kecamatanWithDesaKelurahan } from '@/constants/kecamatanWithKelurahan'
 
-export default function StepPersonalData({ errors }) {
-  const { register, setValue, watch } = useFormContext()
+export default function StepPersonalData() {
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext()
   const [open, setOpen] = useState(false)
 
-  const kecamatanList = [
-    'Rote Barat Daya',
-    'Rote Barat Laut',
-    'Lobalain',
-    'Rote Tengah',
-    'Pantai Baru',
-    'Rote Timur',
-    'Rote Barat',
-    'Rote Selatan',
-    'Ndao Nuse',
-    'Landu Leko',
-  ]
+  const [openKecamatan, setOpenKecamatan] = useState(false)
+  const [openDesa, setOpenDesa] = useState(false)
 
   const selectedKecamatan = watch('kecamatan')
+  const selectedDesa = watch('kelurahan_desa')
+  const kecamatanList = Object.keys(kecamatanWithDesaKelurahan)
+  const desaOptions = kecamatanWithDesaKelurahan[selectedKecamatan] || []
 
   return (
     <div className="space-y-4">
@@ -68,22 +67,69 @@ export default function StepPersonalData({ errors }) {
           error={errors.rt_rw?.message}
           {...register('rt_rw', { required: 'RT/RW wajib diisi' })}
         />
-        <FormField
-          label="Kelurahan/Desa"
-          name="kelurahan_desa"
-          error={errors.kelurahan_desa?.message}
-          {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib diisi' })}
-        />
-
-        {/* Combobox Kecamatan */}
+        {/* Kelurahan/Desa Combobox */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Kecamatan</label>
-          <Popover open={open} onOpenChange={setOpen}>
+          <label className="text-sm font-medium text-gray-700">Kelurahan/Desa</label>
+          <Popover open={openDesa} onOpenChange={setOpenDesa}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
-                aria-expanded={open}
+                aria-expanded={openDesa}
+                disabled={!selectedKecamatan}
+                className="w-full justify-between"
+              >
+                {selectedDesa || 'Pilih kelurahan/desa...'}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0 max-h-60 overflow-auto">
+              <Command>
+                <CommandInput placeholder="Cari kelurahan/desa..." />
+                <CommandList>
+                  <CommandEmpty>Tidak ditemukan.</CommandEmpty>
+                  <CommandGroup>
+                    {desaOptions.map(item => (
+                      <CommandItem
+                        key={item}
+                        value={item}
+                        onSelect={() => {
+                          setValue('kelurahan_desa', item, { shouldValidate: true })
+                          setOpenDesa(false)
+                        }}
+                      >
+                        {item}
+                        <Check
+                          className={cn(
+                            'ml-auto h-4 w-4',
+                            selectedDesa === item ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <input
+            type="hidden"
+            {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib dipilih' })}
+          />
+          {errors.kelurahan_desa?.message && (
+            <p className="text-sm text-red-500">{errors.kelurahan_desa.message}</p>
+          )}
+        </div>
+
+        {/* Kecamatan Combobox */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Kecamatan</label>
+          <Popover open={openKecamatan} onOpenChange={setOpenKecamatan}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={openKecamatan}
                 className="w-full justify-between"
               >
                 {selectedKecamatan || 'Pilih kecamatan...'}
@@ -102,7 +148,9 @@ export default function StepPersonalData({ errors }) {
                         value={item}
                         onSelect={() => {
                           setValue('kecamatan', item, { shouldValidate: true })
-                          setOpen(false)
+                          // Reset kelurahan jika kecamatan berubah
+                          setValue('kelurahan_desa', '', { shouldValidate: true })
+                          setOpenKecamatan(false)
                         }}
                       >
                         {item}
@@ -119,6 +167,10 @@ export default function StepPersonalData({ errors }) {
               </Command>
             </PopoverContent>
           </Popover>
+          <input
+            type="hidden"
+            {...register('kecamatan', { required: 'Kecamatan wajib dipilih' })}
+          />
           {errors.kecamatan?.message && (
             <p className="text-sm text-red-500">{errors.kecamatan.message}</p>
           )}

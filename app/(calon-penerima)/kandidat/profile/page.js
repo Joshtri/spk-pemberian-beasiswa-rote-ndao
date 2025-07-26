@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/command'
 import { PopoverContent } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { kecamatanWithDesaKelurahan } from '@/constants/kecamatanWithKelurahan'
 
 export default function CalonPenerimaProfile() {
   const [isLoading, setIsLoading] = useState(true)
@@ -43,20 +44,8 @@ export default function CalonPenerimaProfile() {
     return masked + visible
   }
 
-  const kecamatanList = [
-    'Rote Barat Daya',
-    'Rote Barat Laut',
-    'Lobalain',
-    'Rote Tengah',
-    'Pantai Baru',
-    'Rote Timur',
-    'Rote Barat',
-    'Rote Selatan',
-    'Ndao Nuse',
-    'Landu Leko',
-  ]
-
   const [openKecamatan, setOpenKecamatan] = useState(false)
+  const [openKelurahan, setOpenKelurahan] = useState(false)
 
   const {
     register,
@@ -79,12 +68,24 @@ export default function CalonPenerimaProfile() {
       username: '',
       email: '',
       password: '',
+      buktiRekening: '',
       password_confirmation: '',
     },
   })
+  const [kelurahanOptions, setKelurahanOptions] = useState([])
+
+  const kecamatanList = Object.keys(kecamatanWithDesaKelurahan)
+  const selectedKecamatan = watch('kecamatan')
+  const selectedKelurahan = watch('kelurahan_desa')
+  const [showBuktiModal, setShowBuktiModal] = useState(false)
+
+  useEffect(() => {
+    const kelurahan = kecamatanWithDesaKelurahan[selectedKecamatan?.trim()] || []
+    setKelurahanOptions(kelurahan)
+    setValue('kelurahan_desa', '') // reset kelurahan saat kecamatan berubah
+  }, [selectedKecamatan, setValue])
 
   const password = watch('password')
-  const selectedKecamatan = watch('kecamatan')
 
   useEffect(() => {
     async function fetchProfile() {
@@ -109,6 +110,7 @@ export default function CalonPenerimaProfile() {
           noRekening: data.noRekening || '',
 
           password_confirmation: '',
+          buktiRekening: data.buktiRekening || '',
         })
       } catch (error) {
         console.error('Gagal fetch profil:', error)
@@ -144,6 +146,9 @@ export default function CalonPenerimaProfile() {
         kelurahan_desa: formData.kelurahan_desa,
         kecamatan: formData.kecamatan,
         perguruan_Tinggi: formData.perguruan_tinggi,
+
+        noRekening: formData.noRekening,
+        buktiRekening: formData.buktiRekening,
         fakultas_prodi: formData.fakultas_prodi,
         ...(formData.password ? { password: formData.password } : {}),
       }
@@ -271,13 +276,54 @@ export default function CalonPenerimaProfile() {
                         error={errors.rt_rw?.message}
                       />
 
-                      <FormField
-                        label="Kelurahan/Desa"
-                        name="kelurahan_desa"
-                        {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib diisi' })}
-                        placeholder="Masukkan kelurahan/desa"
-                        error={errors.kelurahan_desa?.message}
-                      />
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Kelurahan/Desa</label>
+                        <Popover open={openKelurahan} onOpenChange={setOpenKelurahan}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openKelurahan}
+                              className="w-full justify-between"
+                              disabled={!selectedKecamatan}
+                            >
+                              {selectedKelurahan || 'Pilih kelurahan/desa...'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0">
+                            <Command>
+                              <CommandInput placeholder="Cari kelurahan..." />
+                              <CommandList>
+                                <CommandEmpty>Tidak ditemukan.</CommandEmpty>
+                                <CommandGroup>
+                                  {kelurahanOptions.map(item => (
+                                    <CommandItem
+                                      key={item}
+                                      value={item}
+                                      onSelect={() => {
+                                        setValue('kelurahan_desa', item, { shouldValidate: true })
+                                        setOpenKelurahan(false)
+                                      }}
+                                    >
+                                      {item}
+                                      <Check
+                                        className={cn(
+                                          'ml-auto h-4 w-4',
+                                          selectedKelurahan === item ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {errors.kelurahan_desa?.message && (
+                          <p className="text-sm text-red-500">{errors.kelurahan_desa.message}</p>
+                        )}
+                      </div>
 
                       {/* <FormField
                         label="Kecamatan"
@@ -306,7 +352,7 @@ export default function CalonPenerimaProfile() {
                             <Command>
                               <CommandInput placeholder="Cari kecamatan..." />
                               <CommandList>
-                                <CommandEmpty>Kecamatan tidak ditemukan.</CommandEmpty>
+                                <CommandEmpty>Tidak ditemukan.</CommandEmpty>
                                 <CommandGroup>
                                   {kecamatanList.map(item => (
                                     <CommandItem
@@ -432,6 +478,58 @@ export default function CalonPenerimaProfile() {
                       placeholder="Masukkan nomor rekening"
                       error={errors.noRekening?.message}
                     />
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Bukti Rekening (maks 500KB)
+                      </label>
+
+                      {watch('buktiRekening') ? (
+                        <div className="flex items-center gap-4">
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-blue-600 p-0"
+                            onClick={() => setShowBuktiModal(true)}
+                          >
+                            Lihat Bukti Rekening
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-red-500"
+                            onClick={() => setValue('buktiRekening', '')}
+                          >
+                            Hapus
+                          </Button>
+                        </div>
+                      ) : null}
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+
+                          if (file.size > 500 * 1024) {
+                            alert('Ukuran gambar maksimal 500KB')
+                            return
+                          }
+
+                          const reader = new FileReader()
+                          reader.onloadend = () => {
+                            setValue('buktiRekening', reader.result, { shouldValidate: true })
+                          }
+                          reader.readAsDataURL(file)
+                        }}
+                        className="text-sm"
+                      />
+
+                      {errors.buktiRekening && (
+                        <p className="text-sm text-red-500">{errors.buktiRekening.message}</p>
+                      )}
+                    </div>
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <Button
@@ -523,6 +621,24 @@ export default function CalonPenerimaProfile() {
           </Tabs>
         </motion.div>
       </div>
+
+      {showBuktiModal && watch('buktiRekening') && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-lg font-semibold mb-2">Pratinjau Bukti Rekening</h2>
+            <img
+              src={watch('buktiRekening')}
+              alt="Bukti Rekening"
+              className="w-full h-auto object-contain border"
+            />
+            <div className="flex justify-end mt-4">
+              <Button variant="outline" onClick={() => setShowBuktiModal(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

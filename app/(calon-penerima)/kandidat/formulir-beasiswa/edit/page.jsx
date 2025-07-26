@@ -53,15 +53,17 @@ export default function EditPenilaianPage() {
   const [files, setFiles] = useState({
     KHS: null,
     KRS: null,
-    UKT: null,
+    SPP: null,
     PRESTASI: null,
+    ORGANISASI: null, // New field for organization document
   })
   // Add these state declarations
   const [filePreviews, setFilePreviews] = useState({
     KHS: null,
     KRS: null,
-    UKT: null,
+    SPP: null,
     PRESTASI: null,
+    ORGANISASI: null,
   })
   const [fileErrors, setFileErrors] = useState({})
   const [existingDocuments, setExistingDocuments] = useState(null)
@@ -95,8 +97,9 @@ export default function EditPenilaianPage() {
           setFilePreviews({
             KHS: documents.KHS || null,
             KRS: documents.KRS || null,
-            UKT: documents.UKT || null,
+            SPP: documents.SPP || null,
             PRESTASI: documents.PRESTASI || null,
+            ORGANISASI: documents.ORGANISASI || null,
           })
         }
 
@@ -254,8 +257,9 @@ export default function EditPenilaianPage() {
       // Append files if they exist
       if (files.KHS) formDataWithFiles.append('KHS', files.KHS)
       if (files.KRS) formDataWithFiles.append('KRS', files.KRS)
-      if (files.UKT) formDataWithFiles.append('UKT', files.UKT)
+      if (files.SPP) formDataWithFiles.append('SPP', files.SPP)
       if (files.PRESTASI) formDataWithFiles.append('PRESTASI', files.PRESTASI)
+      if (files.ORGANISASI) formDataWithFiles.append('ORGANISASI', files.ORGANISASI)
 
       // Submit data
       const response = await fetch('/api/penilaian/edit', {
@@ -641,7 +645,12 @@ export default function EditPenilaianPage() {
                     </span>
                   </div>
                 )}
+
+                {/* ORGANISASI */}
+
+                {/* ORGANISASI */}
               </div>
+
               {/* KHS */}
               <div>
                 <FormField
@@ -690,40 +699,40 @@ export default function EditPenilaianPage() {
                 )}
               </div>
 
-              {/* UKT */}
+              {/* SPP */}
               <div>
                 <FormField
                   label="Bukti Pembayaran SPP"
-                  name="ukt"
+                  name="spp"
                   type="file"
                   required={false}
-                  onChange={e => handleFileChange(e, 'UKT')}
-                  error={fileErrors.UKT}
+                  onChange={e => handleFileChange(e, 'SPP')}
+                  error={fileErrors.SPP}
                 />
-                {filePreviews.UKT && (
+                {filePreviews.SPP && (
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <a
-                      href={filePreviews.UKT}
+                      href={filePreviews.SPP}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline flex items-center"
                     >
                       <File className="h-4 w-4 mr-1" />
-                      {files?.UKT ? 'Preview file baru' : 'Lihat file saat ini'}
+                      {files?.SPP ? 'Preview file baru' : 'Lihat file saat ini'}
                     </a>
                     <button
                       type="button"
-                      onClick={() => handleRemoveFile('UKT')}
+                      onClick={() => handleRemoveFile('SPP')}
                       className="text-red-600 hover:underline"
                     >
                       Hapus
                     </button>
                   </div>
                 )}
-                {!filePreviews.UKT && existingDocuments?.UKT && (
+                {!filePreviews.SPP && existingDocuments?.SPP && (
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <a
-                      href={existingDocuments.UKT}
+                      href={existingDocuments.SPP}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline flex items-center"
@@ -732,7 +741,7 @@ export default function EditPenilaianPage() {
                       Lihat file saat ini
                     </a>
                     <span className="text-muted-foreground text-xs">
-                      ({existingDocuments.UKT.split('/').pop()})
+                      ({existingDocuments.SPP.split('/').pop()})
                     </span>
                   </div>
                 )}
@@ -781,6 +790,53 @@ export default function EditPenilaianPage() {
                     </a>
                     <span className="text-muted-foreground text-xs">
                       ({existingDocuments.PRESTASI.split('/').pop()})
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <FormField
+                  label="Bukti Pernah Mengikuti Organisasi (Opsional)"
+                  name="organisasi"
+                  type="file"
+                  required={false}
+                  onChange={e => handleFileChange(e, 'ORGANISASI')}
+                  error={fileErrors.ORGANISASI}
+                />
+                {filePreviews.ORGANISASI && (
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <a
+                      href={filePreviews.ORGANISASI}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline flex items-center"
+                    >
+                      <File className="h-4 w-4 mr-1" />
+                      {files?.ORGANISASI ? 'Preview file baru' : 'Lihat file saat ini'}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile('ORGANISASI')}
+                      className="text-red-600 hover:underline"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                )}
+                {!filePreviews.ORGANISASI && existingDocuments?.ORGANISASI && (
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <a
+                      href={existingDocuments.ORGANISASI}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline flex items-center"
+                    >
+                      <File className="h-4 w-4 mr-1" />
+                      Lihat file saat ini
+                    </a>
+                    <span className="text-muted-foreground text-xs">
+                      ({existingDocuments.ORGANISASI.split('/').pop()})
                     </span>
                   </div>
                 )}
