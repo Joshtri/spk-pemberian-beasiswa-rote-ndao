@@ -95,6 +95,10 @@ export async function GET(request) {
       hasActivePenilaian = calonPenerima.penilaian.length > 0
     }
 
+    // Ambil status verifikasi dan alasan dari penilaian pertama (karena semua penilaian satu calon akan punya status yg sama)
+    const statusVerifikasi = calonPenerima.penilaian[0]?.verifikasiStatus || 'PENDING'
+    const alasanPenolakan = calonPenerima.penilaian[0]?.alasan_penolakan || null
+
     // === ✅ Return Final JSON ===
     return NextResponse.json({
       success: true,
@@ -108,6 +112,10 @@ export async function GET(request) {
         profileCompletion, // 🔥 ini progress profil (bukan penilaian)
         penilaianCompletion, // 🔥 ini progress kriteria yang dinilai
         kriteriaStatus,
+
+        // Tambahan
+        statusVerifikasi,
+        alasanPenolakan,
         applicationStatus,
         announcements: pengumuman,
         activePeriod: activePeriode

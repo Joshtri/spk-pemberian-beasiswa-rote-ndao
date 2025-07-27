@@ -398,6 +398,22 @@ export default function CalonPenerimaDashboard() {
                     </p>
                   </div>
                 )}
+                {dashboardData.applicationStatus === 'ditolak' && (
+                  <div className="text-sm text-red-700">
+                    <p className="font-semibold mb-1">
+                      Status Pengajuan: <span className="text-red-800">Ditolak</span>
+                    </p>
+                    <p>
+                      Mohon maaf, pengajuan beasiswa Anda belum memenuhi kriteria pada periode ini.
+                    </p>
+
+                    {dashboardData.alasanPenolakan && (
+                      <p className="mt-2 italic text-sm text-red-600">
+                        Alasan: {dashboardData.alasanPenolakan}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
