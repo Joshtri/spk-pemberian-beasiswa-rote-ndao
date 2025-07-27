@@ -1,9 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import SkeletonTable from '@/components/ui/skeleton-table'
+import { Switch } from '@/components/ui/switch'
 import {
   Table,
   TableBody,
@@ -12,20 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { FileText, Download, Eye } from 'lucide-react'
-import ThreeLoading from '@/components/three-loading'
+import { Textarea } from '@/components/ui/textarea'
 import api from '@/lib/axios'
+import { Ban, Download, Eye, EyeOff, FileText } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Switch } from '@/components/ui/switch'
-import SkeletonTable from '@/components/ui/skeleton-table'
 
 export default function PenilaianPage() {
   const [penilaianData, setPenilaianData] = useState([])
@@ -51,6 +58,11 @@ export default function PenilaianPage() {
   const [kriteriaColumns, setKriteriaColumns] = useState([])
   const [kuotaAktif, setKuotaAktif] = useState(null)
   const [jumlahDiterima, setJumlahDiterima] = useState(0)
+
+  // Tambahkan state untuk modal
+  const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [rejectingCalonId, setRejectingCalonId] = useState(null)
+  const [alasanPenolakan, setAlasanPenolakan] = useState('')
   // ✅ Ambil semua periode saat pertama kali halaman dibuka
   useEffect(() => {
     fetchPeriodes()
@@ -265,23 +277,51 @@ export default function PenilaianPage() {
     )
   }
 
-  const handleToggleStatus = async (calonPenerimaId, currentStatus) => {
-    const newStatus = currentStatus === 'DITERIMA' ? 'DITOLAK' : 'DITERIMA'
+  const handleSubmitPenolakan = async () => {
+    if (!alasanPenolakan.trim()) {
+      toast.warning('Harap isi alasan penolakan')
+      return
+    }
 
     try {
       await api.patch('/penilaian/admin/verifikasi-status', {
-        calonPenerimaId,
-        verifikasiStatus: newStatus,
+        calonPenerimaId: rejectingCalonId,
+        verifikasiStatus: 'DITOLAK',
+        alasan_penolakan: alasanPenolakan,
       })
 
       toast.success('Status verifikasi diperbarui')
-
-      // Refresh data
+      setShowRejectDialog(false)
+      setRejectingCalonId(null)
+      setAlasanPenolakan('')
       await fetchPenilaian()
       await fetchTotalDiterima()
     } catch (error) {
       console.error('❌ Gagal mengubah status verifikasi:', error)
       toast.error('Gagal mengubah status verifikasi')
+    }
+  }
+
+  const handleToggleStatus = async (calonPenerimaId, currentStatus) => {
+    if (currentStatus === 'DITERIMA') {
+      // Langsung ubah ke DITOLAK dengan alasan
+      setRejectingCalonId(calonPenerimaId)
+      setAlasanPenolakan('')
+      setShowRejectDialog(true)
+    } else {
+      try {
+        await api.patch('/penilaian/admin/verifikasi-status', {
+          calonPenerimaId,
+          verifikasiStatus: 'DITERIMA',
+        })
+
+        toast.success('Status verifikasi diperbarui')
+        await fetchPenilaian()
+        await fetchTotalDiterima()
+      } catch (error) {
+        console.error('❌ Gagal mengubah status verifikasi:', error)
+        toast.error('Gagal mengubah status verifikasi')
+      }
     }
   }
 
@@ -427,9 +467,22 @@ export default function PenilaianPage() {
                               </TableCell>
 
                               <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <Eye className="h-4 w-4" />
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-600"
+                                  onClick={() => {
+                                    setRejectingCalonId(item.calonPenerima.id)
+                                    setAlasanPenolakan('')
+                                    setShowRejectDialog(true)
+                                  }}
+                                  title="Tolak dengan alasan"
+                                >
+                                  <Ban className="h-4 w-4" />
                                 </Button>
+                                {/* <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Eye className="h-4 w-4" />
+                                </Button> */}
                               </TableCell>
                             </TableRow>
                           ))
@@ -502,7 +555,7 @@ export default function PenilaianPage() {
                   </h2>
                   <iframe
                     src={selectedDoc.fileUrl}
-                    className="flex-1 w-full rounded border"
+                    className="w-full h-full min-h-[600px] rounded border"
                     title="Pratinjau Dokumen"
                   />
                   <div className="mt-4 text-right">
@@ -512,6 +565,28 @@ export default function PenilaianPage() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Tambahkan di return paling bawah */}
+            {showRejectDialog && (
+              <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Isi Alasan Penolakan</DialogTitle>
+                  </DialogHeader>
+                  <Textarea
+                    value={alasanPenolakan}
+                    onChange={e => setAlasanPenolakan(e.target.value)}
+                    placeholder="Tuliskan alasan mengapa calon ditolak..."
+                  />
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setShowRejectDialog(false)}>
+                      Batal
+                    </Button>
+                    <Button onClick={handleSubmitPenolakan}>Kirim</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
           </CardContent>
         </Card>
