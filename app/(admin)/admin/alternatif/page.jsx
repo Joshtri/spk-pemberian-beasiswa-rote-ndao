@@ -1,17 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import DataTable from '@/components/ui/data-table'
-import ModalForm from '@/components/ui/modal-form'
-import FormField from '@/components/ui/form-field'
-import ThreeLoading from '@/components/three-loading'
-import api from '@/lib/axios'
-import { toast } from 'sonner'
 import DetailCalonPenerimaModal from '@/components/admin/kandidat/DetailCalonPenerimaModal'
 import ActionButtons from '@/components/ui/ActionButtons'
-
+import DataTable from '@/components/ui/data-table'
+import FormField from '@/components/ui/form-field'
+import ModalForm from '@/components/ui/modal-form'
+import { kecamatanWithDesaKelurahan } from '@/constants/kecamatanWithKelurahan'
+import api from '@/lib/axios'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 export default function CalonPenerimaPage() {
   const [calonPenerimaData, setCalonPenerimaData] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -19,11 +17,15 @@ export default function CalonPenerimaPage() {
   const [editingId, setEditingId] = useState(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedCalonPenerima, setSelectedCalonPenerima] = useState(null)
+  const kecamatanList = Object.keys(kecamatanWithDesaKelurahan)
+  const [desaOptions, setDesaOptions] = useState([])
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -105,6 +107,16 @@ export default function CalonPenerimaPage() {
     }
   }
 
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'kecamatan') {
+        setDesaOptions(kecamatanWithDesaKelurahan[value.kecamatan] || [])
+        setValue('kelurahan_desa', '') // reset kelurahan
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
+
   const onSubmit = async data => {
     setIsLoading(true)
     try {
@@ -158,7 +170,6 @@ export default function CalonPenerimaPage() {
 
   return (
     <>
- 
       <DataTable
         title="Calon Penerima Beasiswa"
         description="Daftar calon penerima beasiswa"
@@ -213,19 +224,37 @@ export default function CalonPenerimaPage() {
           {...register('rt_rw', { required: 'Wajib diisi' })}
         />
 
-        <FormField
-          label="Kelurahan/Desa"
-          name="kelurahan_desa"
-          error={errors.kelurahan_desa?.message}
-          {...register('kelurahan_desa', { required: 'Wajib diisi' })}
-        />
+        <label className="text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+        <select
+          {...register('kecamatan', { required: 'Wajib dipilih' })}
+          className="form-select w-full rounded border border-gray-300 px-3 py-2"
+        >
+          <option value="">-- Pilih Kecamatan --</option>
+          {kecamatanList.map(kec => (
+            <option key={kec} value={kec}>
+              {kec}
+            </option>
+          ))}
+        </select>
+        {errors.kecamatan && (
+          <p className="text-sm text-red-500 mt-1">{errors.kecamatan.message}</p>
+        )}
 
-        <FormField
-          label="Kecamatan"
-          name="kecamatan"
-          error={errors.kecamatan?.message}
-          {...register('kecamatan', { required: 'Wajib diisi' })}
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-1">Kelurahan/Desa</label>
+        <select
+          {...register('kelurahan_desa', { required: 'Wajib dipilih' })}
+          className="form-select w-full rounded border border-gray-300 px-3 py-2"
+        >
+          <option value="">-- Pilih Kelurahan/Desa --</option>
+          {desaOptions.map(desa => (
+            <option key={desa} value={desa}>
+              {desa}
+            </option>
+          ))}
+        </select>
+        {errors.kelurahan_desa && (
+          <p className="text-sm text-red-500 mt-1">{errors.kelurahan_desa.message}</p>
+        )}
 
         <FormField
           label="Perguruan Tinggi"
