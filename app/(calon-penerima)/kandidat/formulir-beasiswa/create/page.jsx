@@ -48,7 +48,7 @@ export default function CreatePenilaianPage() {
     KRS: null,
     SPP: null,
     PRESTASI: null,
-    ORGANISASI: null
+    ORGANISASI: null,
   })
   const [fileErrors, setFileErrors] = useState({})
   const [ipkValue, setIpkValue] = useState('')
@@ -143,14 +143,14 @@ export default function CreatePenilaianPage() {
     if (!files.SPP) {
       newErrors.SPP = 'File bukti pembayaran SPP wajib diunggah'
       isValid = false
-    };
-    if (!files.PRESTASI) {
-      newErrors.PRESTASI = 'File bukti prestasi wajib diunggah'
+    }
+    if (files.PRESTASI && files.PRESTASI.size > 5 * 1024 * 1024) {
+      newErrors.PRESTASI = 'Ukuran file maksimal 5MB'
       isValid = false
     }
 
-    if (!files.ORGANISASI) {
-      newErrors.ORGANISASI = 'File bukti organisasi wajib diunggah'
+    if (files.ORGANISASI && files.ORGANISASI.size > 5 * 1024 * 1024) {
+      newErrors.ORGANISASI = 'Ukuran file maksimal 5MB'
       isValid = false
     }
 
@@ -426,8 +426,9 @@ export default function CreatePenilaianPage() {
                                     kriteria.nama_kriteria.toLowerCase().includes('indeks')
                                   }
                                 >
-                                  {subKriteria.nama_sub_kriteria} - bobot:{' '}
-                                  {subKriteria.bobot_sub_kriteria}
+                                  {subKriteria.nama_sub_kriteria}
+                                  {/* - bobot:{' '}
+                                  {subKriteria.bobot_sub_kriteria} */}
                                 </SelectItem>
                               ))}
                             </SelectContent>

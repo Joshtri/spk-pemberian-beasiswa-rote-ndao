@@ -33,6 +33,7 @@ import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
 import { File, Upload } from 'lucide-react'
 import FormField from '@/components/ui/form-field'
+import axios from 'axios'
 
 export default function EditPenilaianPage() {
   const router = useRouter()
@@ -227,12 +228,6 @@ export default function EditPenilaianPage() {
       return
     }
 
-    // Validate files (optional)
-    if (!validateFiles()) {
-      toast.warning('Harap unggah semua dokumen yang diperlukan')
-      return
-    }
-
     // Clean up preview URLs
     Object.values(filePreviews).forEach(preview => {
       if (preview && preview.startsWith('blob:')) {
@@ -254,20 +249,27 @@ export default function EditPenilaianPage() {
       const formDataWithFiles = new FormData()
       formDataWithFiles.append('penilaian', JSON.stringify(penilaianData))
 
-      // Append files if they exist
+      // Append new files if they exist
       if (files.KHS) formDataWithFiles.append('KHS', files.KHS)
       if (files.KRS) formDataWithFiles.append('KRS', files.KRS)
       if (files.SPP) formDataWithFiles.append('SPP', files.SPP)
       if (files.PRESTASI) formDataWithFiles.append('PRESTASI', files.PRESTASI)
       if (files.ORGANISASI) formDataWithFiles.append('ORGANISASI', files.ORGANISASI)
 
-      // Submit data
-      const response = await fetch('/api/penilaian/edit', {
-        method: 'PUT',
-        body: formDataWithFiles,
+      // Append existing document URLs
+      if (existingDocuments?.KHS) formDataWithFiles.append('KHS_existing', existingDocuments.KHS)
+      if (existingDocuments?.KRS) formDataWithFiles.append('KRS_existing', existingDocuments.KRS)
+      if (existingDocuments?.SPP) formDataWithFiles.append('SPP_existing', existingDocuments.SPP)
+      if (existingDocuments?.PRESTASI)
+        formDataWithFiles.append('PRESTASI_existing', existingDocuments.PRESTASI)
+      if (existingDocuments?.ORGANISASI)
+        formDataWithFiles.append('ORGANISASI_existing', existingDocuments.ORGANISASI)
+
+      const response = await axios.patch('/api/penilaian/edit', formDataWithFiles, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      const result = await response.json()
+      const result = response.data
 
       if (!result.success) {
         throw new Error(result.message || 'Gagal memperbarui data penilaian')

@@ -42,6 +42,9 @@ export default function PenilaianPage() {
     limit: 10,
   })
 
+  const [selectedDoc, setSelectedDoc] = useState(null)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+
   // Group penilaian by calon penerima
   const [groupedData, setGroupedData] = useState([])
   // Store all unique kriteria for columns
@@ -52,6 +55,11 @@ export default function PenilaianPage() {
   useEffect(() => {
     fetchPeriodes()
   }, [])
+
+  const handlePreviewDoc = doc => {
+    setSelectedDoc(doc)
+    setShowPreviewModal(true)
+  }
 
   // ✅ Ambil data penilaian + jumlah DITERIMA setiap kali periode dipilih atau pagination berubah
   useEffect(() => {
@@ -241,16 +249,16 @@ export default function PenilaianPage() {
     return (
       <div className="flex flex-wrap gap-1 mt-1">
         {dokumen.map(doc => (
-          <Badge key={doc.id} variant="outline" className="text-xs">
-            <a
-              href={doc.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1"
+          <Badge key={doc.id} variant="outline" className="text-xs cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center gap-1 text-blue-600 hover:underline"
+              onClick={() => handlePreviewDoc(doc)}
+              title="Klik untuk preview dokumen"
             >
               <FileText className="h-3 w-3" />
               {doc.tipe_dokumen}
-            </a>
+            </button>
           </Badge>
         ))}
       </div>
@@ -322,7 +330,6 @@ export default function PenilaianPage() {
             </div>
           </CardHeader>
 
-
           <CardContent>
             <div className="rounded-md border overflow-hidden">
               <div className="overflow-x-auto">
@@ -364,68 +371,69 @@ export default function PenilaianPage() {
                     </TableHeader>
 
                     <TableBody>
-                      {filteredData.length > 0 ? (
-                        filteredData.map((item, index) => (
-                          <TableRow key={item.calonPenerima.id}>
-                            <TableCell className="text-center font-medium">
-                              {(page - 1) * limit + index + 1}
-                            </TableCell>
-                            <TableCell>
-                              <div className="font-medium">{item.calonPenerima.nama_lengkap}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {item.calonPenerima.perguruan_Tinggi}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {item.calonPenerima.fakultas_prodi}
-                              </div>
-                            </TableCell>
-
-                            {kriteriaColumns.map(kriteria => (
-                              <TableCell key={kriteria.id}>
-                                {item.penilaian[kriteria.nama] ? (
-                                  <>
-                                    <div className="font-medium">
-                                      {item.penilaian[kriteria.nama].subKriteria}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Bobot: {item.penilaian[kriteria.nama].bobot}
-                                    </div>
-
-                                    {/* Dokumen hanya di kolom pertama */}
-                                    {kriteria.id === kriteriaColumns[0].id &&
-                                      item.dokumen.length > 0 &&
-                                      renderDokumenBadge(item.dokumen)}
-                                  </>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">-</span>
-                                )}
+                      {filteredData.length > 0
+                        ? filteredData.map((item, index) => (
+                            <TableRow key={item.calonPenerima.id}>
+                              <TableCell className="text-center font-medium">
+                                {(page - 1) * limit + index + 1}
                               </TableCell>
-                            ))}
+                              <TableCell>
+                                <div className="font-medium">{item.calonPenerima.nama_lengkap}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {item.calonPenerima.perguruan_Tinggi}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {item.calonPenerima.fakultas_prodi}
+                                </div>
+                              </TableCell>
 
-                            <TableCell className="text-center capitalize">
-                              <div className="flex flex-col items-center gap-1">
-                                <Switch
-                                  checked={item.verifikasiStatus === 'DITERIMA'}
-                                  onCheckedChange={() =>
-                                    handleToggleStatus(item.calonPenerima.id, item.verifikasiStatus)
-                                  }
-                                />
-                                <span className="text-xs text-muted-foreground capitalize">
-                                  {item.verifikasiStatus}
-                                </span>
-                              </div>
-                            </TableCell>
+                              {kriteriaColumns.map(kriteria => (
+                                <TableCell key={kriteria.id}>
+                                  {item.penilaian[kriteria.nama] ? (
+                                    <>
+                                      <div className="font-medium">
+                                        {item.penilaian[kriteria.nama].subKriteria}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Bobot: {item.penilaian[kriteria.nama].bobot}
+                                      </div>
 
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                      null
-                      )}
+                                      {/* Dokumen hanya di kolom pertama */}
+                                      {kriteria.id === kriteriaColumns[0].id &&
+                                        item.dokumen.length > 0 &&
+                                        renderDokumenBadge(item.dokumen)}
+                                    </>
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">-</span>
+                                  )}
+                                </TableCell>
+                              ))}
+
+                              <TableCell className="text-center capitalize">
+                                <div className="flex flex-col items-center gap-1">
+                                  <Switch
+                                    checked={item.verifikasiStatus === 'DITERIMA'}
+                                    onCheckedChange={() =>
+                                      handleToggleStatus(
+                                        item.calonPenerima.id,
+                                        item.verifikasiStatus
+                                      )
+                                    }
+                                  />
+                                  <span className="text-xs text-muted-foreground capitalize">
+                                    {item.verifikasiStatus}
+                                  </span>
+                                </div>
+                              </TableCell>
+
+                              <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        : null}
                     </TableBody>
                   </Table>
                 )}
@@ -482,6 +490,26 @@ export default function PenilaianPage() {
                   >
                     Selanjutnya
                   </Button>
+                </div>
+              </div>
+            )}
+
+            {showPreviewModal && selectedDoc && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/30">
+                <div className="bg-white w-full max-w-3xl h-[80vh] p-4 rounded-lg shadow-lg relative flex flex-col">
+                  <h2 className="text-lg font-semibold mb-2">
+                    Pratinjau Dokumen: {selectedDoc.tipe_dokumen}
+                  </h2>
+                  <iframe
+                    src={selectedDoc.fileUrl}
+                    className="flex-1 w-full rounded border"
+                    title="Pratinjau Dokumen"
+                  />
+                  <div className="mt-4 text-right">
+                    <Button variant="outline" onClick={() => setShowPreviewModal(false)}>
+                      Tutup
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

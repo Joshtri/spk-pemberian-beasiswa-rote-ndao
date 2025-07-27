@@ -281,37 +281,6 @@ export default function CalonPenerimaDashboard() {
               </Button>
             </CardFooter>
           </Card>
-
-          {/* <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <Award className="mr-2 h-5 w-5 text-primary" />
-                Status Pengajuan
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
-                  <Clock className="mr-1 h-4 w-4" />
-                  {getApplicationStatusText(dashboardData.applicationStatus)}
-                </span>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                disabled={!isOnboarded}
-                asChild
-              >
-                <Link href="/kandidat/status">
-                  Lihat Detail
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card> */}
         </motion.div>
 
         {/* Timeline and Kriteria */}
@@ -393,29 +362,43 @@ export default function CalonPenerimaDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {dashboardData.announcements.length > 0 ? (
-                <div className="space-y-4">
-                  {dashboardData.announcements.map(announcement => (
-                    <div key={announcement.id} className="p-4 border rounded-md">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold">{announcement.title}</h3>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(announcement.date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </span>
-                      </div>
-                      <p className="text-sm">{announcement.content}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-6">
-                  Tidak ada pengumuman terbaru
-                </p>
-              )}
+              {/* Status Pengajuan Beasiswa */}
+              <div className="mb-4 p-4 rounded-md border border-gray-200 bg-gray-50">
+                {dashboardData.applicationStatus === 'pending' && (
+                  <div className="text-sm text-yellow-700">
+                    <p className="font-semibold mb-1">
+                      Status Pengajuan: <span className="text-yellow-800">Menunggu Verifikasi</span>
+                    </p>
+                    <p>
+                      Data penilaian Anda telah dikirim. Silakan tunggu proses verifikasi dari
+                      panitia.
+                    </p>
+                  </div>
+                )}
+
+                {dashboardData.applicationStatus === 'diterima' && (
+                  <div className="text-sm text-green-700">
+                    <p className="font-semibold mb-1">
+                      Status Pengajuan: <span className="text-green-800">Diterima</span>
+                    </p>
+                    <p>
+                      Selamat! Anda telah diterima sebagai penerima beasiswa untuk periode{' '}
+                      <strong>{dashboardData.activePeriod?.nama_periode}</strong>.
+                    </p>
+                  </div>
+                )}
+
+                {dashboardData.applicationStatus === 'ditolak' && (
+                  <div className="text-sm text-red-700">
+                    <p className="font-semibold mb-1">
+                      Status Pengajuan: <span className="text-red-800">Ditolak</span>
+                    </p>
+                    <p>
+                      Mohon maaf, pengajuan beasiswa Anda belum memenuhi kriteria pada periode ini.
+                    </p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </motion.div>

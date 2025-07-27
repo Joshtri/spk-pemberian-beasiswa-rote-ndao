@@ -1,18 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import DataTable from '@/components/ui/data-table'
-import ModalForm from '@/components/ui/modal-form'
-import FormField from '@/components/ui/form-field'
-import ThreeLoading from '@/components/three-loading'
-import api from '@/lib/axios'
-import { toast } from 'sonner'
 import SubkriteriaAddModal from '@/components/kriteria/SubKriteriaAddModal'
 import SubkriteriaListModal from '@/components/kriteria/SubKriteriaListModal'
 import ActionButtons from '@/components/ui/ActionButtons'
+import { Badge } from '@/components/ui/badge'
+import DataTable from '@/components/ui/data-table'
+import FormField from '@/components/ui/form-field'
+import ModalForm from '@/components/ui/modal-form'
+import api from '@/lib/axios'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 export default function KriteriaPage() {
   const [kriteriaData, setKriteriaData] = useState([])

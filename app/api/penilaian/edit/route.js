@@ -4,7 +4,7 @@ import { getAuthUser } from '@/lib/auth'
 import { uploadFileToFirebase } from '@/lib/uploadToFirebase'
 import { deleteFileFromFirebase } from '@/lib/firebase'
 
-export async function PUT(request) {
+export async function PATCH(request) {
   try {
     const user = await getAuthUser(request, ['CALON_PENERIMA'])
     const formData = await request.formData()
@@ -23,6 +23,12 @@ export async function PUT(request) {
     // Get calon penerima
     const calon = await prisma.calonPenerima.findFirst({
       where: { userId: user.user?.id },
+      include: {
+        penilaian: {
+          where: { periode: { isActived: true } },
+          include: { dokumen: true },
+        },
+      },
     })
 
     if (!calon) {
@@ -61,25 +67,49 @@ export async function PUT(request) {
       }
     }
 
-    // Upload files first (outside transaction)
+    // Get existing documents
+    const existingDocuments = calon.penilaian[0]?.dokumen || []
+    const existingDocsMap = {}
+    existingDocuments.forEach(doc => {
+      existingDocsMap[doc.tipe_dokumen] = doc.fileUrl
+    })
+
+    // Prepare file uploads
     const fileUploads = {}
     const uploadPromises = []
 
-    const uploadFile = async (file, type) => {
-      if (!file) return
+    // Function to handle file upload
+    const handleFileUpload = async (file, type) => {
+      if (!file || file.size === 0) {
+        // If no new file uploaded, keep the existing one
+        if (existingDocsMap[type]) {
+          fileUploads[type] = existingDocsMap[type]
+        }
+        return
+      }
+
       try {
+        // Upload new file
         fileUploads[type] = await uploadFileToFirebase(file, type.toLowerCase())
+
+        // Delete old file if exists
+        if (existingDocsMap[type]) {
+          await deleteFileFromFirebase(existingDocsMap[type])
+        }
       } catch (error) {
         console.error(`Gagal upload ${type}:`, error)
         throw new Error(`Gagal mengunggah file ${type}`)
       }
     }
 
-    if (formData.has('KHS')) uploadPromises.push(uploadFile(formData.get('KHS'), 'KHS'))
-    if (formData.has('KRS')) uploadPromises.push(uploadFile(formData.get('KRS'), 'KRS'))
-    if (formData.has('SPP')) uploadPromises.push(uploadFile(formData.get('SPP'), 'SPP'))
+    // Process each document type
+    if (formData.has('KHS')) uploadPromises.push(handleFileUpload(formData.get('KHS'), 'KHS'))
+    if (formData.has('KRS')) uploadPromises.push(handleFileUpload(formData.get('KRS'), 'KRS'))
+    if (formData.has('SPP')) uploadPromises.push(handleFileUpload(formData.get('SPP'), 'SPP'))
     if (formData.has('PRESTASI'))
-      uploadPromises.push(uploadFile(formData.get('PRESTASI'), 'PRESTASI'))
+      uploadPromises.push(handleFileUpload(formData.get('PRESTASI'), 'PRESTASI'))
+    if (formData.has('ORGANISASI'))
+      uploadPromises.push(handleFileUpload(formData.get('ORGANISASI'), 'ORGANISASI'))
 
     await Promise.all(uploadPromises)
 
@@ -115,62 +145,32 @@ export async function PUT(request) {
           throw new Error('Gagal membuat record penilaian')
         }
 
-        // 4. Get existing documents to delete their files
-        const existingDocs = await prisma.dokumenPenilaian.findMany({
-          where: {
-            penilaian: {
-              calonPenerimaId: calon.id,
-              periodeId: activePeriode.id,
-            },
-          },
-          select: { fileUrl: true },
-        })
-
-        // 4. Delete existing documents
+        // 4. Delete all existing document records (we'll recreate them)
         await prisma.dokumenPenilaian.deleteMany({
           where: {
-            penilaian: {
-              calonPenerimaId: calon.id,
-              periodeId: activePeriode.id,
-            },
+            penilaianId: firstPenilaian.id,
           },
         })
 
-        const deletePromises = existingDocs.map(doc =>
-          doc.fileUrl ? deleteFileFromFirebase(doc.fileUrl) : Promise.resolve(true)
-        )
-        await Promise.all(deletePromises)
-
-        // 5. Create new document records
-        const dokumenData = []
-        if (fileUploads.KHS)
-          dokumenData.push({
-            penilaianId: firstPenilaian.id,
-            tipe_dokumen: 'KHS',
-            fileUrl: fileUploads.KHS,
-          })
-        if (fileUploads.KRS)
-          dokumenData.push({
-            penilaianId: firstPenilaian.id,
-            tipe_dokumen: 'KRS',
-            fileUrl: fileUploads.KRS,
-          })
-        if (fileUploads.SPP)
-          dokumenData.push({
-            penilaianId: firstPenilaian.id,
-            tipe_dokumen: 'SPP',
-            fileUrl: fileUploads.SPP,
-          })
-        if (fileUploads.PRESTASI)
-          dokumenData.push({
-            penilaianId: firstPenilaian.id,
-            tipe_dokumen: 'PRESTASI',
-            fileUrl: fileUploads.PRESTASI,
-          })
+        // 5. Create new document records for all document types
+        const dokumenData = [
+          { tipe_dokumen: 'KHS', fileUrl: fileUploads.KHS || existingDocsMap.KHS },
+          { tipe_dokumen: 'KRS', fileUrl: fileUploads.KRS || existingDocsMap.KRS },
+          { tipe_dokumen: 'SPP', fileUrl: fileUploads.SPP || existingDocsMap.SPP },
+          { tipe_dokumen: 'PRESTASI', fileUrl: fileUploads.PRESTASI || existingDocsMap.PRESTASI },
+          {
+            tipe_dokumen: 'ORGANISASI',
+            fileUrl: fileUploads.ORGANISASI || existingDocsMap.ORGANISASI,
+          },
+        ].filter(doc => doc.fileUrl) // Only include documents that have a file
 
         if (dokumenData.length > 0) {
           await prisma.dokumenPenilaian.createMany({
-            data: dokumenData,
+            data: dokumenData.map(doc => ({
+              penilaianId: firstPenilaian.id,
+              tipe_dokumen: doc.tipe_dokumen,
+              fileUrl: doc.fileUrl,
+            })),
           })
         }
 
