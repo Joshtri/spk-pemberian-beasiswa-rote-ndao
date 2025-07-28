@@ -241,7 +241,7 @@ export default function PeriodePage() {
  
       <DataTable
         title="Periode"
-        description="Kelola periode penilaian rumah layak huni"
+        description="Kelola periode penilaian penerimaan beasiswa"
         data={periodeData}
         columns={columns}
         searchKey="nama"
