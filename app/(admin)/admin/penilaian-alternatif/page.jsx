@@ -41,12 +41,12 @@ export default function PenilaianPage() {
   const [selectedPeriode, setSelectedPeriode] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(100)
   const [pagination, setPagination] = useState({
     total: 0,
     totalPages: 0,
     page: 1,
-    limit: 10,
+    limit: 9999,
   })
 
   const [selectedDoc, setSelectedDoc] = useState(null)

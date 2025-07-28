@@ -563,7 +563,7 @@ export default function CreatePenilaianPage() {
                           {(kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
                             kriteria.nama_kriteria.toLowerCase().includes('indeks')) && (
                             <div className="mt-2">
-                              <label className="text-sm">Isi IPK Anda</label>
+                              {/* <label className="text-sm">Isi IPK Anda</label>
                               <input
                                 type="number"
                                 step="0.01"
@@ -602,7 +602,7 @@ export default function CreatePenilaianPage() {
                                     handleSelectChange(kriteria.id, '') // reset pilihan
                                   }
                                 }}
-                              />
+                              /> */}
                             </div>
                           )}
                         </div>
@@ -666,6 +666,9 @@ export default function CreatePenilaianPage() {
                   onChange={e => handleFileChange(e, 'KHS')}
                   error={fileErrors.KHS}
                 />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Unggah KHS untuk semester terakhir yang sedang Anda jalani.
+                </p>
                 <div>
                   <FormField
                     label="Kartu Rencana Studi (KRS)"
