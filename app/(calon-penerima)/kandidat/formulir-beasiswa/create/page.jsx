@@ -395,44 +395,83 @@ export default function CreatePenilaianPage() {
                         </div>
 
                         <div>
-                          {/* Select dropdown for sub-kriteria (skip label if IPK) */}
-                          {!(
-                            kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
-                            kriteria.nama_kriteria.toLowerCase().includes('indeks')
-                          ) && (
-                            <label className="text-sm font-medium mb-1 block">
-                              Pilih {kriteria.nama_kriteria}
-                            </label>
-                          )}
+                          {kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                          kriteria.nama_kriteria.toLowerCase().includes('indeks') ? (
+                            // 👇 Ini input IPK + dynamic label
+                            <div className="mt-2">
+                              <label className="text-sm">Isi IPK Anda</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="4"
+                                className="mt-1 border px-3 py-2 rounded-md w-full"
+                                placeholder="Contoh: 3.75"
+                                value={ipkValue}
+                                onChange={e => {
+                                  const value = parseFloat(e.target.value)
+                                  setIpkValue(e.target.value)
 
-                          <Select
-                            value={formData[kriteria.id] || ''}
-                            onValueChange={value => handleSelectChange(kriteria.id, value)}
-                            disabled={
-                              kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
-                              kriteria.nama_kriteria.toLowerCase().includes('indeks')
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {currentSubKriteria.map(subKriteria => (
-                                <SelectItem
-                                  key={subKriteria.id}
-                                  value={subKriteria.id}
-                                  disabled={
-                                    kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
-                                    kriteria.nama_kriteria.toLowerCase().includes('indeks')
+                                  if (isNaN(value)) return
+
+                                  const matched = currentSubKriteria.find(sub => {
+                                    const label = sub.nama_sub_kriteria
+                                    if (label.includes('<')) return value < 3.0
+                                    if (label.includes('3.00') && label.includes('3.19'))
+                                      return value >= 3.0 && value <= 3.19
+                                    if (label.includes('3.20') && label.includes('3.39'))
+                                      return value >= 3.2 && value <= 3.39
+                                    if (label.includes('3.40') && label.includes('3.59'))
+                                      return value >= 3.4 && value <= 3.59
+                                    if (label.includes('3.60') && label.includes('4.00'))
+                                      return value >= 3.6 && value <= 4.0
+                                    return false
+                                  })
+
+                                  if (matched) {
+                                    handleSelectChange(kriteria.id, matched.id)
+                                  } else {
+                                    toast.warning('Nilai IPK tidak sesuai dengan kategori manapun')
+                                    handleSelectChange(kriteria.id, '')
                                   }
-                                >
-                                  {subKriteria.nama_sub_kriteria}
-                                  {/* - bobot:{' '}
-                                  {subKriteria.bobot_sub_kriteria} */}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                }}
+                              />
+
+                              {/* ✅ Tampilkan label subkriteria jika cocok */}
+                              {formData[kriteria.id] && (
+                                <div className="text-sm text-green-600 mt-2">
+                                  Kategori:{' '}
+                                  <span className="font-medium">
+                                    {currentSubKriteria.find(
+                                      sub => sub.id === formData[kriteria.id]
+                                    )?.nama_sub_kriteria || 'Tidak cocok dengan kategori manapun'}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            // 👇 Ini SELECT untuk kriteria non-IPK
+                            <div>
+                              <label className="text-sm font-medium mb-1 block">
+                                Pilih {kriteria.nama_kriteria}
+                              </label>
+                              <Select
+                                value={formData[kriteria.id] || ''}
+                                onValueChange={value => handleSelectChange(kriteria.id, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {currentSubKriteria.map(subKriteria => (
+                                    <SelectItem key={subKriteria.id} value={subKriteria.id}>
+                                      {subKriteria.nama_sub_kriteria}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
 
                           {/* Input manual untuk Semester */}
                           {kriteria.nama_kriteria.toLowerCase().includes('semester') && (

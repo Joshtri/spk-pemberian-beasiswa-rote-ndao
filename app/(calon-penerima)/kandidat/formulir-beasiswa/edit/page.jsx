@@ -209,6 +209,78 @@ export default function EditPenilaianPage() {
     return true
   }
 
+  const renderIPKInput = kriteria => {
+    const currentSubKriteria = kriteria.subKriteria || []
+
+    return (
+      <div className="space-y-2">
+        <div>
+          <label className="text-sm font-medium">Isi IPK Anda (0.00 - 4.00)</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="4"
+            className="mt-1 border px-3 py-2 rounded-md w-full"
+            placeholder="Contoh: 3.75"
+            onChange={e => {
+              const value = parseFloat(e.target.value)
+
+              const matched = currentSubKriteria.find(sub => {
+                const label = sub.nama_sub_kriteria
+                if (label.includes('<')) return value < 3.0
+                if (label.includes('3.00') && label.includes('3.19'))
+                  return value >= 3.0 && value <= 3.19
+                if (label.includes('3.20') && label.includes('3.39'))
+                  return value >= 3.2 && value <= 3.39
+                if (label.includes('3.40') && label.includes('3.59'))
+                  return value >= 3.4 && value <= 3.59
+                if (label.includes('3.60') && label.includes('4.00'))
+                  return value >= 3.6 && value <= 4.0
+                return false
+              })
+
+              if (matched) {
+                handleSelectChange(kriteria.id, matched.id)
+              } else {
+                handleSelectChange(kriteria.id, '')
+                toast.warning('Nilai IPK tidak sesuai kategori manapun')
+              }
+            }}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Atau pilih dari daftar:</label>
+          <Select
+            value={formData[kriteria.id] || ''}
+            onValueChange={value => handleSelectChange(kriteria.id, value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih kategori IPK" />
+            </SelectTrigger>
+            <SelectContent>
+              {currentSubKriteria.map(sub => (
+                <SelectItem key={sub.id} value={sub.id}>
+                  {sub.nama_sub_kriteria}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {formData[kriteria.id] && (
+          <div className="text-sm text-green-600">
+            Kategori:{' '}
+            <span className="font-medium">
+              {currentSubKriteria.find(s => s.id === formData[kriteria.id])?.nama_sub_kriteria}
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const handleSelectChange = (kriteriaId, subKriteriaId) => {
     setFormData(prev => ({ ...prev, [kriteriaId]: subKriteriaId }))
   }
@@ -448,6 +520,9 @@ export default function EditPenilaianPage() {
                     if (kriteria.id !== activeKriteria) return null
 
                     const currentSubKriteria = kriteria.subKriteria || []
+                    const isIPK =
+                      kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
+                      kriteria.nama_kriteria.toLowerCase().includes('indeks')
 
                     return (
                       <div key={kriteria.id} className="space-y-4">
@@ -463,32 +538,105 @@ export default function EditPenilaianPage() {
                           </p>
                         </div>
 
-                        <div>
-                          <label className="text-sm font-medium mb-1 block">
-                            Pilih {kriteria.nama_kriteria}
-                          </label>
-                          <Select
-                            value={formData[kriteria.id] || ''}
-                            onValueChange={value => handleSelectChange(kriteria.id, value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {currentSubKriteria.map(subKriteria => (
-                                <SelectItem key={subKriteria.id} value={subKriteria.id}>
-                                  {subKriteria.nama_sub_kriteria} - bobot:{' '}
-                                  {subKriteria.bobot_sub_kriteria}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        {isIPK ? (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-sm font-medium">
+                                Isi IPK Anda (0.00 - 4.00)
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="4"
+                                className="mt-1 border px-3 py-2 rounded-md w-full"
+                                placeholder="Contoh: 3.75"
+                                onChange={e => {
+                                  const value = parseFloat(e.target.value)
+                                  const matched = currentSubKriteria.find(sub => {
+                                    const label = sub.nama_sub_kriteria
+                                    if (label.includes('<')) return value < 3.0
+                                    if (label.includes('3.00') && label.includes('3.19'))
+                                      return value >= 3.0 && value <= 3.19
+                                    if (label.includes('3.20') && label.includes('3.39'))
+                                      return value >= 3.2 && value <= 3.39
+                                    if (label.includes('3.40') && label.includes('3.59'))
+                                      return value >= 3.4 && value <= 3.59
+                                    if (label.includes('3.60') && label.includes('4.00'))
+                                      return value >= 3.6 && value <= 4.0
+                                    return false
+                                  })
+
+                                  if (matched) {
+                                    handleSelectChange(kriteria.id, matched.id)
+                                  } else {
+                                    handleSelectChange(kriteria.id, '')
+                                    toast.warning('Nilai IPK tidak sesuai kategori manapun')
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            <div>
+                              {/* <label className="text-sm font-medium">Atau pilih dari daftar:</label>
+                              <Select
+                                value={formData[kriteria.id] || ''}
+                                onValueChange={value => handleSelectChange(kriteria.id, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih kategori IPK" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {currentSubKriteria.map(sub => (
+                                    <SelectItem key={sub.id} value={sub.id}>
+                                      {sub.nama_sub_kriteria}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select> */}
+                            </div>
+
+                            {formData[kriteria.id] && (
+                              <div className="text-sm text-green-600">
+                                Kategori:{' '}
+                                <span className="font-medium">
+                                  {
+                                    currentSubKriteria.find(s => s.id === formData[kriteria.id])
+                                      ?.nama_sub_kriteria
+                                  }
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <label className="text-sm font-medium mb-1 block">
+                              Pilih {kriteria.nama_kriteria}
+                            </label>
+                            <Select
+                              value={formData[kriteria.id] || ''}
+                              onValueChange={value => handleSelectChange(kriteria.id, value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {currentSubKriteria.map(subKriteria => (
+                                  <SelectItem key={subKriteria.id} value={subKriteria.id}>
+                                    {subKriteria.nama_sub_kriteria} - bobot:{' '}
+                                    {subKriteria.bobot_sub_kriteria}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
                 </div>
               </CardContent>
+
               <CardFooter className="flex justify-between border-t pt-4">
                 <div className="flex gap-2">
                   <Button
