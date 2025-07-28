@@ -108,6 +108,14 @@ export async function POST(request) {
             fileUrl: fileUploads.PRESTASI,
           })
 
+        if(fileUploads.ORGANISASI){
+          dokumenData.push({
+            penilaianId: firstPenilaian.id,
+            tipe_dokumen: 'ORGANISASI',
+            fileUrl: fileUploads.ORGANISASI,
+          })
+        }
+
         if (dokumenData.length > 0) {
           await prisma.dokumenPenilaian.createMany({
             data: dokumenData,
