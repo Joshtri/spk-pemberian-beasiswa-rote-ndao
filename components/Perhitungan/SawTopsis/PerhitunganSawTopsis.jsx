@@ -23,7 +23,10 @@ import NilaiPreferensi from './Topsis/NilaiPreferensi'
 
 export default function PerhitunganSawTopsis() {
   const [penilaian, setPenilaian] = useState([])
+
+  //untuk dapat data kriteria.
   const [kriteria, setKriteria] = useState([])
+
   const [periode, setPeriode] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -63,7 +66,21 @@ export default function PerhitunganSawTopsis() {
         })
 
         setPenilaian(res.data.penilaian)
-        setKriteria(res.data.kriteria)
+
+        // ✅ Urutkan kriteria berdasarkan ID agar tidak tertukar
+        const orderedKriteriaIds = [
+          'krt_82cc0d99-cf80-4d87-869b-ba709e686516', // IPK
+          'krt_13007121-29ac-4dbc-a6fa-2da0a513535f', // Prestasi Lainnya
+          'krt_0bf648a3-7b84-4ca2-a6e5-bb82224b65f3', // Keikutsertaan organisasi mahasiswa
+          'krt_3ef04d9e-e621-40ad-94a8-c1c35aa9aaf7', // SPP
+          'krt_1b8670de-3a52-4136-bfc0-2b156273e8c7', // Semester
+        ]
+
+        const sortedKriteria = res.data.kriteria
+          .slice()
+          .sort((a, b) => orderedKriteriaIds.indexOf(a.id) - orderedKriteriaIds.indexOf(b.id))
+
+        setKriteria(sortedKriteria)
       } catch (error) {
         console.error('Gagal fetch data perhitungan:', error)
       } finally {
@@ -112,7 +129,7 @@ export default function PerhitunganSawTopsis() {
         kriteria.forEach(krit => {
           const raw = alt.penilaian[krit.id] || 0
           const norm =
-            krit.tipe_kriteria === 'BENEFIT' ? raw / maxValues[krit.id] : minValues[krit.id] / raw
+            krit.tipe_kriteria === 'BENEFIT' ? raw / maxValues[krit.id] :  raw /minValues[krit.id]
           normMatrix[altId].penilaian[krit.id] = norm
         })
       })
@@ -127,7 +144,8 @@ export default function PerhitunganSawTopsis() {
           penilaian: {},
         }
         kriteria.forEach(krit => {
-          const bobot = krit.bobot_kriteria > 1 ? krit.bobot_kriteria / 100 : krit.bobot_kriteria
+          // const bobot = krit.bobot_kriteria > 1 ? krit.bobot_kriteria / 100 : krit.bobot_kriteria
+          const bobot = krit.bobot_kriteria
           const nilai = alt.penilaian[krit.id] * bobot
           weightMatrix[altId].penilaian[krit.id] = nilai
         })
