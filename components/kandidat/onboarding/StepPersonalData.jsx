@@ -67,59 +67,6 @@ export default function StepPersonalData() {
           error={errors.rt_rw?.message}
           {...register('rt_rw', { required: 'RT/RW wajib diisi' })}
         />
-        {/* Kelurahan/Desa Combobox */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Kelurahan/Desa</label>
-          <Popover open={openDesa} onOpenChange={setOpenDesa}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openDesa}
-                disabled={!selectedKecamatan}
-                className="w-full justify-between"
-              >
-                {selectedDesa || 'Pilih kelurahan/desa...'}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0 max-h-60 overflow-auto">
-              <Command>
-                <CommandInput placeholder="Cari kelurahan/desa..." />
-                <CommandList>
-                  <CommandEmpty>Tidak ditemukan.</CommandEmpty>
-                  <CommandGroup>
-                    {desaOptions.map(item => (
-                      <CommandItem
-                        key={item}
-                        value={item}
-                        onSelect={() => {
-                          setValue('kelurahan_desa', item, { shouldValidate: true })
-                          setOpenDesa(false)
-                        }}
-                      >
-                        {item}
-                        <Check
-                          className={cn(
-                            'ml-auto h-4 w-4',
-                            selectedDesa === item ? 'opacity-100' : 'opacity-0'
-                          )}
-                        />
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <input
-            type="hidden"
-            {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib dipilih' })}
-          />
-          {errors.kelurahan_desa?.message && (
-            <p className="text-sm text-red-500">{errors.kelurahan_desa.message}</p>
-          )}
-        </div>
 
         {/* Kecamatan Combobox */}
         <div className="space-y-1">
@@ -173,6 +120,59 @@ export default function StepPersonalData() {
           />
           {errors.kecamatan?.message && (
             <p className="text-sm text-red-500">{errors.kecamatan.message}</p>
+          )}
+        </div>
+        {/* Kelurahan/Desa Combobox */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Kelurahan/Desa</label>
+          <Popover open={openDesa} onOpenChange={setOpenDesa}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={openDesa}
+                disabled={!selectedKecamatan}
+                className="w-full justify-between"
+              >
+                {selectedDesa || 'Pilih kelurahan/desa...'}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0 max-h-60 overflow-auto">
+              <Command>
+                <CommandInput placeholder="Cari kelurahan/desa..." />
+                <CommandList>
+                  <CommandEmpty>Tidak ditemukan.</CommandEmpty>
+                  <CommandGroup>
+                    {desaOptions.map(item => (
+                      <CommandItem
+                        key={item}
+                        value={item}
+                        onSelect={() => {
+                          setValue('kelurahan_desa', item, { shouldValidate: true })
+                          setOpenDesa(false)
+                        }}
+                      >
+                        {item}
+                        <Check
+                          className={cn(
+                            'ml-auto h-4 w-4',
+                            selectedDesa === item ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <input
+            type="hidden"
+            {...register('kelurahan_desa', { required: 'Kelurahan/Desa wajib dipilih' })}
+          />
+          {errors.kelurahan_desa?.message && (
+            <p className="text-sm text-red-500">{errors.kelurahan_desa.message}</p>
           )}
         </div>
 
