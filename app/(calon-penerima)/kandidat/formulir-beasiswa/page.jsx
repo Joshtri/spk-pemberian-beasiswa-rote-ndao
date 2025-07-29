@@ -305,9 +305,9 @@ export default function PenilaianPage() {
                       <p className="text-sm font-medium">Nilai yang dipilih:</p>
                       <p className="text-sm mt-1">
                         {subKriteria.nama_sub_kriteria}
-                        <span className="text-muted-foreground ml-1">
+                        {/* <span className="text-muted-foreground ml-1">
                           (bobot: {subKriteria.bobot_sub_kriteria})
-                        </span>
+                        </span> */}
                       </p>
                     </div>
                   </div>

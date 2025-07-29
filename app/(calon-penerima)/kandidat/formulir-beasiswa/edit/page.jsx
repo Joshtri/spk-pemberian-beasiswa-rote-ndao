@@ -34,6 +34,7 @@ import { toast } from 'sonner'
 import { File, Upload } from 'lucide-react'
 import FormField from '@/components/ui/form-field'
 import axios from 'axios'
+import AutocompleteInput from '@/components/AutocompleteInput'
 
 export default function EditPenilaianPage() {
   const router = useRouter()
@@ -45,6 +46,8 @@ export default function EditPenilaianPage() {
   const [activePeriode, setActivePeriode] = useState(null)
   const [calonPenerima, setCalonPenerima] = useState(null)
   const [error, setError] = useState(null)
+  const [ipkValue, setIpkValue] = useState('')
+
   const [currentPeriodStatus, setCurrentPeriodStatus] = useState({
     isSamePeriod: false,
     isRegistrationOpen: false,
@@ -515,7 +518,7 @@ export default function EditPenilaianPage() {
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-4 mb-3">
                   {kriteriaList.map(kriteria => {
                     if (kriteria.id !== activeKriteria) return null
 
@@ -523,6 +526,8 @@ export default function EditPenilaianPage() {
                     const isIPK =
                       kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
                       kriteria.nama_kriteria.toLowerCase().includes('indeks')
+                    const isSPP = kriteria.nama_kriteria.toLowerCase().includes('spp')
+                    const isSemester = kriteria.nama_kriteria.toLowerCase().includes('semester')
 
                     return (
                       <div key={kriteria.id} className="space-y-4">
@@ -540,74 +545,71 @@ export default function EditPenilaianPage() {
 
                         {isIPK ? (
                           <div className="space-y-4">
-                            <div>
-                              <label className="text-sm font-medium">
-                                Isi IPK Anda (0.00 - 4.00)
-                              </label>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                max="4"
-                                className="mt-1 border px-3 py-2 rounded-md w-full"
-                                placeholder="Contoh: 3.75"
-                                onChange={e => {
-                                  const value = parseFloat(e.target.value)
-                                  const matched = currentSubKriteria.find(sub => {
-                                    const label = sub.nama_sub_kriteria
-                                    if (label.includes('<')) return value < 3.0
-                                    if (label.includes('3.00') && label.includes('3.19'))
-                                      return value >= 3.0 && value <= 3.19
-                                    if (label.includes('3.20') && label.includes('3.39'))
-                                      return value >= 3.2 && value <= 3.39
-                                    if (label.includes('3.40') && label.includes('3.59'))
-                                      return value >= 3.4 && value <= 3.59
-                                    if (label.includes('3.60') && label.includes('4.00'))
-                                      return value >= 3.6 && value <= 4.0
-                                    return false
-                                  })
+                            <label className="text-sm font-medium">
+                              Isi IPK Anda (0.00 - 4.00)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="4"
+                              className="mt-1 border px-3 py-2 rounded-md w-full"
+                              placeholder="Contoh: 3.75"
+                              value={ipkValue}
+                              onChange={e => {
+                                const value = parseFloat(e.target.value)
+                                setIpkValue(e.target.value)
 
-                                  if (matched) {
-                                    handleSelectChange(kriteria.id, matched.id)
-                                  } else {
-                                    handleSelectChange(kriteria.id, '')
-                                    toast.warning('Nilai IPK tidak sesuai kategori manapun')
-                                  }
-                                }}
-                              />
-                            </div>
+                                const matched = currentSubKriteria.find(sub => {
+                                  const label = sub.nama_sub_kriteria
+                                  if (label.includes('<')) return value < 3.0
+                                  if (label.includes('3.00') && label.includes('3.19'))
+                                    return value >= 3.0 && value <= 3.19
+                                  if (label.includes('3.20') && label.includes('3.39'))
+                                    return value >= 3.2 && value <= 3.39
+                                  if (label.includes('3.40') && label.includes('3.59'))
+                                    return value >= 3.4 && value <= 3.59
+                                  if (label.includes('3.60') && label.includes('4.00'))
+                                    return value >= 3.6 && value <= 4.0
+                                  return false
+                                })
 
-                            <div>
-                              {/* <label className="text-sm font-medium">Atau pilih dari daftar:</label>
-                              <Select
-                                value={formData[kriteria.id] || ''}
-                                onValueChange={value => handleSelectChange(kriteria.id, value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Pilih kategori IPK" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {currentSubKriteria.map(sub => (
-                                    <SelectItem key={sub.id} value={sub.id}>
-                                      {sub.nama_sub_kriteria}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select> */}
-                            </div>
+                                if (matched) {
+                                  handleSelectChange(kriteria.id, matched.id)
+                                } else {
+                                  handleSelectChange(kriteria.id, '')
+                                  toast.warning('Nilai IPK tidak sesuai kategori manapun')
+                                }
+                              }}
+                            />
 
                             {formData[kriteria.id] && (
                               <div className="text-sm text-green-600">
                                 Kategori:{' '}
                                 <span className="font-medium">
-                                  {
-                                    currentSubKriteria.find(s => s.id === formData[kriteria.id])
-                                      ?.nama_sub_kriteria
-                                  }
+                                  {currentSubKriteria.find(s => s.id === formData[kriteria.id])
+                                    ?.nama_sub_kriteria || 'Tidak cocok'}
                                 </span>
                               </div>
                             )}
                           </div>
+                        ) : isSPP || isSemester ? (
+                          <AutocompleteInput
+                            label={
+                              isSPP
+                                ? 'Pilih Rentang SPP'
+                                : isSemester
+                                  ? 'Pilih Semester Anda'
+                                  : `Pilih ${kriteria.nama_kriteria}`
+                            }
+                            options={currentSubKriteria.map(sub => ({
+                              id: sub.id,
+                              label: sub.nama_sub_kriteria,
+                            }))}
+                            value={formData[kriteria.id] || ''}
+                            onChange={val => handleSelectChange(kriteria.id, val)}
+                            placeholder={`Pilih ${kriteria.nama_kriteria}`}
+                          />
                         ) : (
                           <div>
                             <label className="text-sm font-medium mb-1 block">
@@ -621,10 +623,9 @@ export default function EditPenilaianPage() {
                                 <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
                               </SelectTrigger>
                               <SelectContent>
-                                {currentSubKriteria.map(subKriteria => (
-                                  <SelectItem key={subKriteria.id} value={subKriteria.id}>
-                                    {subKriteria.nama_sub_kriteria} - bobot:{' '}
-                                    {subKriteria.bobot_sub_kriteria}
+                                {currentSubKriteria.map(sub => (
+                                  <SelectItem key={sub.id} value={sub.id}>
+                                    {sub.nama_sub_kriteria}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -717,8 +718,9 @@ export default function EditPenilaianPage() {
                     </div>
                     {selectedSubKriteria ? (
                       <p className="text-sm">
-                        {selectedSubKriteria.nama_sub_kriteria} - bobot:{' '}
-                        {selectedSubKriteria.bobot_sub_kriteria}
+                        {selectedSubKriteria.nama_sub_kriteria}
+                        {/* - bobot:{' '}
+                        {selectedSubKriteria.bobot_sub_kriteria} */}
                       </p>
                     ) : (
                       <p className="text-sm text-muted-foreground italic">Belum ada data</p>
@@ -752,6 +754,7 @@ export default function EditPenilaianPage() {
               {/* KRS */}
               <div>
                 <FormField
+                  description="  Unggah KRS untuk semester terakhir yang sedang Anda jalani."
                   label="Kartu Rencana Studi (KRS)"
                   name="krs"
                   type="file"
@@ -759,6 +762,7 @@ export default function EditPenilaianPage() {
                   onChange={e => handleFileChange(e, 'KRS')}
                   error={fileErrors.KRS}
                 />
+
                 {filePreviews.KRS && (
                   <div className="mt-2 flex items-center gap-2 text-sm">
                     <a
@@ -810,6 +814,7 @@ export default function EditPenilaianPage() {
                   required={false}
                   onChange={e => handleFileChange(e, 'KHS')}
                   error={fileErrors.KHS}
+                  description="Unggah KHS untuk semester terakhir yang sedang Anda jalani."
                 />
                 {filePreviews.KHS && (
                   <div className="mt-2 flex items-center gap-2 text-sm">

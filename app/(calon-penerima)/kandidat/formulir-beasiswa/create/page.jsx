@@ -32,6 +32,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
 import FormField from '@/components/ui/form-field'
+import AutocompleteInput from '@/components/AutocompleteInput'
 
 export default function CreatePenilaianPage() {
   const router = useRouter()
@@ -373,10 +374,10 @@ export default function CreatePenilaianPage() {
                 <CardDescription>Pilih nilai yang sesuai dengan kondisi Anda</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-4 mb-3">
                   {kriteriaList.map(kriteria => {
                     if (kriteria.id !== activeKriteria) return null
-
+                    const name = kriteria.nama_kriteria.toLowerCase()
                     const currentSubKriteria = kriteria.subKriteria || []
 
                     return (
@@ -385,72 +386,99 @@ export default function CreatePenilaianPage() {
                           <h3 className="font-medium text-sm mb-2">Deskripsi Kriteria</h3>
                           <p className="text-sm text-muted-foreground">
                             {kriteria.keterangan || `Kriteria ${kriteria.nama_kriteria}`}
-                            {/*  // `Kriteria ${kriteria.nama_kriteria} dengan bobot ${kriteria.bobot_kriteria}`}
-                             */}
                           </p>
-                          {/* <p className="text-sm text-muted-foreground mt-2">
-                            <span className="font-medium">Tipe Kriteria:</span>{' '}
-                            {kriteria.tipe_kriteria}
-                          </p> */}
                         </div>
 
-                        <div>
-                          {kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
-                          kriteria.nama_kriteria.toLowerCase().includes('indeks') ? (
-                            // 👇 Ini input IPK + dynamic label
-                            <div className="mt-2">
-                              <label className="text-sm">Isi IPK Anda</label>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                max="4"
-                                className="mt-1 border px-3 py-2 rounded-md w-full"
-                                placeholder="Contoh: 3.75"
-                                value={ipkValue}
-                                onChange={e => {
-                                  const value = parseFloat(e.target.value)
-                                  setIpkValue(e.target.value)
+                        {/* Input sesuai jenis kriteria */}
+                        {(() => {
+                          if (name.includes('ipk') || name.includes('indeks')) {
+                            return (
+                              <div className="mt-2">
+                                <label className="text-sm">Isi IPK Anda</label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  max="4"
+                                  className="mt-1 border px-3 py-2 rounded-md w-full"
+                                  placeholder="Contoh: 3.75"
+                                  value={ipkValue}
+                                  onChange={e => {
+                                    const value = parseFloat(e.target.value)
+                                    setIpkValue(e.target.value)
 
-                                  if (isNaN(value)) return
+                                    if (isNaN(value)) return
 
-                                  const matched = currentSubKriteria.find(sub => {
-                                    const label = sub.nama_sub_kriteria
-                                    if (label.includes('<')) return value < 3.0
-                                    if (label.includes('3.00') && label.includes('3.19'))
-                                      return value >= 3.0 && value <= 3.19
-                                    if (label.includes('3.20') && label.includes('3.39'))
-                                      return value >= 3.2 && value <= 3.39
-                                    if (label.includes('3.40') && label.includes('3.59'))
-                                      return value >= 3.4 && value <= 3.59
-                                    if (label.includes('3.60') && label.includes('4.00'))
-                                      return value >= 3.6 && value <= 4.0
-                                    return false
-                                  })
+                                    const matched = currentSubKriteria.find(sub => {
+                                      const label = sub.nama_sub_kriteria
+                                      if (label.includes('<')) return value < 3.0
+                                      if (label.includes('3.00') && label.includes('3.19'))
+                                        return value >= 3.0 && value <= 3.19
+                                      if (label.includes('3.20') && label.includes('3.39'))
+                                        return value >= 3.2 && value <= 3.39
+                                      if (label.includes('3.40') && label.includes('3.59'))
+                                        return value >= 3.4 && value <= 3.59
+                                      if (label.includes('3.60') && label.includes('4.00'))
+                                        return value >= 3.6 && value <= 4.0
+                                      return false
+                                    })
 
-                                  if (matched) {
-                                    handleSelectChange(kriteria.id, matched.id)
-                                  } else {
-                                    toast.warning('Nilai IPK tidak sesuai dengan kategori manapun')
-                                    handleSelectChange(kriteria.id, '')
-                                  }
-                                }}
+                                    if (matched) {
+                                      handleSelectChange(kriteria.id, matched.id)
+                                    } else {
+                                      toast.warning(
+                                        'Nilai IPK tidak sesuai dengan kategori manapun'
+                                      )
+                                      handleSelectChange(kriteria.id, '')
+                                    }
+                                  }}
+                                />
+                                {formData[kriteria.id] && (
+                                  <div className="text-sm text-green-600 mt-2">
+                                    Kategori:{' '}
+                                    <span className="font-medium">
+                                      {currentSubKriteria.find(
+                                        sub => sub.id === formData[kriteria.id]
+                                      )?.nama_sub_kriteria || 'Tidak cocok dengan kategori manapun'}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
+
+                          if (name.includes('semester')) {
+                            return (
+                              <AutocompleteInput
+                                label="Pilih Semester Anda"
+                                options={currentSubKriteria.map(sub => ({
+                                  id: sub.id,
+                                  label: sub.nama_sub_kriteria,
+                                }))}
+                                value={formData[kriteria.id] || ''}
+                                onChange={val => handleSelectChange(kriteria.id, val)}
+                                placeholder="Pilih semester"
                               />
+                            )
+                          }
 
-                              {/* ✅ Tampilkan label subkriteria jika cocok */}
-                              {formData[kriteria.id] && (
-                                <div className="text-sm text-green-600 mt-2">
-                                  Kategori:{' '}
-                                  <span className="font-medium">
-                                    {currentSubKriteria.find(
-                                      sub => sub.id === formData[kriteria.id]
-                                    )?.nama_sub_kriteria || 'Tidak cocok dengan kategori manapun'}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            // 👇 Ini SELECT untuk kriteria non-IPK
+                          if (name.includes('spp')) {
+                            return (
+                              <AutocompleteInput
+                                label="Pilih Rentang SPP"
+                                options={currentSubKriteria.map(sub => ({
+                                  id: sub.id,
+                                  label: sub.nama_sub_kriteria,
+                                }))}
+                                value={formData[kriteria.id] || ''}
+                                onChange={val => handleSelectChange(kriteria.id, val)}
+                                placeholder="Pilih jumlah SPP"
+                              />
+                            )
+                          }
+
+                          // Default input: SELECT biasa
+                          return (
                             <div>
                               <label className="text-sm font-medium mb-1 block">
                                 Pilih {kriteria.nama_kriteria}
@@ -463,154 +491,22 @@ export default function CreatePenilaianPage() {
                                   <SelectValue placeholder={`Pilih ${kriteria.nama_kriteria}`} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {currentSubKriteria.map(subKriteria => (
-                                    <SelectItem key={subKriteria.id} value={subKriteria.id}>
-                                      {subKriteria.nama_sub_kriteria}
+                                  {currentSubKriteria.map(sub => (
+                                    <SelectItem key={sub.id} value={sub.id}>
+                                      {sub.nama_sub_kriteria}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </div>
-                          )}
-
-                          {/* Input manual untuk Semester */}
-                          {kriteria.nama_kriteria.toLowerCase().includes('semester') && (
-                            <div className="mt-2">
-                              <label className="text-sm">Isi Semester Anda</label>
-                              <input
-                                type="number"
-                                min="1"
-                                max="8"
-                                className="mt-1 border px-3 py-2 rounded-md w-full"
-                                placeholder="Contoh: 3"
-                                onChange={e => {
-                                  const value = parseInt(e.target.value)
-                                  if (isNaN(value) || value < 1 || value > 8) {
-                                    toast.warning('Semester hanya valid antara 1 - 8')
-                                    handleSelectChange(kriteria.id, '')
-                                    return
-                                  }
-
-                                  const matched = currentSubKriteria.find(sub =>
-                                    sub.nama_sub_kriteria.includes(`${value}`)
-                                  )
-
-                                  if (matched) {
-                                    handleSelectChange(kriteria.id, matched.id)
-                                  } else {
-                                    toast.warning('Semester tidak sesuai rentang subkriteria')
-                                    handleSelectChange(kriteria.id, '')
-                                  }
-                                }}
-                              />
-                            </div>
-                          )}
-
-                          {/* Input manual untuk SPP */}
-                          {kriteria.nama_kriteria.toLowerCase().includes('spp') && (
-                            <div className="mt-2">
-                              <label className="text-sm">Isi Jumlah SPP Anda (Rp)</label>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                className="mt-1 border px-3 py-2 rounded-md w-full"
-                                placeholder="Contoh: 1.500.000"
-                                onChange={e => {
-                                  // Hapus titik & karakter non-digit
-                                  const raw = e.target.value.replace(/\./g, '').replace(/\D/g, '')
-                                  const value = parseInt(raw)
-
-                                  // Format kembali ke nominal dengan titik
-                                  const formatted = new Intl.NumberFormat('id-ID').format(
-                                    value || 0
-                                  )
-                                  e.target.value = formatted // tampilkan angka format
-
-                                  if (isNaN(value)) {
-                                    handleSelectChange(kriteria.id, '')
-                                    return
-                                  }
-
-                                  const matched = currentSubKriteria.find(sub => {
-                                    const nama = sub.nama_sub_kriteria
-                                      .replace(/\./g, '')
-                                      .replace(/RP|Rp/gi, '')
-                                      .replace(/\s/g, '')
-                                    if (nama.includes('≤999000')) return value <= 999000
-                                    if (nama.includes('≥4000000')) return value >= 4000000
-
-                                    const matchRange = nama.match(/(\d+)-(\d+)/)
-                                    if (matchRange) {
-                                      const [_, min, max] = matchRange
-                                      return value >= parseInt(min) && value <= parseInt(max)
-                                    }
-
-                                    return false
-                                  })
-
-                                  if (matched) {
-                                    handleSelectChange(kriteria.id, matched.id)
-                                  } else {
-                                    toast.warning('Nilai SPP tidak sesuai rentang yang tersedia.')
-                                    handleSelectChange(kriteria.id, '')
-                                  }
-                                }}
-                              />
-                            </div>
-                          )}
-
-                          {/* Input Manual IPK */}
-                          {(kriteria.nama_kriteria.toLowerCase().includes('ipk') ||
-                            kriteria.nama_kriteria.toLowerCase().includes('indeks')) && (
-                            <div className="mt-2">
-                              {/* <label className="text-sm">Isi IPK Anda</label>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                max="4"
-                                className="mt-1 border px-3 py-2 rounded-md w-full"
-                                placeholder="Contoh: 3.75"
-                                value={ipkValue}
-                                onChange={e => {
-                                  const value = parseFloat(e.target.value)
-                                  setIpkValue(e.target.value)
-
-                                  if (isNaN(value)) return
-
-                                  const matched = currentSubKriteria.find(sub => {
-                                    const label = sub.nama_sub_kriteria
-                                    if (label.includes('<')) return value < 3.0
-                                    if (label.includes('3.00') && label.includes('3.19'))
-                                      return value >= 3.0 && value <= 3.19
-                                    if (label.includes('3.20') && label.includes('3.39'))
-                                      return value >= 3.2 && value <= 3.39
-                                    if (label.includes('3.40') && label.includes('3.59'))
-                                      return value >= 3.4 && value <= 3.59
-                                    if (label.includes('3.60') && label.includes('4.00'))
-                                      return value >= 3.6 && value <= 4.0
-                                    return false
-                                  })
-
-                                  if (matched) {
-                                    handleSelectChange(kriteria.id, matched.id)
-                                  } else {
-                                    // Nilai tidak valid untuk range yang tersedia
-                                    toast.warning(
-                                      'Nilai IPK tidak sesuai dengan rentang yang tersedia.'
-                                    )
-                                    handleSelectChange(kriteria.id, '') // reset pilihan
-                                  }
-                                }}
-                              /> */}
-                            </div>
-                          )}
-                        </div>
+                          )
+                        })()}
                       </div>
                     )
                   })}
                 </div>
               </CardContent>
+
               <CardFooter className="flex justify-between border-t pt-4">
                 <div className="flex gap-2">
                   <Button
@@ -749,8 +645,8 @@ export default function CreatePenilaianPage() {
                       </div>
                       {selectedSubKriteria ? (
                         <p className="text-sm">
-                          {selectedSubKriteria.nama_sub_kriteria} - bobot:{' '}
-                          {selectedSubKriteria.bobot_sub_kriteria}
+                          {selectedSubKriteria.nama_sub_kriteria}
+                          {/* {selectedSubKriteria.bobot_sub_kriteria} */}
                         </p>
                       ) : (
                         <p className="text-sm text-muted-foreground italic">Belum ada data</p>
